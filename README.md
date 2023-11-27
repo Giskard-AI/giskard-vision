@@ -34,5 +34,5 @@ From https://paperswithcode.com/task/facial-landmark-detection
 ## Metrics
 - [x] MED (Mean euclidean distances)
 - [x] NMED (Normalised euclidean distances)
-- [] MAE (Mean absolute error)
-- [] RMSE (Root-square Mean absolute error)
+- [ ] MAE (Mean absolute error)
+- [ ] RMSE (Root-square Mean absolute error)
