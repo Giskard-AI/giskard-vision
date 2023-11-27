@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "loreal-poc"
+version = "2023.11.27"
+description = "Assessing the quality of L'Oreal's facial landmark models"
+authors = [
+    {name = "Rabah Abdul Khalek", email = "rabah@giskard.ai"},
+]
+dependencies = [
+    "pillow>=10.1.0",
+    "numpy",
+    "pandas",
+]
+requires-python = ">=3.10"
+readme = "README.md"
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "face-alignment",
+    "jupyter",
+    "matplotlib",
+    "black>=23.7.0",
+    "pytest>=7.4.0",
+    "pip>=23.2.1",
+]

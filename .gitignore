@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 .idea
 *.iml
+300W
 
 # C extensions
 *.so
