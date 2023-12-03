@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["cross_platform"]
 lock_version = "4.4"
-content_hash = "sha256:57f86ae67fb669ac72a36cc94855b38333d53c5e1c9315c964130ce48f47db6e"
+content_hash = "sha256:77e89a516fa854b09f85e456e079aea320676e6d407f1b38255eb98aba7bf92f"
 
 [[package]]
 name = "anyio"
@@ -130,9 +130,6 @@ name = "babel"
 version = "2.13.1"
 requires_python = ">=3.7"
 summary = "Internationalization utilities"
-dependencies = [
-    "setuptools; python_version >= \"3.12\"",
-]
 files = [
     {file = "Babel-2.13.1-py3-none-any.whl", hash = "sha256:7077a4984b02b6727ac10f1f7294484f737443d7e2e66c5e4380e41a3ae0b4ed"},
     {file = "Babel-2.13.1.tar.gz", hash = "sha256:33e0952d7dd6374af8dbf6768cc4ddf3ccfefc244f9986d4074704f2fbd18900"},
@@ -1571,7 +1568,6 @@ summary = "Powerful data structures for data analysis, time series, and statisti
 dependencies = [
     "numpy<2,>=1.22.4; python_version < \"3.11\"",
     "numpy<2,>=1.23.2; python_version == \"3.11\"",
-    "numpy<2,>=1.26.0; python_version >= \"3.12\"",
     "python-dateutil>=2.8.2",
     "pytz>=2020.1",
     "tzdata>=2022.1",
