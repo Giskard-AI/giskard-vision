@@ -7,16 +7,16 @@ from .base import Base
 
 
 class Dataset300W(Base):
+    image_suffix: str = ".png"
+    marks_suffix: str = ".pts"
+    n_landmarks: int = 68
+    n_dimensions: int = 2
+
     def __init__(
         self,
-        images_dir_path: Union[str, Path],
-        landmarks_dir_path: Union[str, Path],
-        image_suffix: str = ".png",
-        marks_suffix: str = ".pts",
-        n_landmarks: int = 68,
-        n_dimensions: int = 2,
+        dir_path: Union[str, Path],
     ) -> None:
-        super().__init__(images_dir_path, landmarks_dir_path, image_suffix, marks_suffix, n_landmarks, n_dimensions)
+        super().__init__(dir_path, dir_path)
 
         self.meta.update(
             {

@@ -41,28 +41,23 @@ MOUTH = FacialParts.mouth
 
 
 class Base(ABC):
+    image_suffix: str
+    marks_suffix: str
+    n_landmarks: int
+    n_dimensions: int
+
     def __init__(
         self,
         images_dir_path: Union[str, Path],
         landmarks_dir_path: Union[str, Path],
-        image_suffix: str = ".png",
-        marks_suffix: str = ".pts",
-        n_landmarks: int = 68,
-        n_dimensions: int = 2,
     ) -> None:
         images_dir_path = self._get_absolute_local_path(images_dir_path)
         landmarks_dir_path = self._get_absolute_local_path(landmarks_dir_path)
 
-        self.image_paths = self._get_all_paths_based_on_suffix(
-            images_dir_path, image_suffix
-        )
-        self.marks_paths = self._get_all_paths_based_on_suffix(
-            landmarks_dir_path, marks_suffix
-        )
+        self.image_paths = self._get_all_paths_based_on_suffix(images_dir_path, self.image_suffix)
+        self.marks_paths = self._get_all_paths_based_on_suffix(landmarks_dir_path, self.marks_suffix)
         self._all_marks = None
         self._all_images = None
-        self.n_landmarks = n_landmarks
-        self.n_dimensions = n_dimensions
 
         if len(self.marks_paths) != len(self.image_paths):
             raise ValueError(
@@ -82,9 +77,7 @@ class Base(ABC):
     @classmethod
     def _get_all_paths_based_on_suffix(cls, dir_path: Union[str, Path], suffix: str):
         all_paths = os.listdir(dir_path)
-        all_paths_with_suffix = sorted(
-            [dir_path / x for x in all_paths if x.endswith(suffix)]
-        )
+        all_paths_with_suffix = sorted([dir_path / x for x in all_paths if x.endswith(suffix)])
         if len(all_paths_with_suffix) == 0:
             raise ValueError(
                 f"{cls.__class__.__name__}: Landmarks with suffix {suffix}"
@@ -113,13 +106,9 @@ class Base(ABC):
             for i, marks_path in enumerate(self.marks_paths):
                 _marks = self.load_marks_from_file(marks_path)
                 if _marks.shape[0] != self.n_landmarks:
-                    raise ValueError(
-                        f"{self.__class__} is only defined for {self.n_landmarks} landmarks."
-                    )
+                    raise ValueError(f"{self.__class__} is only defined for {self.n_landmarks} landmarks.")
                 if _marks.shape[1] != self.n_dimensions:
-                    raise ValueError(
-                        f"{self.__class__} is only defined for {self.n_dimensions} dimensions."
-                    )
+                    raise ValueError(f"{self.__class__} is only defined for {self.n_dimensions} dimensions.")
                 all_marks[i, :, :] = _marks
             self._all_marks = all_marks
         return self._all_marks
