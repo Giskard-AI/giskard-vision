@@ -25,4 +25,31 @@ dev = [
     "black>=23.7.0",
     "pytest>=7.4.0",
     "pip>=23.2.1",
+    "pre-commit>=2.19.0",
 ]
+
+[tool.ruff]
+line-length = 120
+ignore = ["E501"]
+
+[tool.black]
+# https://github.com/psf/black
+target-version = ['py38', 'py39', 'py310']
+line-length = 120
+color = true
+
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | env
+    | venv
+)/
+'''
