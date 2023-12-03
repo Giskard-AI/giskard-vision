@@ -3,35 +3,38 @@ from typing import Union
 from PIL import Image
 import numpy as np
 
-from .base import LandmarkDataset, ImageWithMarks
+from .base import Base
+from ..facial_landmarks.facial_landmarks import FacialLandmarks
 from ..logger import logger
+from .base import FacialPart, ALL
 
 
-NUM_MARKS = 68
-
-
-class Dataset300W(LandmarkDataset):
-
-    def __init__(self, local_path: Union[str, Path], image_suffix: str = ".png",
-                 marks_suffix: str = ".pts") -> None:
-        super().__init__(local_path, image_suffix, marks_suffix)
+class Dataset300W(Base):
+    
+    def __init__(self,
+                 images_dir_path: Union[str, Path],
+                 landmarks_dir_path: Union[str, Path],
+                 image_suffix: str = ".png",
+                 marks_suffix: str = ".pts",
+                 n_landmarks: int = 68,
+                 n_dimensions: int = 2,
+                 ) -> None:
+        
+        super().__init__(images_dir_path,
+                         landmarks_dir_path,
+                         image_suffix,
+                         marks_suffix,
+                         n_landmarks,
+                         n_dimensions)
 
         self.meta.update({"authors": "Imperial College London",
                           "year": 2013,
-                          "num_marks": NUM_MARKS,
+                          "n_landmarks": self.n_landmarks,
+                          "n_dimensions": self.n_dimensions,
                           })
 
-        self.data = list()
-        logger.info("Loading images and landmarks...")
-        for image_path in self.image_paths:
-            marks_path = Path(str(image_path).replace(image_suffix, marks_suffix))
-            image = Image.open(image_path).convert('RGB')
-            marks = self.get_marks_from_file(marks_path)
-            image_with_marks = ImageWithMarks(image_path=image_path, marks_path=marks_path, image=image, marks=marks)
-            self.data.append(image_with_marks)
-
-    @staticmethod
-    def get_marks_from_file(mark_file):
+    @classmethod
+    def load_marks_from_file(cls, mark_file: Path):
         marks = []
         with open(mark_file) as fid:
             for line in fid:
@@ -43,13 +46,8 @@ class Dataset300W(LandmarkDataset):
         marks = np.array(marks, dtype=float)
         return marks
 
-    @property
-    def all_marks(self):
-        return np.array([self.data[i].marks for i in range(len(self.data))])
+    
+    @classmethod
+    def load_image_from_file(cls, image_file: Path):
+        return Image.open(image_file).convert('RGB')
 
-    @property
-    def num_marks(self):
-        return NUM_MARKS
-
-    def __len__(self):
-        return len(self.image_paths)
