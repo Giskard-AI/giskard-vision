@@ -64,7 +64,7 @@ def test_nme(model, dataset, transformation_function=None, transformation_functi
 
 def test_nme_diff(model, dataset, transformation_function, transformation_function_kwargs, threshold=0.1):
     test_result = test_nme(model, dataset, threshold=threshold)
-    test_result_sliced = test_nme(
+    test_result_transformed = test_nme(
         model,
         dataset,
         transformation_function=transformation_function,
@@ -72,8 +72,8 @@ def test_nme_diff(model, dataset, transformation_function, transformation_functi
         threshold=threshold,
     )
 
-    metric = abs(test_result_sliced.metric - test_result.metric) / test_result.metric
+    metric = abs(test_result_transformed.metric - test_result.metric) / test_result.metric
 
     return TestResult(
-        name="Absolute NME difference (sliced vs. original dataset)", metric=metric, passed=metric <= threshold
+        name="Absolute NME difference (transformed vs. original dataset)", metric=metric, passed=metric <= threshold
     )

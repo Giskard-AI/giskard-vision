@@ -49,5 +49,5 @@ class Dataset300W(Base):
 
     def slice(self, transformation_function, transformation_function_kwargs):
         transformation_function_kwargs.update({"ds": self})
-        sliced_dataset = transformation_function(**transformation_function_kwargs)
-        return sliced_dataset
+        transformed_dataset = transformation_function(**transformation_function_kwargs)
+        return transformed_dataset
