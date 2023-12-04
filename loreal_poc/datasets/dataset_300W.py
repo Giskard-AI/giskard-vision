@@ -47,7 +47,7 @@ class Dataset300W(Base):
     def copy(self):
         return Dataset300W(self.meta["images_dir_path"])
 
-    def slice(self, slicing_function, slicing_function_kwargs):
-        slicing_function_kwargs.update({"ds": self})
-        sliced_dataset = slicing_function(**slicing_function_kwargs)
+    def slice(self, transformation_function, transformation_function_kwargs):
+        transformation_function_kwargs.update({"ds": self})
+        sliced_dataset = transformation_function(**transformation_function_kwargs)
         return sliced_dataset

@@ -7,11 +7,16 @@ LEFT_EYE_LEFT_LANDMARK = 36
 RIGHT_EYE_RIGHT_LANDMARK = 45
 
 
-def _get_predictions_and_marks(model, dataset, slicing_function, slicing_function_kwargs):
-    sliced_dataset = dataset.slice(slicing_function, slicing_function_kwargs) if slicing_function else dataset
-    facial_part = slicing_function_kwargs.get("facial_part", None)
-    predictions = model.predict(dataset or sliced_dataset, facial_part=facial_part)
-    marks = sliced_dataset.all_marks
+def _get_predictions_and_marks(model, dataset, transformation_function, transformation_function_kwargs):
+    _dataset = None
+    _facial_part = None
+    if transformation_function is not None:
+        _dataset = dataset.slice(transformation_function, transformation_function_kwargs)
+    if transformation_function_kwargs is not None:
+        _facial_part = transformation_function_kwargs.get("facial_part", None)
+    _dataset = dataset if _dataset is None else _dataset
+    predictions = model.predict(_dataset, facial_part=_facial_part)
+    marks = _dataset.all_marks
     if predictions.shape != marks.shape:
         raise ValueError("_calculate_me: arrays have different dimensions.")
     if len(predictions.shape) > 3 or len(marks.shape) > 3:
@@ -49,19 +54,21 @@ def test_me(model, dataset, threshold=1):
     return TestResult(name="Mean Euclidean Distance (ME)", metric=metric, passed=metric <= threshold)
 
 
-def test_nme(model, dataset, slicing_function=None, slicing_function_kwargs=None, threshold=0.01):
-    predictions, marks = _get_predictions_and_marks(model, dataset, slicing_function, slicing_function_kwargs)
+def test_nme(model, dataset, transformation_function=None, transformation_function_kwargs=None, threshold=0.01):
+    predictions, marks = _get_predictions_and_marks(
+        model, dataset, transformation_function, transformation_function_kwargs
+    )
     metric = np.nanmean(_calculate_nmes(predictions, marks))
     return TestResult(name="Normalized Mean Euclidean Distance (NME)", metric=metric, passed=metric <= threshold)
 
 
-def test_nme_diff(model, dataset, slicing_function, slicing_function_kwargs, threshold=0.1):
+def test_nme_diff(model, dataset, transformation_function, transformation_function_kwargs, threshold=0.1):
     test_result = test_nme(model, dataset, threshold=threshold)
     test_result_sliced = test_nme(
         model,
         dataset,
-        slicing_function=slicing_function,
-        slicing_function_kwargs=slicing_function_kwargs,
+        transformation_function=transformation_function,
+        transformation_function_kwargs=transformation_function_kwargs,
         threshold=threshold,
     )
 
