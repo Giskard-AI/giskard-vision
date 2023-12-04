@@ -25,7 +25,7 @@ class FacialParts:
     left_eyebrow: FacialPart = FacialPart(np.arange(17, 22))
     right_eyebrow: FacialPart = FacialPart(np.arange(22, 27))
     nose: FacialPart = FacialPart(np.arange(27, 36))
-    left_eye: FacialPart = FacialPart(np.arange(35, 42))
+    left_eye: FacialPart = FacialPart(np.arange(36, 42))
     right_eye: FacialPart = FacialPart(np.arange(42, 48))
     mouth: FacialPart = FacialPart(np.arange(48, 68))
 
