@@ -82,10 +82,13 @@ class Base(ABC):
             )
 
         self.meta = dict()
-        self.meta.update({"num_samples": len(self)})
+        self.meta.update(
+            {"num_samples": len(self), "images_dir_path": images_dir_path, "landmarks_dir_path": landmarks_dir_path}
+        )
 
     def _get_absolute_local_path(self, local_path: Union[str, Path]):
-        local_path = Path(os.getcwd()) / local_path
+        cwd = os.getcwd()
+        local_path = Path(cwd) / local_path if cwd not in str(local_path) else local_path
         if not os.path.exists(local_path):
             raise ValueError(f"{self.__class__.__name__}: {local_path} does not exist")
         return local_path
@@ -143,4 +146,10 @@ class Base(ABC):
         idx = ~np.isin(FacialParts.entire, part) if not exclude else np.isin(FacialParts.entire, part)
         part_landmarks = self.all_marks.copy()
         part_landmarks[:, idx] = np.nan
+        return part_landmarks
+
+    def marks_for(self, part: FacialPart, mark_idx: int, exclude=False):
+        idx = ~np.isin(FacialParts.entire, part) if not exclude else np.isin(FacialParts.entire, part)
+        part_landmarks = self.all_marks[mark_idx].copy()
+        part_landmarks[idx] = np.nan
         return part_landmarks
