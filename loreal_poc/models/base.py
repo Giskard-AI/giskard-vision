@@ -4,7 +4,7 @@ import numpy as np
 from typing import Any, Optional, List
 from time import time
 
-from ..datasets.base import DatasetBase, FacialPart, FacialParts, SupportedImageTypes
+from ..datasets.base import DatasetBase, FacialPart, FacialParts
 
 
 @dataclass
@@ -34,11 +34,11 @@ class ModelBase(ABC):
         self.n_dimensions = n_dimensions
 
     @abstractmethod
-    def predict_image(self, image: SupportedImageTypes) -> np.ndarray:
+    def predict_image(self, image: np.ndarray) -> np.ndarray:
         """abstract method that takes one image as input and predicts its landmarks as an array
 
         Args:
-            image (SupportedImageTypes): input image
+            image (np.ndarray): input image
         """
 
         ...
