@@ -56,7 +56,7 @@ class FacialParts:
     right_half: FacialPart = FacialPart(_right_half)
 
 
-class Base(ABC):
+class DatasetBase(ABC):
     image_suffix: str
     marks_suffix: str
     n_landmarks: int

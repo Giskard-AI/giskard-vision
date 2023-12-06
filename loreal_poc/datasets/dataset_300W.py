@@ -3,10 +3,10 @@ from typing import Union
 from PIL import Image
 import numpy as np
 
-from .base import Base
+from .base import DatasetBase
 
 
-class Dataset300W(Base):
+class Dataset300W(DatasetBase):
     image_suffix: str = ".png"
     marks_suffix: str = ".pts"
     n_landmarks: int = 68
