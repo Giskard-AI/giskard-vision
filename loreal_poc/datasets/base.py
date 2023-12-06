@@ -13,6 +13,7 @@ SupportedImageTypes = Union[Image, np.ndarray]
 @dataclass(frozen=True)
 class FacialPart(NDArrayOperatorsMixin):
     part: np.ndarray
+    name: str = ""
 
     def __add__(self, o):
         return FacialPart(np.concatenate((self.part, o.part)))
@@ -45,18 +46,18 @@ _right_half = np.concatenate([np.setdiff1d(_entire, _left_half, assume_unique=Tr
 
 @dataclass(frozen=True)
 class FacialParts:
-    entire: FacialPart = FacialPart(_entire)
-    contour: FacialPart = FacialPart(_contour)
-    left_eyebrow: FacialPart = FacialPart(_left_eyebrow)
-    right_eyebrow: FacialPart = FacialPart(_right_eyebrow)
-    nose: FacialPart = FacialPart(_nose)
-    left_eye: FacialPart = FacialPart(_left_eye)
-    right_eye: FacialPart = FacialPart(_right_eye)
-    mouth: FacialPart = FacialPart(_mouth)
-    bottom_half: FacialPart = FacialPart(_bottom_half)
-    upper_half: FacialPart = FacialPart(_upper_half)
-    left_half: FacialPart = FacialPart(_left_half)
-    right_half: FacialPart = FacialPart(_right_half)
+    entire: FacialPart = FacialPart(_entire, name="entire face")
+    contour: FacialPart = FacialPart(_contour, name="face contour")
+    left_eyebrow: FacialPart = FacialPart(_left_eyebrow, name="left eyebrow")
+    right_eyebrow: FacialPart = FacialPart(_right_eyebrow, name="right eyebrow")
+    nose: FacialPart = FacialPart(_nose, name="nose")
+    left_eye: FacialPart = FacialPart(_left_eye, name="left eye")
+    right_eye: FacialPart = FacialPart(_right_eye, name="right array")
+    mouth: FacialPart = FacialPart(_mouth, name="mouth")
+    bottom_half: FacialPart = FacialPart(_bottom_half, name="bottom half")
+    upper_half: FacialPart = FacialPart(_upper_half, name="upper half")
+    left_half: FacialPart = FacialPart(_left_half, name="left halff")
+    right_half: FacialPart = FacialPart(_right_half, name="right half")
 
 
 class DatasetBase(ABC):
@@ -64,6 +65,7 @@ class DatasetBase(ABC):
     marks_suffix: str
     n_landmarks: int
     n_dimensions: int
+    image_type: SupportedImageTypes = np.ndarray
 
     def __init__(
         self,
