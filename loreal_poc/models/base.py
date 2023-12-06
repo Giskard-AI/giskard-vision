@@ -1,8 +1,19 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 import numpy as np
 from typing import Any, Optional, List
 
 from ..datasets.base import DatasetBase, FacialPart, FacialParts, SupportedImageTypes
+
+
+@dataclass
+class PredictionResult:
+    prediction: np.ndarray
+    prediction_fail_rate: float
+
+
+def is_failed(prediction):
+    return np.count_nonzero(np.isnan(prediction)) == prediction.size
 
 
 class ModelBase(ABC):
@@ -63,6 +74,7 @@ class ModelBase(ABC):
         """
         predictions = list()
         idx_range = idx_range if idx_range is not None else range(len(dataset))
+        prediction_fail_rate = 0
         for i in idx_range:
             try:
                 prediction = self.predict_image(dataset.all_images[i])
@@ -70,6 +82,9 @@ class ModelBase(ABC):
                 prediction = None
 
             prediction = self._postprocessing(prediction, facial_part)
+            if is_failed(prediction):
+                prediction_fail_rate += 1
             predictions.append(prediction[0])
+        prediction_fail_rate /= len(idx_range)
 
-        return np.array(predictions)
+        return PredictionResult(prediction=np.array(predictions), prediction_fail_rate=prediction_fail_rate)
