@@ -1,9 +1,9 @@
 import numpy as np
-from ..datasets.base import Base
+from ..datasets.base import DatasetBase
 from ..datasets.base import FacialPart
 
 
-def crop_based_on_facial_part(ds: Base, facial_part: FacialPart, rel_margin: float = 0.0):
+def crop_based_on_facial_part(ds: DatasetBase, facial_part: FacialPart, rel_margin: float = 0.0):
     """Crop image based on marks
 
     Args:
@@ -27,6 +27,6 @@ def crop_based_on_facial_part(ds: Base, facial_part: FacialPart, rel_margin: flo
         right = R[0] + margins[0]
         lower = R[1] + margins[1]
 
-        cropped_ds._all_images[i] = image.crop((left, upper, right, lower))
+        cropped_ds._all_images[i] = image.crop((left, upper, right, lower))  # TODO: OpenCV
 
     return cropped_ds
