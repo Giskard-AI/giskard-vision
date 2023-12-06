@@ -1,10 +1,13 @@
 from typing import Union
+from PIL.Image import Image
 from pathlib import Path
 import os
 from dataclasses import dataclass
 import numpy as np
 from abc import ABC, abstractmethod
 from numpy.lib.mixins import NDArrayOperatorsMixin
+
+SupportedImageTypes = Union[Image, np.ndarray]
 
 
 @dataclass(frozen=True)
