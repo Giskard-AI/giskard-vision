@@ -1,23 +1,10 @@
 from pathlib import Path
 from typing import Union
-from PIL.Image import Image
 import cv2
 import numpy as np
 from time import time
 
 from .base import DatasetBase, FacialPart, FacialParts
-
-
-def _load_image_using_PIL(image_file: Path) -> Image:
-    """Loads images as PIL Image
-
-    Args:
-        image_file (Path): path to image file
-
-    Returns:
-        Image: PIL image
-    """
-    return Image.open(image_file).convert("RGB")
 
 
 def _load_image_usin_openCV(image_file: Path) -> np.ndarray:
@@ -79,10 +66,7 @@ class Dataset300W(DatasetBase):
         Returns:
             np.ndarray: numpy array image
         """
-        if cls.image_type == np.ndarray:
-            return _load_image_usin_openCV(image_file)
-        elif cls.image_type == Image:
-            return _load_image_using_PIL(image_file)
+        return _load_image_usin_openCV(image_file)
 
     def copy(self, facial_part: FacialPart = FacialParts.entire):
         return Dataset300W(self.meta["images_dir_path"], facial_part)
