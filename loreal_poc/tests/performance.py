@@ -11,27 +11,17 @@ RIGHT_EYE_RIGHT_LANDMARK = 45
 
 def _preprocess_dataset(dataset: DatasetBase, transformation_function, transformation_function_kwargs):
     _dataset = None
-    _facial_part = None
     if transformation_function is not None and transformation_function_kwargs is not None:
-        _facial_part = transformation_function_kwargs.get("facial_part", None)
         _dataset = dataset.transform(
             transformation_function=transformation_function,
             transformation_function_kwargs=transformation_function_kwargs,
         )
-    _dataset = _dataset if _dataset is not None else dataset
-    return _dataset, _facial_part
+    return _dataset if _dataset is not None else dataset
 
 
-def _get_prediction_and_marks(
-    model: ModelBase, dataset: DatasetBase, transformation_function=None, transformation_function_kwargs=None
-):
-    _dataset, _facial_part = _preprocess_dataset(
-        dataset,
-        transformation_function=transformation_function,
-        transformation_function_kwargs=transformation_function_kwargs,
-    )
-    prediction_result = model.predict(_dataset, facial_part=_facial_part)
-    marks = _dataset.all_marks
+def _get_prediction_and_marks(model: ModelBase, dataset: DatasetBase):
+    prediction_result = model.predict(dataset, facial_part=dataset.facial_part)
+    marks = dataset.all_marks
     if prediction_result.prediction.shape != marks.shape:
         raise ValueError("_calculate_me: arrays have different dimensions.")
     if len(prediction_result.prediction.shape) > 3 or len(marks.shape) > 3:
@@ -83,6 +73,7 @@ def test_me_mean(model: ModelBase, dataset: DatasetBase, threshold=1):
         threshold=threshold,
         prediction_results=[prediction_result],
         passed=metric <= threshold,
+        prediction_time=prediction_result.prediction_time,
     )
 
 
@@ -106,6 +97,7 @@ def test_me_std(model: ModelBase, dataset: DatasetBase, threshold=1):
         threshold=threshold,
         prediction_result=prediction_result,
         passed=metric <= threshold,
+        prediction_time=prediction_result.prediction_time,
     )
 
 
@@ -126,9 +118,12 @@ def test_nme_mean(
     Returns:
         TestResult: result of the test
     """
-    prediction_result, marks = _get_prediction_and_marks(
-        model, dataset, transformation_function, transformation_function_kwargs
+    _dataset = _preprocess_dataset(
+        dataset,
+        transformation_function=transformation_function,
+        transformation_function_kwargs=transformation_function_kwargs,
     )
+    prediction_result, marks = _get_prediction_and_marks(model, _dataset)
     metric = np.nanmean(_calculate_nmes(prediction_result.prediction, marks))
     return TestResult(
         name="NME_mean",
@@ -137,6 +132,8 @@ def test_nme_mean(
         threshold=threshold,
         prediction_results=[prediction_result],
         passed=metric <= threshold,
+        prediction_time=prediction_result.prediction_time,
+        preprocessing_time=_dataset.meta["preprocessing_time"],
     )
 
 
@@ -157,9 +154,12 @@ def test_nme_std(
     Returns:
         TestResult: result of the test
     """
-    prediction_result, marks = _get_prediction_and_marks(
-        model, dataset, transformation_function, transformation_function_kwargs
+    _dataset = _preprocess_dataset(
+        dataset,
+        transformation_function=transformation_function,
+        transformation_function_kwargs=transformation_function_kwargs,
     )
+    prediction_result, marks = _get_prediction_and_marks(model, _dataset)
     metric = np.nanstd(_calculate_nmes(prediction_result.prediction, marks))
     return TestResult(
         name="NME_std",
@@ -168,6 +168,8 @@ def test_nme_std(
         threshold=threshold,
         prediction_results=[prediction_result],
         passed=metric <= threshold,
+        prediction_time=prediction_result.prediction_time,
+        preprocessing_time=_dataset.meta["preprocessing_time"],
     )
 
 
@@ -190,6 +192,7 @@ def test_nme_mean_diff(
     Returns:
         TestResult: result of the test
     """
+
     test_result = test_nme_mean(model, dataset, threshold=threshold)
     test_result_transformed = test_nme_mean(
         model,
@@ -198,10 +201,11 @@ def test_nme_mean_diff(
         transformation_function_kwargs=transformation_function_kwargs,
         threshold=threshold,
     )
-
     norm = test_result.metric if relative else 1.0
     metric = abs(test_result_transformed.metric - test_result.metric) / norm
     prediction_results = test_result.prediction_results + test_result_transformed.prediction_results
+    prediction_time = test_result.prediction_time + test_result_transformed.prediction_time
+    preprocessing_time = test_result.preprocessing_time + test_result_transformed.preprocessing_time
 
     return TestResult(
         name="NME_mean_diff",
@@ -210,6 +214,8 @@ def test_nme_mean_diff(
         threshold=threshold,
         prediction_results=prediction_results,
         passed=metric <= threshold,
+        prediction_time=prediction_time,
+        preprocessing_time=preprocessing_time,
     )
 
 
@@ -232,6 +238,7 @@ def test_nme_std_diff(
     Returns:
         TestResult: result of the test
     """
+
     test_result = test_nme_std(model, dataset, threshold=threshold)
     test_result_transformed = test_nme_std(
         model,
@@ -240,10 +247,11 @@ def test_nme_std_diff(
         transformation_function_kwargs=transformation_function_kwargs,
         threshold=threshold,
     )
-
     norm = test_result.metric if relative else 1.0
     metric = abs(test_result_transformed.metric - test_result.metric) / norm
     prediction_results = test_result.prediction_results + test_result_transformed.prediction_results
+    prediction_time = test_result.prediction_time + test_result_transformed.prediction_time
+    preprocessing_time = test_result.preprocessing_time + test_result_transformed.preprocessing_time
 
     return TestResult(
         name="NME_std_diff",
@@ -252,4 +260,6 @@ def test_nme_std_diff(
         threshold=threshold,
         prediction_results=prediction_results,
         passed=metric <= threshold,
+        prediction_time=prediction_time,
+        preprocessing_time=preprocessing_time,
     )

@@ -69,6 +69,7 @@ class DatasetBase(ABC):
         self,
         images_dir_path: Union[str, Path],
         landmarks_dir_path: Union[str, Path],
+        facial_part: FacialPart = FacialParts.entire,
     ) -> None:
         images_dir_path = self._get_absolute_local_path(images_dir_path)
         landmarks_dir_path = self._get_absolute_local_path(landmarks_dir_path)
@@ -77,6 +78,7 @@ class DatasetBase(ABC):
         self.marks_paths = self._get_all_paths_based_on_suffix(landmarks_dir_path, self.marks_suffix)
         self._all_marks = None
         self._all_images = None
+        self.facial_part = facial_part
 
         if len(self.marks_paths) != len(self.image_paths):
             raise ValueError(

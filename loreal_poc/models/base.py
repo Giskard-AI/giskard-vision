@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import numpy as np
 from typing import Any, Optional, List
+from time import time
 
 from ..datasets.base import DatasetBase, FacialPart, FacialParts, SupportedImageTypes
 
@@ -10,6 +11,7 @@ from ..datasets.base import DatasetBase, FacialPart, FacialParts, SupportedImage
 class PredictionResult:
     prediction: np.ndarray
     prediction_fail_rate: float
+    prediction_time: float
 
 
 def is_failed(prediction):
@@ -72,6 +74,7 @@ class ModelBase(ABC):
         Returns:
             np.ndarray: an array of the shape [img, landmark, dim] that represents the image index in the first dimension, the landmark index in the second and the dimension index in the third
         """
+        ts = time()
         predictions = list()
         idx_range = idx_range if idx_range is not None else range(len(dataset))
         prediction_fail_rate = 0
@@ -86,5 +89,8 @@ class ModelBase(ABC):
                 prediction_fail_rate += 1
             predictions.append(prediction[0])
         prediction_fail_rate /= len(idx_range)
+        te = time()
 
-        return PredictionResult(prediction=np.array(predictions), prediction_fail_rate=prediction_fail_rate)
+        return PredictionResult(
+            prediction=np.array(predictions), prediction_fail_rate=prediction_fail_rate, prediction_time=te - ts
+        )

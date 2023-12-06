@@ -1,4 +1,5 @@
 import numpy as np
+
 from ..datasets.base import DatasetBase
 from ..datasets.base import FacialPart
 
@@ -14,7 +15,7 @@ def crop_based_on_facial_part(dataset: DatasetBase, facial_part: FacialPart, rel
     Returns:
         _type_: image
     """
-    _dataset = dataset.copy()
+    _dataset = dataset.copy(facial_part)
     for i, image in enumerate(_dataset.all_images):
         w, h = image.size
         margins = np.array([w, h]) * rel_margin

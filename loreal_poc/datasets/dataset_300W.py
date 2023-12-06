@@ -2,8 +2,9 @@ from pathlib import Path
 from typing import Union
 from PIL import Image
 import numpy as np
+from time import time
 
-from .base import DatasetBase
+from .base import DatasetBase, FacialPart, FacialParts
 
 
 class Dataset300W(DatasetBase):
@@ -15,8 +16,9 @@ class Dataset300W(DatasetBase):
     def __init__(
         self,
         dir_path: Union[str, Path],
+        facial_part: FacialPart = FacialParts.entire,
     ) -> None:
-        super().__init__(dir_path, dir_path)
+        super().__init__(dir_path, dir_path, facial_part=facial_part)
 
         self.meta.update(
             {
@@ -24,6 +26,8 @@ class Dataset300W(DatasetBase):
                 "year": 2013,
                 "n_landmarks": self.n_landmarks,
                 "n_dimensions": self.n_dimensions,
+                "preprocessed": False,
+                "preprocessing_time": 0.0,
             }
         )
 
@@ -44,10 +48,14 @@ class Dataset300W(DatasetBase):
     def load_image_from_file(cls, image_file: Path):
         return Image.open(image_file).convert("RGB")
 
-    def copy(self):
-        return Dataset300W(self.meta["images_dir_path"])
+    def copy(self, facial_part: FacialPart = FacialParts.entire):
+        return Dataset300W(self.meta["images_dir_path"], facial_part)
 
     def transform(self, transformation_function, transformation_function_kwargs):
+        ts = time()
         transformation_function_kwargs.update({"dataset": self})
         transformed_dataset = transformation_function(**transformation_function_kwargs)
+        te = time()
+        transformed_dataset.meta["preprocessed"] = True
+        transformed_dataset.meta["preprocessing_time"] = te - ts
         return transformed_dataset
