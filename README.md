@@ -20,16 +20,7 @@ source .venv/bin/activate
 
 ## Examples
 
-setup dev-env and run the `examples/example1.ipynb` notebook.
-On 5 samples from 300W:
-
-```python
-TestResult(name='Mean Euclidean Distance (ME)', metric=12.496953183186655, passed=False)
-TestResult(name='Normalized Mean Euclidean Distance (NME)', metric=0.06321234461079239, passed=False)
-```
-
-sample #1 example (green: ground-truth, red: predictions from face-alignment model):
-![](examples/imgs/example1.png)
+setup dev-env and check out `examples`.
 
 ## Benchmark Datasets
 
