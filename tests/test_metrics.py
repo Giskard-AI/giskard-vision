@@ -1,6 +1,7 @@
 import numpy as np
 from loreal_poc.tests.performance import (
     _calculate_es,
+    _calculate_nmes,
     _calculate_d_outers,
     LEFT_EYE_LEFT_LANDMARK,
     RIGHT_EYE_RIGHT_LANDMARK,
@@ -82,6 +83,76 @@ TEST_MARKS = [
     [557.473, 240.542],
     [547.989, 240.014],
 ]
+PREDICT_MARKS = [
+    [434.0, 87.0],
+    [437.0, 113.0],
+    [445.0, 134.0],
+    [448.0, 152.0],
+    [462.0, 177.0],
+    [477.0, 202.0],
+    [495.0, 224.0],
+    [520.0, 246.0],
+    [552.0, 256.0],
+    [581.0, 246.0],
+    [599.0, 220.0],
+    [617.0, 202.0],
+    [628.0, 177.0],
+    [639.0, 156.0],
+    [646.0, 138.0],
+    [649.0, 116.0],
+    [649.0, 91.0],
+    [466.0, 109.0],
+    [480.0, 105.0],
+    [498.0, 109.0],
+    [513.0, 113.0],
+    [524.0, 120.0],
+    [578.0, 116.0],
+    [588.0, 109.0],
+    [603.0, 105.0],
+    [617.0, 102.0],
+    [628.0, 102.0],
+    [552.0, 149.0],
+    [552.0, 170.0],
+    [552.0, 188.0],
+    [552.0, 202.0],
+    [534.0, 199.0],
+    [542.0, 199.0],
+    [552.0, 202.0],
+    [563.0, 202.0],
+    [570.0, 195.0],
+    [488.0, 131.0],
+    [498.0, 131.0],
+    [509.0, 131.0],
+    [524.0, 138.0],
+    [509.0, 141.0],
+    [498.0, 141.0],
+    [578.0, 134.0],
+    [588.0, 127.0],
+    [603.0, 127.0],
+    [613.0, 127.0],
+    [603.0, 134.0],
+    [588.0, 138.0],
+    [520.0, 224.0],
+    [531.0, 220.0],
+    [545.0, 217.0],
+    [552.0, 220.0],
+    [560.0, 217.0],
+    [574.0, 220.0],
+    [585.0, 224.0],
+    [574.0, 238.0],
+    [567.0, 246.0],
+    [552.0, 249.0],
+    [542.0, 246.0],
+    [531.0, 238.0],
+    [524.0, 224.0],
+    [542.0, 224.0],
+    [552.0, 228.0],
+    [563.0, 224.0],
+    [581.0, 224.0],
+    [563.0, 235.0],
+    [552.0, 235.0],
+    [542.0, 235.0],
+]
 
 
 def test_calculate_es_2d():
@@ -115,3 +186,26 @@ def test_calculate_d_outers():
         ]
     )
     assert np.all(np.isclose(original, calculated))
+
+
+def test_calculate_nmes():
+    marks = np.asarray([TEST_MARKS])
+    predictions = np.asarray([PREDICT_MARKS])
+    calculated = _calculate_nmes(predictions, marks)
+
+    distances = np.asarray(
+        [
+            np.sqrt(
+                (mark[LEFT_EYE_LEFT_LANDMARK][0] - mark[RIGHT_EYE_RIGHT_LANDMARK][0]) ** 2
+                + (mark[LEFT_EYE_LEFT_LANDMARK][1] - mark[RIGHT_EYE_RIGHT_LANDMARK][1]) ** 2
+            )
+            for mark in marks
+        ]
+    )
+    me = np.mean(
+        np.asarray(
+            [np.sqrt((p_a[0] - p_b[0]) ** 2 + (p_a[1] - p_b[1]) ** 2) for p_a, p_b in zip(predictions[0], marks[0])]
+        )
+    )
+
+    assert np.all(np.isclose(me / distances, calculated))
