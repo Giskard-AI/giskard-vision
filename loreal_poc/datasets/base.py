@@ -49,11 +49,11 @@ class FacialParts:
     right_eyebrow: FacialPart = FacialPart(_right_eyebrow, name="right eyebrow")
     nose: FacialPart = FacialPart(_nose, name="nose")
     left_eye: FacialPart = FacialPart(_left_eye, name="left eye")
-    right_eye: FacialPart = FacialPart(_right_eye, name="right array")
+    right_eye: FacialPart = FacialPart(_right_eye, name="right eye")
     mouth: FacialPart = FacialPart(_mouth, name="mouth")
     bottom_half: FacialPart = FacialPart(_bottom_half, name="bottom half")
     upper_half: FacialPart = FacialPart(_upper_half, name="upper half")
-    left_half: FacialPart = FacialPart(_left_half, name="left halff")
+    left_half: FacialPart = FacialPart(_left_half, name="left half")
     right_half: FacialPart = FacialPart(_right_half, name="right half")
 
 
