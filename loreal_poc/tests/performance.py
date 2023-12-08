@@ -38,7 +38,7 @@ def _calculate_nmes(prediction: PredictionResult):
     return mes / d_outers
 
 
-def test_me_mean(model: ModelBase, dataset: DatasetBase, threshold=1):
+def test_me_mean(model: ModelBase, dataset: DatasetBase, threshold=1, part: FacialPart = FacialParts.entire):
     """Mean of mean Euclidean distances across images
 
     Args:
@@ -49,7 +49,7 @@ def test_me_mean(model: ModelBase, dataset: DatasetBase, threshold=1):
     Returns:
         TestResult: result of the test
     """
-    prediction_result = _get_prediction(model, dataset)
+    prediction_result = _get_prediction(model, dataset, part=part)
     metric = np.nanmean(_calculate_es(prediction_result))
     return TestResult(
         name="ME_mean",
@@ -62,7 +62,7 @@ def test_me_mean(model: ModelBase, dataset: DatasetBase, threshold=1):
     )
 
 
-def test_me_std(model: ModelBase, dataset: DatasetBase, threshold=1):
+def test_me_std(model: ModelBase, dataset: DatasetBase, threshold=1, part: FacialPart = FacialParts.entire):
     """Standard Deviation of mean Euclidean distances across images
 
     Args:
@@ -73,7 +73,7 @@ def test_me_std(model: ModelBase, dataset: DatasetBase, threshold=1):
     Returns:
         TestResult: result of the test
     """
-    prediction_result = _get_prediction(model, dataset)
+    prediction_result = _get_prediction(model, dataset, part=part)
     metric = np.nanstd(_calculate_es(prediction_result))
     return TestResult(
         name="ME_std",
@@ -86,11 +86,7 @@ def test_me_std(model: ModelBase, dataset: DatasetBase, threshold=1):
     )
 
 
-def test_nme_mean(
-    model: ModelBase,
-    dataset: DatasetBase,
-    threshold=0.01,
-):
+def test_nme_mean(model: ModelBase, dataset: DatasetBase, threshold=0.01, part: FacialPart = FacialParts.entire):
     """Mean of normalised mean Euclidean distances across images
 
     Args:
@@ -101,7 +97,7 @@ def test_nme_mean(
     Returns:
         TestResult: result of the test
     """
-    prediction_result = _get_prediction(model, dataset)
+    prediction_result = _get_prediction(model, dataset, part=part)
     metric = np.nanmean(_calculate_nmes(prediction_result))
     return TestResult(
         name="NME_mean",
@@ -114,11 +110,7 @@ def test_nme_mean(
     )
 
 
-def test_nme_std(
-    model: ModelBase,
-    dataset: DatasetBase,
-    threshold=0.01,
-):
+def test_nme_std(model: ModelBase, dataset: DatasetBase, threshold=0.01, part: FacialPart = FacialParts.entire):
     """Standard deviation of normalised Mean Euclidean distances across images
 
     Args:
@@ -129,7 +121,7 @@ def test_nme_std(
     Returns:
         TestResult: result of the test
     """
-    prediction_result = _get_prediction(model, dataset)
+    prediction_result = _get_prediction(model, dataset, part=part)
     metric = np.nanstd(_calculate_nmes(prediction_result))
     return TestResult(
         name="NME_std",
@@ -148,6 +140,7 @@ def test_nme_mean_diff(
     dataset_diff: DatasetBase,
     threshold=0.1,
     relative: bool = True,
+    part: FacialPart = FacialParts.entire,
 ):
     """Difference between the NME_mean of the original and transformed images.
 
@@ -161,12 +154,8 @@ def test_nme_mean_diff(
         TestResult: result of the test
     """
 
-    test_result = test_nme_mean(model, dataset, threshold=threshold)
-    test_result_transformed = test_nme_mean(
-        model,
-        dataset_diff,
-        threshold=threshold,
-    )
+    test_result = test_nme_mean(model, dataset, threshold=threshold, part=part)
+    test_result_transformed = test_nme_mean(model, dataset_diff, threshold=threshold, part=part)
     norm = test_result.metric if relative else 1.0
     metric = abs(test_result_transformed.metric - test_result.metric) / norm
     prediction_results = test_result.prediction_results + test_result_transformed.prediction_results
@@ -191,6 +180,7 @@ def test_nme_std_diff(
     dataset_diff: DatasetBase,
     threshold=0.1,
     relative: bool = True,
+    part: FacialPart = FacialParts.entire,
 ):
     """Difference between the NME_std of the original and transformed images.
 
@@ -204,12 +194,8 @@ def test_nme_std_diff(
         TestResult: result of the test
     """
 
-    test_result = test_nme_std(model, dataset, threshold=threshold)
-    test_result_transformed = test_nme_std(
-        model,
-        dataset_diff,
-        threshold=threshold,
-    )
+    test_result = test_nme_std(model, dataset, threshold=threshold, part=part)
+    test_result_transformed = test_nme_std(model, dataset_diff, threshold=threshold, part=part)
     norm = test_result.metric if relative else 1.0
     metric = abs(test_result_transformed.metric - test_result.metric) / norm
     prediction_results = test_result.prediction_results + test_result_transformed.prediction_results
