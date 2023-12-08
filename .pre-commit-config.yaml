@@ -1,15 +1,6 @@
 repos:
-  - repo: https://github.com/ambv/black
-    rev: 23.11.0
-    hooks:
-      - id: black
-        files: '^.*\.py$'
-        args:
-          - "--config"
-          - "pyproject.toml"
-
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.6
+    rev: v0.1.7
     hooks:
       - id: ruff
         files: '^.*\.py$'
@@ -18,3 +9,24 @@ repos:
           - "pyproject.toml"
           - "--fix"
           - "--exit-non-zero-on-fix"
+
+  - repo: https://github.com/psf/black
+    rev: 23.11.0
+    hooks:
+      - id: black
+        files: '^.*\.py$'
+        args:
+          - "--config"
+          - "pyproject.toml"
+      - id: black-jupyter
+        files: '^.*\.ipynb$'
+        args:
+          - "--config"
+          - "pyproject.toml"
+
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        name: isort (python)
