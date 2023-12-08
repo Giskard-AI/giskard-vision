@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-import numpy as np
-from typing import Any, Optional, List
 from time import time
+from typing import Any, List, Optional
+
+import numpy as np
 
 from ..datasets.base import DatasetBase, FacialPart, FacialParts
 
