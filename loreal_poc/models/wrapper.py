@@ -1,9 +1,9 @@
 import numpy as np
 
-from .base import ModelBase
+from .base import FaceLandmarksModelBase
 
 
-class FaceAlignmentModel(ModelBase):
+class FaceLandmarksModelWrapper(FaceLandmarksModelBase):
     def __init__(self, model):
         super().__init__(model, n_landmarks=68, n_dimensions=2)
 

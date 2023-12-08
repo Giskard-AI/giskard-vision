@@ -18,7 +18,7 @@ def is_failed(prediction):
     return np.count_nonzero(np.isnan(prediction)) == prediction.size
 
 
-class ModelBase(ABC):
+class FaceLandmarksModelBase(ABC):
     """Abstract class that serves as a template for all landmark model predictions"""
 
     def __init__(self, model: Any, n_landmarks: int, n_dimensions: int) -> None:
