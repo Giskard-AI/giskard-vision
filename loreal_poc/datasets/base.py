@@ -121,6 +121,9 @@ class DatasetBase(ABC):
     def __getitem__(self, idx):
         ...
 
+    def __len__(self):
+        return len(self.image_paths)
+
     @classmethod
     @abstractmethod
     def load_marks_from_file(cls, mark_file: Path):
