@@ -1,8 +1,9 @@
 from pathlib import Path
+from time import time
 from typing import Union
+
 import cv2
 import numpy as np
-from time import time
 
 from .base import DatasetBase, FacialPart, FacialParts
 

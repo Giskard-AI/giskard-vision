@@ -1,8 +1,8 @@
 import numpy as np
 
-from .base import TestResult
-from ..models.base import ModelBase
 from ..datasets.base import DatasetBase
+from ..models.base import ModelBase
+from .base import TestResult
 
 # See https://ibug.doc.ic.ac.uk/resources/300-W/ for definition
 LEFT_EYE_LEFT_LANDMARK = 36

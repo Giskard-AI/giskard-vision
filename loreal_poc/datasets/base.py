@@ -1,9 +1,10 @@
-from typing import Union
-from pathlib import Path
 import os
-from dataclasses import dataclass
-import numpy as np
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Union
+
+import numpy as np
 from numpy.lib.mixins import NDArrayOperatorsMixin
 
 
