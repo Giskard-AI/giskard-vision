@@ -43,6 +43,14 @@ class Dataset300W(DatasetBase):
             }
         )
 
+    def __getitem__(self, idx: int):
+        img = self.load_image_from_file(self.image_paths[idx])
+        marks =self.load_marks_from_file(self.marks_paths[idx])
+
+        if self.facial_part:
+            marks = self.facial_part.filter_marks(marks)
+        return {'image': img, 'marks': marks, 'file_id': Path(self.image_paths[idx]).stem}
+
     @classmethod
     def load_marks_from_file(cls, mark_file: Path):
         marks = []

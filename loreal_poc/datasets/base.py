@@ -18,6 +18,12 @@ class FacialPart(NDArrayOperatorsMixin):
     def __array__(self):
         return self.part
 
+    def filter_marks(self, marks, exclude=False):
+        idx = ~np.isin(FacialParts.entire, self.part) if not exclude else np.isin(FacialParts.entire, self.part)
+        part_landmarks = marks.copy()
+        part_landmarks[idx] = np.nan
+        return part_landmarks
+
 
 # see https://ibug.doc.ic.ac.uk/resources/300-W/ for definitions
 _entire = np.arange(0, 68)
@@ -110,6 +116,10 @@ class DatasetBase(ABC):
 
     def __len__(self):
         return len(self.image_paths)
+    
+    @abstractmethod
+    def __getitem__(self, idx):
+        ...
 
     @classmethod
     @abstractmethod
