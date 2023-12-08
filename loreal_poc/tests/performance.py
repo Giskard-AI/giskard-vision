@@ -1,7 +1,7 @@
 import numpy as np
 
-from ..datasets.base import DatasetBase
-from ..models.base import ModelBase
+from ..datasets.base import DatasetBase, FacialPart, FacialParts
+from ..models.base import ModelBase, PredictionResult
 from .base import TestResult
 
 # See https://ibug.doc.ic.ac.uk/resources/300-W/ for definition
@@ -9,32 +9,17 @@ LEFT_EYE_LEFT_LANDMARK = 36
 RIGHT_EYE_RIGHT_LANDMARK = 45
 
 
-def _preprocess_dataset(dataset: DatasetBase, transformation_function, transformation_function_kwargs):
-    _dataset = None
-    if transformation_function is not None and transformation_function_kwargs is not None:
-        _dataset = dataset.transform(
-            transformation_function=transformation_function,
-            transformation_function_kwargs=transformation_function_kwargs,
-        )
-    return _dataset if _dataset is not None else dataset
+def _get_prediction(model: ModelBase, dataset: DatasetBase, part: FacialPart = FacialParts.entire) -> PredictionResult:
+    prediction_result = model.predict(dataset, facial_part=part)
+
+    return prediction_result
 
 
-def _get_prediction_and_marks(model: ModelBase, dataset: DatasetBase):
-    prediction_result = model.predict(dataset, facial_part=dataset.facial_part)
-    marks = dataset.all_marks
-    if prediction_result.prediction.shape != marks.shape:
-        raise ValueError("_calculate_me: arrays have different dimensions.")
-    if len(prediction_result.prediction.shape) > 3 or len(marks.shape) > 3:
-        raise ValueError("_calculate_me: ME only implemented for 2D images.")
-
-    return prediction_result, marks
-
-
-def _calculate_es(prediction, marks):
+def _calculate_es(prediction: PredictionResult):
     """
     Euclidean distances
     """
-    return np.sqrt(np.einsum("ijk->ij", (prediction - marks) ** 2))
+    return np.sqrt(np.einsum("ijk->ij", (prediction.prediction - prediction.ground_truth) ** 2))
 
 
 def _calculate_d_outers(marks):
@@ -43,13 +28,13 @@ def _calculate_d_outers(marks):
     )
 
 
-def _calculate_nmes(prediction, marks):
+def _calculate_nmes(prediction: PredictionResult):
     """
     Normalized Mean Euclidean distances across landmarks
     """
-    es = _calculate_es(prediction, marks)
+    es = _calculate_es(prediction)
     mes = np.nanmean(es, axis=1)
-    d_outers = _calculate_d_outers(marks)
+    d_outers = _calculate_d_outers(prediction.ground_truth)
     return mes / d_outers
 
 
@@ -64,8 +49,8 @@ def test_me_mean(model: ModelBase, dataset: DatasetBase, threshold=1):
     Returns:
         TestResult: result of the test
     """
-    prediction_result, marks = _get_prediction_and_marks(model, dataset)
-    metric = np.nanmean(_calculate_es(prediction_result.prediction, marks))
+    prediction_result = _get_prediction(model, dataset)
+    metric = np.nanmean(_calculate_es(prediction_result))
     return TestResult(
         name="ME_mean",
         description="Mean of mean Euclidean distances across images",
@@ -88,8 +73,8 @@ def test_me_std(model: ModelBase, dataset: DatasetBase, threshold=1):
     Returns:
         TestResult: result of the test
     """
-    prediction_result, marks = _get_prediction_and_marks(model, dataset)
-    metric = np.nanstd(_calculate_es(prediction_result.prediction, marks))
+    prediction_result = _get_prediction(model, dataset)
+    metric = np.nanstd(_calculate_es(prediction_result))
     return TestResult(
         name="ME_std",
         description="Standard deviation of mean Euclidean distances across images",
@@ -104,8 +89,6 @@ def test_me_std(model: ModelBase, dataset: DatasetBase, threshold=1):
 def test_nme_mean(
     model: ModelBase,
     dataset: DatasetBase,
-    transformation_function=None,
-    transformation_function_kwargs=None,
     threshold=0.01,
 ):
     """Mean of normalised mean Euclidean distances across images
@@ -118,13 +101,8 @@ def test_nme_mean(
     Returns:
         TestResult: result of the test
     """
-    _dataset = _preprocess_dataset(
-        dataset,
-        transformation_function=transformation_function,
-        transformation_function_kwargs=transformation_function_kwargs,
-    )
-    prediction_result, marks = _get_prediction_and_marks(model, _dataset)
-    metric = np.nanmean(_calculate_nmes(prediction_result.prediction, marks))
+    prediction_result = _get_prediction(model, dataset)
+    metric = np.nanmean(_calculate_nmes(prediction_result))
     return TestResult(
         name="NME_mean",
         description="Mean of normalised mean Euclidean distances across images",
@@ -133,15 +111,12 @@ def test_nme_mean(
         prediction_results=[prediction_result],
         passed=metric <= threshold,
         prediction_time=prediction_result.prediction_time,
-        preprocessing_time=_dataset.meta["preprocessing_time"],
     )
 
 
 def test_nme_std(
     model: ModelBase,
     dataset: DatasetBase,
-    transformation_function=None,
-    transformation_function_kwargs=None,
     threshold=0.01,
 ):
     """Standard deviation of normalised Mean Euclidean distances across images
@@ -154,13 +129,8 @@ def test_nme_std(
     Returns:
         TestResult: result of the test
     """
-    _dataset = _preprocess_dataset(
-        dataset,
-        transformation_function=transformation_function,
-        transformation_function_kwargs=transformation_function_kwargs,
-    )
-    prediction_result, marks = _get_prediction_and_marks(model, _dataset)
-    metric = np.nanstd(_calculate_nmes(prediction_result.prediction, marks))
+    prediction_result = _get_prediction(model, dataset)
+    metric = np.nanstd(_calculate_nmes(prediction_result))
     return TestResult(
         name="NME_std",
         description="Standard deviation of normalised Mean Euclidean distances across images",
@@ -169,15 +139,13 @@ def test_nme_std(
         prediction_results=[prediction_result],
         passed=metric <= threshold,
         prediction_time=prediction_result.prediction_time,
-        preprocessing_time=_dataset.meta["preprocessing_time"],
     )
 
 
 def test_nme_mean_diff(
     model: ModelBase,
     dataset: DatasetBase,
-    transformation_function,
-    transformation_function_kwargs,
+    dataset_diff: DatasetBase,
     threshold=0.1,
     relative: bool = True,
 ):
@@ -196,9 +164,7 @@ def test_nme_mean_diff(
     test_result = test_nme_mean(model, dataset, threshold=threshold)
     test_result_transformed = test_nme_mean(
         model,
-        dataset,
-        transformation_function=transformation_function,
-        transformation_function_kwargs=transformation_function_kwargs,
+        dataset_diff,
         threshold=threshold,
     )
     norm = test_result.metric if relative else 1.0
@@ -222,8 +188,7 @@ def test_nme_mean_diff(
 def test_nme_std_diff(
     model: ModelBase,
     dataset: DatasetBase,
-    transformation_function,
-    transformation_function_kwargs,
+    dataset_diff: DatasetBase,
     threshold=0.1,
     relative: bool = True,
 ):
@@ -242,9 +207,7 @@ def test_nme_std_diff(
     test_result = test_nme_std(model, dataset, threshold=threshold)
     test_result_transformed = test_nme_std(
         model,
-        dataset,
-        transformation_function=transformation_function,
-        transformation_function_kwargs=transformation_function_kwargs,
+        dataset_diff,
         threshold=threshold,
     )
     norm = test_result.metric if relative else 1.0

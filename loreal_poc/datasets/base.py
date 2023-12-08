@@ -1,11 +1,14 @@
-import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 from numpy.lib.mixins import NDArrayOperatorsMixin
+
+from loreal_poc.transformation_functions.transformation_functions import (
+    get_boundaries_from_marks,
+)
 
 
 @dataclass(frozen=True)
@@ -58,7 +61,37 @@ class FacialParts:
     right_half: FacialPart = FacialPart(_right_half, name="right half")
 
 
-class DatasetBase(ABC):
+class Dataset(ABC):
+    def __init__(self) -> None:
+        super().__init__()
+        self.index = 0
+
+    def __iter__(self):
+        self.index = 0
+        return self
+
+    @abstractmethod
+    def __len__(self) -> int:
+        ...
+
+    @abstractmethod
+    def __getitem__(self, key: int) -> Tuple[np.ndarray, np.ndarray]:  # (marks, image)
+        ...
+
+    # @property
+    # @abstractmethod
+    # def marks(self) -> Generator[np.ndarray, Any, None]:
+    #     ...
+
+    def __next__(self) -> Tuple[np.ndarray, np.ndarray]:
+        if self.index >= len(self):
+            raise StopIteration
+        elt = self[self.index]
+        self.index += 1
+        return elt
+
+
+class DatasetBase(Dataset):
     image_suffix: str
     marks_suffix: str
     n_landmarks: int
@@ -69,39 +102,38 @@ class DatasetBase(ABC):
         self,
         images_dir_path: Union[str, Path],
         landmarks_dir_path: Union[str, Path],
-        facial_part: FacialPart = FacialParts.entire,
+        meta: Optional[Dict[str, Any]] = None,
     ) -> None:
+        super().__init__()
         images_dir_path = self._get_absolute_local_path(images_dir_path)
         landmarks_dir_path = self._get_absolute_local_path(landmarks_dir_path)
 
         self.image_paths = self._get_all_paths_based_on_suffix(images_dir_path, self.image_suffix)
         self.marks_paths = self._get_all_paths_based_on_suffix(landmarks_dir_path, self.marks_suffix)
-        self._all_marks = None
-        self._all_images = None
-        self.facial_part = facial_part
-
         if len(self.marks_paths) != len(self.image_paths):
             raise ValueError(
                 f"{self.__class__.__name__}: Only {len(self.marks_paths)} found "
                 f"for {len(self.marks_paths)} of the images."
             )
 
-        self.meta = dict()
-        self.meta.update(
-            {"num_samples": len(self), "images_dir_path": images_dir_path, "landmarks_dir_path": landmarks_dir_path}
-        )
+        self.meta = {
+            **(meta if meta is not None else {}),
+            "num_samples": len(self),
+            "images_dir_path": images_dir_path,
+            "landmarks_dir_path": landmarks_dir_path,
+        }
 
-    def _get_absolute_local_path(self, local_path: Union[str, Path]):
-        cwd = os.getcwd()
-        local_path = Path(cwd) / local_path if cwd not in str(local_path) else local_path
-        if not os.path.exists(local_path):
-            raise ValueError(f"{self.__class__.__name__}: {local_path} does not exist")
+    def _get_absolute_local_path(self, local_path: Union[str, Path]) -> Path:
+        local_path = Path(local_path).resolve()
+        if not local_path.is_dir():
+            raise ValueError(f"{self.__class__.__name__}: {local_path} does not exist or is not a directory")
         return local_path
 
     @classmethod
-    def _get_all_paths_based_on_suffix(cls, dir_path: Union[str, Path], suffix: str):
-        all_paths = os.listdir(dir_path)
-        all_paths_with_suffix = sorted([dir_path / x for x in all_paths if x.endswith(suffix)])
+    def _get_all_paths_based_on_suffix(cls, dir_path: Path, suffix: str) -> List[Path]:
+        all_paths_with_suffix = list(
+            sorted([p for p in dir_path.iterdir() if p.suffix == suffix], key=lambda p: str(p))
+        )
         if len(all_paths_with_suffix) == 0:
             raise ValueError(
                 f"{cls.__class__.__name__}: Landmarks with suffix {suffix}"
@@ -109,52 +141,117 @@ class DatasetBase(ABC):
             )
         return all_paths_with_suffix
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.image_paths)
 
+    def __getitem__(self, key: int) -> Tuple[np.ndarray, np.ndarray]:
+        return self._load_and_validate_marks(self.marks_paths[key]), self.load_image_from_file(self.image_paths[key])
+
+    # @property
+    # def marks(self) -> Generator[np.ndarray, Any, None]:
+    #     for p in self.marks_paths:
+    #         yield self._load_and_validate_marks(p)
+
     @classmethod
     @abstractmethod
-    def load_marks_from_file(cls, mark_file: Path):
+    def load_marks_from_file(cls, mark_file: Path) -> np.ndarray:
         ...
 
     @classmethod
     @abstractmethod
-    def load_image_from_file(cls, image_file: Path):
+    def load_image_from_file(cls, image_file: Path) -> np.ndarray:
         ...
 
-    @property
-    def all_marks(self):
-        if self._all_marks is None:
-            all_marks = np.empty((len(self), self.n_landmarks, self.n_dimensions))
-            all_marks[:, :, :] = np.nan
-            for i, marks_path in enumerate(self.marks_paths):
-                _marks = self.load_marks_from_file(marks_path)
-                if _marks.shape[0] != self.n_landmarks:
-                    raise ValueError(f"{self.__class__} is only defined for {self.n_landmarks} landmarks.")
-                if _marks.shape[1] != self.n_dimensions:
-                    raise ValueError(f"{self.__class__} is only defined for {self.n_dimensions} dimensions.")
-                all_marks[i, :, :] = _marks
-            self._all_marks = all_marks
-        return self._all_marks
+    @classmethod
+    def _load_and_validate_marks(cls, mark_file: Path) -> np.ndarray:
+        marks = cls.load_marks_from_file(mark_file)
+        cls._validate_marks(marks)
+        return marks
 
-    @property
-    def all_images(self):
-        if self._all_images is None:
-            all_images = list()
-            for i, image_path in enumerate(self.image_paths):
-                _image = self.load_image_from_file(image_path)
-                all_images.append(_image)
-            self._all_images = all_images
-        return self._all_images
+    @classmethod
+    def _validate_marks(cls, marks: np.ndarray):
+        if marks.shape[0] != cls.n_landmarks:
+            raise ValueError(f"{cls} is only defined for {cls.n_landmarks} landmarks.")
+        if marks.shape[1] != cls.n_dimensions:
+            raise ValueError(f"{cls} is only defined for {cls.n_dimensions} dimensions.")
 
-    def all_marks_for(self, part: FacialPart, exclude=False):
-        idx = ~np.isin(FacialParts.entire, part) if not exclude else np.isin(FacialParts.entire, part)
-        part_landmarks = self.all_marks.copy()
-        part_landmarks[:, idx] = np.nan
-        return part_landmarks
 
-    def marks_for(self, part: FacialPart, mark_idx: int, exclude=False):
-        idx = ~np.isin(FacialParts.entire, part) if not exclude else np.isin(FacialParts.entire, part)
-        part_landmarks = self.all_marks[mark_idx].copy()
-        part_landmarks[idx] = np.nan
-        return part_landmarks
+class WrapperDataset(Dataset):
+    def __init__(self, dataset: Dataset) -> None:
+        self._wrapped_dataset = dataset
+
+    def __len__(self) -> int:
+        return len(self._wrapped_dataset)
+
+    def __getitem__(self, key: int) -> Tuple[np.ndarray, np.ndarray]:  # (marks, image)
+        return self._wrapped_dataset[key]
+
+    def __getattr__(self, attr):
+        # This will proxy any dataset.a to dataset._wrapped_dataset.a
+        return getattr(self._wrapped_dataset, attr)
+
+
+def crop_mark(mark: np.ndarray, part: FacialPart, exclude=False):
+    idx = np.isin(FacialParts.entire, part)
+    if not exclude:
+        idx = ~idx
+    res = mark.copy()
+    res[idx, :] = np.nan
+    return res
+
+
+def crop_image_from_mark(img: np.ndarray, mark: np.ndarray, margins: Tuple[int, int]) -> np.ndarray:
+    left, upper, right, lower = get_boundaries_from_marks(mark, margins)
+    mask = np.ones(img.shape, bool)
+    mask[lower:upper, left:right] = 0
+    return np.where(mask, 0, img)
+
+
+class CroppedDataset(WrapperDataset):
+    def __init__(
+        self,
+        dataset: Dataset,
+        part: FacialPart,
+        margins: Union[Tuple[float, float], float] = [0, 0],
+        crop_img: bool = True,
+        crop_marks: bool = True,
+    ) -> None:
+        super().__init__(dataset)
+        self._part = part
+        self._margins = margins
+        self.crop_img = crop_img
+        self.crop_marks = crop_marks
+        # self._marks = np.stack([crop_mark(mark, self._part) for mark in self._wrapped_dataset.marks], axis=0)
+        # left, upper, right, lower = get_boundaries_from_marks(self._marks, margins)
+        # mask = np.ones(self._marks[0].shape, np.bool)
+        # mask[left:right, lower:upper] = 0
+        # self._cropping_mask = mask
+
+    def __getitem__(self, key: int) -> Tuple[np.ndarray, np.ndarray]:
+        mark, img = self._wrapped_dataset[key]
+        h, w, _ = img.shape
+        margins = np.array([w, h]) * self._margins
+
+        cropped_mark = crop_mark(mark, self._part)
+        res_marks = cropped_mark if self.crop_marks else mark
+        res_img = crop_image_from_mark(img, cropped_mark, margins) if self.crop_img else img
+        return res_marks, res_img
+
+
+class CachedDataset(WrapperDataset):
+    def __init__(self, dataset: Dataset, cache_size: int = 20) -> None:
+        super().__init__(dataset)
+        self._max_size: int = cache_size
+        self._cache_keys: List[int] = []
+        self._cache: Dict[int, Tuple[np.ndarray, np.ndarray]] = {}
+
+    def __getitem__(self, key: int) -> Tuple[np.ndarray, np.ndarray]:  # (marks, image)
+        # Add basic LRU cache to avoid reloading images and marks on small datasets
+        if key in self._cache_keys:
+            self._cache_keys.remove(key)
+        else:
+            self._cache[key] = self._wrapped_dataset[key]
+        self._cache_keys.insert(0, key)
+        if len(self._cache_keys) > self._max_size:
+            self._cache.pop(self._cache_keys.pop(-1))
+        return self._cache_keys[key]

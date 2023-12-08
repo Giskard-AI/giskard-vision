@@ -13,6 +13,7 @@ class PredictionResult:
     prediction: np.ndarray
     prediction_fail_rate: float
     prediction_time: float
+    ground_truth: np.ndarray
 
 
 def is_failed(prediction):
@@ -64,7 +65,7 @@ class ModelBase(ABC):
 
     def predict(
         self, dataset: DatasetBase, idx_range: Optional[List] = None, facial_part: Optional[FacialPart] = None
-    ) -> np.ndarray:
+    ) -> PredictionResult:
         """main method to predict the landmarks
 
         Args:
@@ -73,15 +74,18 @@ class ModelBase(ABC):
             facial_part (Optional[FacialPart], optional): facial part. Defaults to None.
 
         Returns:
-            np.ndarray: an array of the shape [img, landmark, dim] that represents the image index in the first dimension, the landmark index in the second and the dimension index in the third
+            PredictionResult
         """
         ts = time()
-        predictions = list()
+        predictions = []
+        ground_truths = []
         idx_range = idx_range if idx_range is not None else range(len(dataset))
         prediction_fail_rate = 0
         for i in idx_range:
+            gt, img = dataset[i]
+            ground_truths.append(gt)
             try:
-                prediction = self.predict_image(dataset.all_images[i])
+                prediction = self.predict_image(img)
             except Exception:
                 prediction = None
 
@@ -91,7 +95,18 @@ class ModelBase(ABC):
             predictions.append(prediction[0])
         prediction_fail_rate /= len(idx_range)
         te = time()
+        predictions = np.array(predictions)
+        ground_truths = np.array(ground_truths)
+        if predictions.shape != ground_truths.shape:
+            raise ValueError(
+                f"_calculate_me: arrays have different dimensions :{predictions.shape}, {ground_truths.shape}"
+            )
+        if len(predictions.shape) > 3 or len(gt.shape) > 3:
+            raise ValueError("_calculate_me: ME only implemented for 2D images.")
 
         return PredictionResult(
-            prediction=np.array(predictions), prediction_fail_rate=prediction_fail_rate, prediction_time=te - ts
+            prediction=predictions,
+            prediction_fail_rate=prediction_fail_rate,
+            prediction_time=te - ts,
+            ground_truth=ground_truths,
         )

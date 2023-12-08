@@ -1,11 +1,10 @@
 from pathlib import Path
-from time import time
 from typing import Union
 
 import cv2
 import numpy as np
 
-from .base import DatasetBase, FacialPart, FacialParts
+from .base import DatasetBase
 
 
 def _load_image_usin_openCV(image_file: Path) -> np.ndarray:
@@ -29,11 +28,10 @@ class Dataset300W(DatasetBase):
     def __init__(
         self,
         dir_path: Union[str, Path],
-        facial_part: FacialPart = FacialParts.entire,
     ) -> None:
-        super().__init__(dir_path, dir_path, facial_part=facial_part)
-
-        self.meta.update(
+        super().__init__(
+            dir_path,
+            dir_path,
             {
                 "authors": "Imperial College London",
                 "year": 2013,
@@ -41,7 +39,7 @@ class Dataset300W(DatasetBase):
                 "n_dimensions": self.n_dimensions,
                 "preprocessed": False,
                 "preprocessing_time": 0.0,
-            }
+            },
         )
 
     @classmethod
@@ -69,14 +67,14 @@ class Dataset300W(DatasetBase):
         """
         return _load_image_usin_openCV(image_file)
 
-    def copy(self, facial_part: FacialPart = FacialParts.entire):
-        return Dataset300W(self.meta["images_dir_path"], facial_part)
+    # def copy(self, facial_part: FacialPart = FacialParts.entire):
+    #     return Dataset300W(self.meta["images_dir_path"], facial_part)
 
-    def transform(self, transformation_function, transformation_function_kwargs):
-        ts = time()
-        transformation_function_kwargs.update({"dataset": self})
-        transformed_dataset = transformation_function(**transformation_function_kwargs)
-        te = time()
-        transformed_dataset.meta["preprocessed"] = True
-        transformed_dataset.meta["preprocessing_time"] = te - ts
-        return transformed_dataset
+    # def transform(self, transformation_function, transformation_function_kwargs):
+    #     ts = time()
+    #     transformation_function_kwargs.update({"dataset": self})
+    #     transformed_dataset = transformation_function(**transformation_function_kwargs)
+    #     te = time()
+    #     transformed_dataset.meta["preprocessed"] = True
+    #     transformed_dataset.meta["preprocessing_time"] = te - ts
+    #     return transformed_dataset
