@@ -6,7 +6,6 @@ class LandmarksDataloader():
         self.batch_size = batch_size
 
         self.samples_indices = [idx for idx in range(len(self.dataset))]
-        print(self.samples_indices)
         if shuffle:
             np.random.shuffle(self.samples_indices)
     
