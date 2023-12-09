@@ -18,24 +18,33 @@ dependencies = [
 requires-python = ">=3.10,<3.12"
 readme = "README.md"
 
+[tool.pdm.scripts]
+notebook = "jupyter notebook --ip 0.0.0.0 --port 8888 --no-browser --notebook-dir ./examples --NotebookApp.token=''"
+format.cmd = "bash -c 'ruff ./loreal_poc ./tests --fix && black ./loreal_poc ./examples ./tests && isort ./loreal_poc ./tests'"
+
 [tool.pdm.dev-dependencies]
 dev = [
     "face-alignment",
-    "jupyter",
+    "notebook",
     "matplotlib",
-    "black>=23.7.0",
+    "black[jupyter]>=23.7.0",
     "pytest>=7.4.0",
     "pip>=23.2.1",
     "pre-commit>=2.19.0",
+    "ruff",
+    "isort"
 ]
 
 [tool.ruff]
 line-length = 120
 ignore = ["E501"]
 
+[tool.isort]
+profile = "black"
+
 [tool.black]
 # https://github.com/psf/black
-target-version = ['py38', 'py39', 'py310']
+target-version = ['py310', 'py311']
 line-length = 120
 color = true
 

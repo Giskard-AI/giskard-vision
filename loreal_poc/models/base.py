@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-import numpy as np
-from typing import Any, Optional, List
 from time import time
+from typing import Any, List, Optional
+
+import numpy as np
 
 from ..datasets.base import DatasetBase, FacialPart, FacialParts
 
@@ -15,10 +16,10 @@ class PredictionResult:
 
 
 def is_failed(prediction):
-    return np.count_nonzero(np.isnan(prediction)) == prediction.size
+    return np.isnan(prediction).sum() == prediction.size
 
 
-class ModelBase(ABC):
+class FaceLandmarksModelBase(ABC):
     """Abstract class that serves as a template for all landmark model predictions"""
 
     def __init__(self, model: Any, n_landmarks: int, n_dimensions: int) -> None:

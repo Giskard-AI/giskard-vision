@@ -1,7 +1,6 @@
 import numpy as np
 
-from ..datasets.base import DatasetBase
-from ..datasets.base import FacialPart
+from ..datasets.base import DatasetBase, FacialPart
 
 
 def get_boundaries_from_marks(marks, margins):

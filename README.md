@@ -14,8 +14,9 @@ source .venv/bin/activate
 dev-env
 
 ```shell
-pdm install
+pdm install -G :all
 source .venv/bin/activate
+pre-commit install
 ```
 
 ## Examples
