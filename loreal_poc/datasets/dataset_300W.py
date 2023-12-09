@@ -7,18 +7,6 @@ import numpy as np
 from .base import DatasetBase
 
 
-def _load_image_using_openCV(image_file: Path) -> np.ndarray:
-    """Loads images as np.array using opencV
-
-    Args:
-        image_file (Path): path to image file
-
-    Returns:
-        np.ndarray: numpy array image
-    """
-    return cv2.imread(str(image_file))
-
-
 class Dataset300W(DatasetBase):
     image_suffix: str = ".png"
     marks_suffix: str = ".pts"
@@ -65,7 +53,7 @@ class Dataset300W(DatasetBase):
         Returns:
             np.ndarray: numpy array image
         """
-        return _load_image_using_openCV(image_file)
+        return cv2.imread(str(image_file))
 
     # def copy(self, facial_part: FacialPart = FacialParts.entire):
     #     return Dataset300W(self.meta["images_dir_path"], facial_part)
