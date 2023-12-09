@@ -16,7 +16,7 @@ class PredictionResult:
 
 
 def is_failed(prediction):
-    return np.count_nonzero(np.isnan(prediction)) == prediction.size
+    return np.isnan(prediction).sum() == prediction.size
 
 
 class ModelBase(ABC):
