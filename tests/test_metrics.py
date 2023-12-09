@@ -160,8 +160,10 @@ def test_calculate_es_2d():
     a = np.asarray(TEST_ARRAY_A_2D)
     b = np.asarray(TEST_ARRAY_B_2D)
     c = np.asarray([np.sqrt((p_a[0] - p_b[0]) ** 2 + (p_a[1] - p_b[1]) ** 2) for p_a, p_b in zip(a, b)])
+    a = np.asarray(a)[np.newaxis, :, :]  # (Nimages, Nlandmark, Ndim) expected in Metric
+    b = np.asarray(b)[np.newaxis, :, :]  # (Nimages, Nlandmark, Ndim) expected in Metric
     prediction_result = PredictionResult(prediction=a)
-    calculated = Es.definition(prediction_result, np.asarray([b]))
+    calculated = Es.get(prediction_result, b)
     assert np.all(np.isclose(np.asarray([c]), calculated))
 
 
