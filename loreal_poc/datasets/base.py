@@ -145,7 +145,9 @@ class DatasetBase(Dataset):
         return len(self.image_paths)
 
     def __getitem__(self, key: int) -> Tuple[np.ndarray, np.ndarray]:
-        return self._load_and_validate_marks(self.marks_paths[key]), self.load_image_from_file(self.image_paths[key])
+        return self._load_and_validate_marks(self.marks_paths[key]), self._load_and_validate_image(
+            self.image_paths[key]
+        )
 
     # @property
     # def marks(self) -> Generator[np.ndarray, Any, None]:
@@ -169,11 +171,25 @@ class DatasetBase(Dataset):
         return marks
 
     @classmethod
-    def _validate_marks(cls, marks: np.ndarray):
+    def _load_and_validate_image(cls, image_file: Path) -> np.ndarray:
+        image = cls.load_image_from_file(image_file)
+        cls._validate_image(image)
+        return image
+
+    @classmethod
+    def _validate_marks(cls, marks: np.ndarray) -> None:
         if marks.shape[0] != cls.n_landmarks:
             raise ValueError(f"{cls} is only defined for {cls.n_landmarks} landmarks.")
         if marks.shape[1] != cls.n_dimensions:
             raise ValueError(f"{cls} is only defined for {cls.n_dimensions} dimensions.")
+
+    def _validate_image(cls, image: np.ndarray) -> None:
+        if image is None:
+            raise ValueError(f"{cls}: Image loading returned None.")
+        if len(image.shape) != 3:
+            raise ValueError(
+                f"{cls} is only defined for numpy array images of shape (height, width, channels) but {cls.n_landmarks} found."
+            )
 
 
 class WrapperDataset(Dataset):
