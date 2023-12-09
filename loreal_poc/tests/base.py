@@ -1,11 +1,11 @@
-from typing import List, Optional, Any
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import Any, List, Optional
+
 import numpy as np
 
-from ..models.base import PredictionResult
-from ..models.base import FaceLandmarksModelBase
 from ..datasets.base import DatasetBase
+from ..models.base import FaceLandmarksModelBase, PredictionResult
 
 
 def _preprocess_dataset(dataset: DatasetBase, transformation_function, transformation_function_kwargs):
@@ -99,12 +99,11 @@ class Metric(ABC):
 
     @classmethod
     def validation(cls, prediction_result: PredictionResult, marks: np.ndarray) -> None:
-        pass
+        if not isinstance(prediction_result, PredictionResult) or not isinstance(marks, np.ndarray):
+            raise ValueError(f"{cls.__name__}: Arguments passed to metric are of the wrong types.")
 
     @classmethod
     def get(cls, prediction_result: PredictionResult, marks: np.ndarray) -> Any:
-        if not isinstance(prediction_result, PredictionResult) or not isinstance(marks, np.ndarray):
-            raise ValueError(f"{cls.__name__}: Arguments passed to metric are of the wrong types.")
         cls.validation(prediction_result, marks)
         return cls.definition(prediction_result, marks)
 
