@@ -14,10 +14,10 @@ class FacialPart(NDArrayOperatorsMixin):
     name: str = ""
 
     def __add__(self, o):
-        return FacialPart(np.intersect1d((self.part, o.part)))
+        return FacialPart(np.unique(np.concatenate((self.part, o.part))))
 
     def __sub__(self, o):
-        return FacialPart(np.setxor1d((self.part, o.part)))
+        return FacialPart(np.setxor1d(self.part, np.intersect1d(self.part, o.part)))
 
     def __array__(self):
         return self.part
