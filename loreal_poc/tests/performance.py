@@ -1,9 +1,9 @@
-import numpy as np
 from dataclasses import dataclass
 
-from .base import Metric
-from ..models.base import PredictionResult
+import numpy as np
 
+from ..models.base import PredictionResult
+from .base import Metric
 
 # See https://ibug.doc.ic.ac.uk/resources/300-W/ for definition
 LEFT_EYE_LEFT_LANDMARK = 36
@@ -17,6 +17,7 @@ class Es(Metric):
 
     @classmethod
     def validation(cls, prediction_result: PredictionResult, marks: np.ndarray) -> None:
+        super().validation(prediction_result, marks)
         shapes = {"Predictions": prediction_result.prediction.shape, "Marks": marks.shape}
         for obj, shape in shapes.items():
             if len(shape) != 3:
