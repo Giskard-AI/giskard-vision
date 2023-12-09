@@ -17,7 +17,7 @@ class FacialPart(NDArrayOperatorsMixin):
         return FacialPart(np.unique(np.concatenate((self.part, o.part))))
 
     def __sub__(self, o):
-        return FacialPart(np.setxor1d(self.part, o.part))
+        return FacialPart(np.setxor1d(self.part, np.intersect1d(self.part, o.part)))
 
     def __array__(self):
         return self.part
