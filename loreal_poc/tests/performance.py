@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from .base import Metric
 from ..models.base import PredictionResult
 
+
 # See https://ibug.doc.ic.ac.uk/resources/300-W/ for definition
 LEFT_EYE_LEFT_LANDMARK = 36
 RIGHT_EYE_RIGHT_LANDMARK = 45

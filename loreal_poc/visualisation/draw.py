@@ -1,7 +1,8 @@
 from typing import List, Optional, Union
+
+import cv2
 import numpy as np
 from PIL import Image, ImageDraw
-import cv2
 
 
 def _add_marks(image_display, marks, color=None, with_text=False, square=None):
