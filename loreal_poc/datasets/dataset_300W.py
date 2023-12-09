@@ -46,16 +46,8 @@ class Dataset300W(DatasetBase):
 
     @classmethod
     def load_marks_from_file(cls, mark_file: Path):
-        marks = []
-        with open(mark_file) as fid:
-            for line in fid:
-                if "version" in line or "points" in line or "{" in line or "}" in line:
-                    continue
-                else:
-                    loc_x, loc_y = line.strip().split(sep=" ")
-                    marks.append([float(loc_x), float(loc_y)])
-        marks = np.array(marks, dtype=float)
-        return marks
+        text = mark_file.read_text()
+        return np.array([xy.split(" ") for xy in text.split("\n")[3:-2]], dtype=float)
 
     @classmethod
     def load_image_from_file(cls, image_file: Path) -> np.ndarray:
