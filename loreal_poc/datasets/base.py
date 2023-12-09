@@ -183,6 +183,7 @@ class DatasetBase(Dataset):
         if marks.shape[1] != cls.n_dimensions:
             raise ValueError(f"{cls} is only defined for {cls.n_dimensions} dimensions.")
 
+    @classmethod
     def _validate_image(cls, image: np.ndarray) -> None:
         if image is None:
             raise ValueError(f"{cls}: Image loading returned None.")
