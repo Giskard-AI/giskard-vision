@@ -11,8 +11,8 @@ from ..datasets.base import DatasetBase, FacialPart, FacialParts
 @dataclass
 class PredictionResult:
     prediction: np.ndarray
-    prediction_fail_rate: float
-    prediction_time: float
+    prediction_fail_rate: float = None
+    prediction_time: float = None
 
 
 def is_failed(prediction):
