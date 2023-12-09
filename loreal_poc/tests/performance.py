@@ -14,8 +14,17 @@ class Es(Metric):
     name = "Es"
     description = "Array of landmarks Euclidean distances (prediction vs ground truth)"
 
+    @classmethod
+    def validation(cls, prediction_result: PredictionResult, marks: np.ndarray) -> None:
+        shapes = {"Predictions": prediction_result.prediction.shape, "Marks": marks.shape}
+        for obj, shape in shapes.items():
+            if len(shape) != 3:
+                raise ValueError(
+                    f"{cls.__name__}: {obj} should have the shape (Nimages, Nlandmark, Ndim) but received {shape}."
+                )
+
     @staticmethod
-    def get(prediction_result: PredictionResult, marks: np.ndarray):
+    def definition(prediction_result: PredictionResult, marks: np.ndarray) -> np.ndarray:
         return np.sqrt(np.einsum("ijk->ij", (prediction_result.prediction - marks) ** 2))
 
 
@@ -31,7 +40,7 @@ class NMEs(Metric):
     description = "Array of landmarks normalized mean Euclidean distances (prediction vs ground truth)"
 
     @staticmethod
-    def get(prediction_result: PredictionResult, marks: np.ndarray):
+    def definition(prediction_result: PredictionResult, marks: np.ndarray):
         es = Es.get(prediction_result, marks)
         mes = np.nanmean(es, axis=1)
         d_outers = _calculate_d_outers(marks)
@@ -46,7 +55,7 @@ class ME_mean(Metric):
     description = "Mean of mean Euclidean distances across images"
 
     @staticmethod
-    def get(prediction_result: PredictionResult, marks: np.ndarray):
+    def definition(prediction_result: PredictionResult, marks: np.ndarray):
         return np.nanmean(Es.get(prediction_result, marks))
 
 
@@ -58,7 +67,7 @@ class ME_std(Metric):
     description = "Standard deviation of mean Euclidean distances across images"
 
     @staticmethod
-    def get(prediction_result: PredictionResult, marks: np.ndarray):
+    def definition(prediction_result: PredictionResult, marks: np.ndarray):
         return np.nanstd(Es.get(prediction_result, marks))
 
 
@@ -70,7 +79,7 @@ class NME_mean(Metric):
     description = "Mean of normalised mean Euclidean distances across images"
 
     @staticmethod
-    def get(prediction_result: PredictionResult, marks: np.ndarray):
+    def definition(prediction_result: PredictionResult, marks: np.ndarray):
         return np.nanmean(NMEs.get(prediction_result, marks))
 
 
@@ -80,5 +89,5 @@ class NME_std(Metric):
     description = "Standard deviation of normalised Mean Euclidean distances across images"
 
     @staticmethod
-    def get(prediction_result: PredictionResult, marks: np.ndarray):
+    def definition(prediction_result: PredictionResult, marks: np.ndarray):
         return np.nanstd(NMEs.get(prediction_result, marks))

@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Any
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import numpy as np
@@ -94,8 +94,19 @@ class Metric(ABC):
 
     @staticmethod
     @abstractmethod
-    def get(prediction_result: PredictionResult, marks: np.ndarray):
+    def definition(prediction_result: PredictionResult, marks: np.ndarray) -> Any:
         ...
+
+    @classmethod
+    def validation(cls, prediction_result: PredictionResult, marks: np.ndarray) -> None:
+        pass
+
+    @classmethod
+    def get(cls, prediction_result: PredictionResult, marks: np.ndarray) -> Any:
+        if not isinstance(prediction_result, PredictionResult) or not isinstance(marks, np.ndarray):
+            raise ValueError(f"{cls.__name__}: Arguments passed to metric are of the wrong types.")
+        cls.validation(prediction_result, marks)
+        return cls.definition(prediction_result, marks)
 
 
 @dataclass
@@ -112,7 +123,7 @@ class Test:
         preprocessing_time = _dataset.meta.get("preprocessing_time", 0)
         prediction_result, marks = _get_prediction_and_marks(model, _dataset)
 
-        metric_value = self.metric.get(prediction_result, marks)
+        metric_value = self.metric.definition(prediction_result, marks)
         return TestResult(
             name=self.metric.name,
             description=self.metric.description,
@@ -144,8 +155,8 @@ class TestDiff:
         prediction_result1, marks1 = _get_prediction_and_marks(model, dataset)
         prediction_result2, marks2 = _get_prediction_and_marks(model, _dataset)
 
-        metric1_value = self.metric.get(prediction_result1, marks1)
-        metric2_value = self.metric.get(prediction_result2, marks2)
+        metric1_value = self.metric.definition(prediction_result1, marks1)
+        metric2_value = self.metric.definition(prediction_result2, marks2)
 
         norm = metric1_value if self.relative else 1.0
         metric_value = abs((metric2_value - metric1_value) / norm)
