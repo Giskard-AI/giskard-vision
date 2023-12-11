@@ -46,15 +46,3 @@ class DataLoader300W(DataLoaderBase):
             np.ndarray: numpy array image
         """
         return cv2.imread(str(image_file))
-
-    # def copy(self, facial_part: FacialPart = FacialParts.entire):
-    #     return Dataset300W(self.meta["images_dir_path"], facial_part)
-
-    # def transform(self, transformation_function, transformation_function_kwargs):
-    #     ts = time()
-    #     transformation_function_kwargs.update({"dataset": self})
-    #     transformed_dataset = transformation_function(**transformation_function_kwargs)
-    #     te = time()
-    #     transformed_dataset.meta["preprocessed"] = True
-    #     transformed_dataset.meta["preprocessing_time"] = te - ts
-    #     return transformed_dataset

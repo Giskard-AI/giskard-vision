@@ -21,11 +21,6 @@ class CroppedDataLoader(DataLoaderWrapper):
         self._margins = margins
         self.crop_img = crop_img
         self.crop_marks = crop_marks
-        # self._marks = np.stack([crop_mark(mark, self._part) for mark in self._wrapped_dataset.marks], axis=0)
-        # left, upper, right, lower = get_boundaries_from_marks(self._marks, margins)
-        # mask = np.ones(self._marks[0].shape, np.bool)
-        # mask[left:right, lower:upper] = 0
-        # self._cropping_mask = mask
 
     def __getitem__(self, key: int) -> Tuple[np.ndarray, np.ndarray]:
         mark, img = self._wrapped_dataloader[key]

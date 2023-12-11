@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from time import time
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Tuple
 
 import numpy as np
 
@@ -65,7 +65,7 @@ class FaceLandmarksModelBase(ABC):
 
     def predict(
         self, dataset: DataIteratorBase, idx_range: Optional[List] = None, facial_part: Optional[FacialPart] = None
-    ) -> PredictionResult:
+    ) -> Tuple[PredictionResult, np.ndarray]:
         """main method to predict the landmarks
 
         Args:
@@ -87,6 +87,7 @@ class FaceLandmarksModelBase(ABC):
             try:
                 prediction = self.predict_image(img)
             except Exception:
+                # TODO(Bazire): Add some log here
                 prediction = None
 
             prediction = self._postprocessing(prediction, facial_part)
@@ -98,15 +99,15 @@ class FaceLandmarksModelBase(ABC):
         predictions = np.array(predictions)
         ground_truths = np.array(ground_truths)
         if predictions.shape != ground_truths.shape:
-            raise ValueError(
-                f"_calculate_me: arrays have different dimensions :{predictions.shape}, {ground_truths.shape}"
-            )
+            raise ValueError(f"predict: arrays have different dimensions :{predictions.shape}, {ground_truths.shape}")
         if len(predictions.shape) > 3 or len(gt.shape) > 3:
-            raise ValueError("_calculate_me: ME only implemented for 2D images.")
+            raise ValueError("predict: ME only implemented for 2D images.")
 
-        return PredictionResult(
-            prediction=predictions,
-            prediction_fail_rate=prediction_fail_rate,
-            prediction_time=te - ts,
-            ground_truth=ground_truths,
+        return (
+            PredictionResult(
+                prediction=predictions,
+                prediction_fail_rate=prediction_fail_rate,
+                prediction_time=te - ts,
+            ),
+            ground_truths,
         )
