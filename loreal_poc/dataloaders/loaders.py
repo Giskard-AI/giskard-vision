@@ -4,10 +4,10 @@ from typing import Union
 import cv2
 import numpy as np
 
-from .base import DatasetBase
+from .base import DataLoaderBase
 
 
-class Dataset300W(DatasetBase):
+class Dataset300W(DataLoaderBase):
     image_suffix: str = ".png"
     marks_suffix: str = ".pts"
     n_landmarks: int = 68

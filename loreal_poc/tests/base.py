@@ -4,11 +4,11 @@ from typing import Any, List, Optional
 
 import numpy as np
 
-from ..datasets.base import DatasetBase
+from ..datasets.base import DataLoader
 from ..models.base import FaceLandmarksModelBase, PredictionResult
 
 
-def _preprocess_dataset(dataset: DatasetBase, transformation_function, transformation_function_kwargs):
+def _preprocess_dataset(dataset: DataLoader, transformation_function, transformation_function_kwargs):
     _dataset = None
     if transformation_function is not None and transformation_function_kwargs is not None:
         _dataset = dataset.transform(
@@ -18,7 +18,7 @@ def _preprocess_dataset(dataset: DatasetBase, transformation_function, transform
     return _dataset if _dataset is not None else dataset
 
 
-def _get_prediction_and_marks(model: FaceLandmarksModelBase, dataset: DatasetBase):
+def _get_prediction_and_marks(model: FaceLandmarksModelBase, dataset: DataLoader):
     prediction_result = model.predict(dataset, facial_part=dataset.facial_part)
     marks = dataset.all_marks
     if prediction_result.prediction.shape != marks.shape:

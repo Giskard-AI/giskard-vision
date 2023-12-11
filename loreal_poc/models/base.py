@@ -5,7 +5,7 @@ from typing import Any, List, Optional
 
 import numpy as np
 
-from ..datasets.base import DatasetBase, FacialPart, FacialParts
+from ..datasets.base import DataLoader, FacialPart, FacialParts
 
 
 @dataclass
@@ -63,7 +63,7 @@ class FaceLandmarksModelBase(ABC):
         return prediction
 
     def predict(
-        self, dataset: DatasetBase, idx_range: Optional[List] = None, facial_part: Optional[FacialPart] = None
+        self, dataset: DataLoader, idx_range: Optional[List] = None, facial_part: Optional[FacialPart] = None
     ) -> PredictionResult:
         """main method to predict the landmarks
 
