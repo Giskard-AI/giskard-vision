@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["cross_platform"]
 lock_version = "4.4"
-content_hash = "sha256:5f97b08f11f5dc6b051a108542cf5f6791db8e4cbf04818759c612936cb4036e"
+content_hash = "sha256:d8a9dfe0ec7e37a0ec8b3de23da6888d6557421370dc91037643593c9e999ac3"
 
 [[package]]
 name = "anyio"
@@ -1401,6 +1401,30 @@ summary = "NVIDIA Tools Extension"
 files = [
     {file = "nvidia_nvtx_cu12-12.1.105-py3-none-manylinux1_x86_64.whl", hash = "sha256:dc21cf308ca5691e7c04d962e213f8a4aa9bbfa23d95412f452254c2caeb09e5"},
     {file = "nvidia_nvtx_cu12-12.1.105-py3-none-win_amd64.whl", hash = "sha256:65f4d98982b31b60026e0e6de73fbdfc09d08a96f4656dd3665ca616a11e1e82"},
+]
+
+[[package]]
+name = "opencv-contrib-python"
+version = "4.8.1.78"
+requires_python = ">=3.6"
+summary = "Wrapper package for OpenCV python bindings."
+dependencies = [
+    "numpy>=1.17.0; python_version >= \"3.7\"",
+    "numpy>=1.17.3; python_version >= \"3.8\"",
+    "numpy>=1.19.3; python_version >= \"3.6\" and platform_system == \"Linux\" and platform_machine == \"aarch64\"",
+    "numpy>=1.19.3; python_version >= \"3.9\"",
+    "numpy>=1.21.2; python_version >= \"3.10\"",
+    "numpy>=1.21.4; python_version >= \"3.10\" and platform_system == \"Darwin\"",
+    "numpy>=1.23.5; python_version >= \"3.11\"",
+]
+files = [
+    {file = "opencv-contrib-python-4.8.1.78.tar.gz", hash = "sha256:81804332299d656905d4f404fcec5f400d692c652d7a47926b7a441272ce795b"},
+    {file = "opencv_contrib_python-4.8.1.78-cp37-abi3-macosx_10_16_x86_64.whl", hash = "sha256:8d97192471c7d42532103ecebf8ad9d9534b7cd655ffadbccacb9ff3d4d49b40"},
+    {file = "opencv_contrib_python-4.8.1.78-cp37-abi3-macosx_11_0_arm64.whl", hash = "sha256:8d6feb39d4af2cd1e8919110229bfedd13d4798a089bbe88fbd1a001b664d552"},
+    {file = "opencv_contrib_python-4.8.1.78-cp37-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:6cad1720ac701cb3742f48f95bef5cfa288b916b6ac5700f63d5809e3ad5999e"},
+    {file = "opencv_contrib_python-4.8.1.78-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:3fb62bc5967a79bce7c576ef94dea0b9172e52bab91630103e042cb5f29a148a"},
+    {file = "opencv_contrib_python-4.8.1.78-cp37-abi3-win32.whl", hash = "sha256:f8737cf3055a6156c66c75432ed28ee3c1d52532b17d91ed73d508ae351b3e66"},
+    {file = "opencv_contrib_python-4.8.1.78-cp37-abi3-win_amd64.whl", hash = "sha256:377936b02dcf82dc70261101381a8ad82b03d1298f185886be298d74fe35c328"},
 ]
 
 [[package]]

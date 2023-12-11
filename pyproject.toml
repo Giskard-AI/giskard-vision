@@ -25,6 +25,7 @@ format.cmd = "bash -c 'ruff ./loreal_poc ./tests --fix && black ./loreal_poc ./e
 [tool.pdm.dev-dependencies]
 dev = [
     "face-alignment",
+    "opencv-contrib-python", # needed for lbfmodel
     "notebook",
     "matplotlib",
     "black[jupyter]>=23.7.0",
