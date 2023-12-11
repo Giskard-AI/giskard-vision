@@ -4,11 +4,11 @@ from typing import Any, List, Optional
 
 import numpy as np
 
-from ..datasets.base import DataLoader
+from ..dataloaders.base import DataIteratorBase
 from ..models.base import FaceLandmarksModelBase, PredictionResult
 
 
-def _preprocess_dataset(dataset: DataLoader, transformation_function, transformation_function_kwargs):
+def _preprocess_dataset(dataset: DataIteratorBase, transformation_function, transformation_function_kwargs):
     _dataset = None
     if transformation_function is not None and transformation_function_kwargs is not None:
         _dataset = dataset.transform(
@@ -18,8 +18,8 @@ def _preprocess_dataset(dataset: DataLoader, transformation_function, transforma
     return _dataset if _dataset is not None else dataset
 
 
-def _get_prediction_and_marks(model: FaceLandmarksModelBase, dataset: DataLoader):
-    prediction_result = model.predict(dataset, facial_part=dataset.facial_part)
+def _get_prediction_and_marks(model: FaceLandmarksModelBase, dataset: DataIteratorBase):
+    prediction_result = model.predict(dataset)
     marks = dataset.all_marks
     if prediction_result.prediction.shape != marks.shape:
         raise ValueError("_calculate_me: arrays have different dimensions.")

@@ -3,10 +3,7 @@ from typing import Dict, List, Tuple, Union
 import numpy as np
 
 from ..marks.facial_parts import FacialPart
-from ..transformation_functions.transformation_functions import (
-    crop_image_from_mark,
-    crop_mark,
-)
+from ..transformation_functions.crop import crop_image_from_mark, crop_mark
 from .base import DataIteratorBase, DataLoaderWrapper
 
 

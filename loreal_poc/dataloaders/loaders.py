@@ -7,7 +7,7 @@ import numpy as np
 from .base import DataLoaderBase
 
 
-class Dataset300W(DataLoaderBase):
+class DataLoader300W(DataLoaderBase):
     image_suffix: str = ".png"
     marks_suffix: str = ".pts"
     n_landmarks: int = 68

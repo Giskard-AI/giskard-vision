@@ -5,7 +5,7 @@ from typing import Any, List, Optional
 
 import numpy as np
 
-from ..datasets.base import DataLoader, FacialPart, FacialParts
+from ..dataloaders.base import DataIteratorBase
 
 
 @dataclass
@@ -44,7 +44,7 @@ class FaceLandmarksModelBase(ABC):
 
         ...
 
-    def _postprocessing(self, prediction: np.ndarray, facial_part: FacialPart) -> np.ndarray:
+    def _postprocessing(self, prediction: np.ndarray) -> np.ndarray:
         """method that performs postprocessing on the single image prediction
 
         Args:
@@ -57,14 +57,9 @@ class FaceLandmarksModelBase(ABC):
         if prediction is None or not prediction.shape:
             prediction = np.empty((1, self.n_landmarks, self.n_dimensions))
             prediction[:, :, :] = np.nan
-        if facial_part is not None:
-            idx = ~np.isin(FacialParts.entire, facial_part)
-            prediction[:, idx, :] = np.nan
         return prediction
 
-    def predict(
-        self, dataset: DataLoader, idx_range: Optional[List] = None, facial_part: Optional[FacialPart] = None
-    ) -> PredictionResult:
+    def predict(self, dataset: DataIteratorBase, idx_range: Optional[List] = None) -> PredictionResult:
         """main method to predict the landmarks
 
         Args:
@@ -88,7 +83,7 @@ class FaceLandmarksModelBase(ABC):
             except Exception:
                 prediction = None
 
-            prediction = self._postprocessing(prediction, facial_part)
+            prediction = self._postprocessing(prediction)
             if is_failed(prediction):
                 prediction_fail_rate += 1
             predictions.append(prediction[0])
