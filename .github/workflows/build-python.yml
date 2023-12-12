@@ -8,38 +8,10 @@ on:
       - main
   pull_request:
   workflow_dispatch:
-    inputs:
-      run-integration-tests:
-        description: 'If integration test should be run'
-        required: true
-        type: boolean
-        default: false
-      use-cache:
-        description: 'If cache should be used'
-        required: true
-        type: boolean
-        default: true
-      is-dispatch:
-        description: 'Just to identify manual dispatch'
-        required: true
-        type: boolean
-        default: true
-  workflow_call:
-    inputs:
-      run-integration-tests:
-        description: 'If integration test should be run'
-        required: true
-        type: boolean
-        default: false
-      use-cache:
-        description: 'If cache should be used'
-        required: true
-        type: boolean
-        default: false
 # Concurrency : auto-cancel "old" jobs ie when pushing again
 # https://docs.github.com/fr/actions/using-jobs/using-concurrency
 concurrency:
-  group: ${{ github.workflow }}-${{ inputs.run-integration-tests }}-${{ inputs.is-dispatch }}-${{ github.ref || github.run_id }}
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
   cancel-in-progress: true
 defaults:
   run:
@@ -75,6 +47,9 @@ jobs:
 
       - name: Test code
         run: pdm test
+
+      - name: Test notebooks
+        run: pdm check-notebook
 
       - name: Build
         run: pdm build
