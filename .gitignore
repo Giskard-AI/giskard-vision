@@ -6,7 +6,12 @@ __pycache__/
 *$py.class
 .idea
 *.iml
+.vscode
+
+# examples
 300W
+examples/haarcascade_frontalface_alt2.xml
+examples/lbfmodel.yaml
 
 # C extensions
 *.so

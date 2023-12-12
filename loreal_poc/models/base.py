@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from time import time
-from typing import Any, List, Optional, Tuple
+from typing import List, Optional, Tuple
 
 import numpy as np
 
@@ -23,15 +23,13 @@ def is_failed(prediction):
 class FaceLandmarksModelBase(ABC):
     """Abstract class that serves as a template for all landmark model predictions"""
 
-    def __init__(self, model: Any, n_landmarks: int, n_dimensions: int) -> None:
+    def __init__(self, n_landmarks: int, n_dimensions: int) -> None:
         """init method that accepts a model object, number of landmarks and dimensions
 
         Args:
-            model (Any): landmark prediction model object
             n_landmarks (int): number of landmarks the model predicts
             n_dimensions (int): number of dimensions for the predicted landmarks
         """
-        self.model = model
         self.n_landmarks = n_landmarks
         self.n_dimensions = n_dimensions
 
@@ -56,11 +54,15 @@ class FaceLandmarksModelBase(ABC):
             np.ndarray: single image prediction filtered based on landmarks in facial_part
         """
         if prediction is None or not prediction.shape:
-            prediction = np.empty((1, self.n_landmarks, self.n_dimensions))
-            prediction[:, :, :] = np.nan
+            prediction = np.empty((self.n_landmarks, self.n_dimensions))
+            prediction[:, :] = np.nan
+        if prediction.shape != (self.n_landmarks, self.n_dimensions):
+            raise ValueError(
+                f"{self.__class__.__name__}: The array shape expected from predict_image is ({self.n_landmarks}, {self.n_dimensions}) but {prediction.shape} was found."
+            )
         if facial_part is not None:
             idx = ~np.isin(FacialParts.entire, facial_part)
-            prediction[:, idx, :] = np.nan
+            prediction[idx, :] = np.nan
         return prediction
 
     def predict(
@@ -93,7 +95,7 @@ class FaceLandmarksModelBase(ABC):
             prediction = self._postprocessing(prediction, facial_part)
             if is_failed(prediction):
                 prediction_fail_rate += 1
-            predictions.append(prediction[0])
+            predictions.append(prediction)
         prediction_fail_rate /= len(idx_range)
         te = time()
         predictions = np.array(predictions)
