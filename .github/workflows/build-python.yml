@@ -37,7 +37,7 @@ jobs:
         uses: pdm-project/setup-pdm@v3
         with:
           python-version: ${{ matrix.python-version }}
-          cache: true
+          cache: false # Removing cache, as it's not worth for now (around 3min to restore + time to save vs 3 min to clean install)
 
       - name: Install dependencies
         run: pdm install -G :all
