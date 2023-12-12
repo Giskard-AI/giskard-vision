@@ -1,0 +1,64 @@
+# https://docs.github.com/en/actions/using-workflows/reusing-workflows#calling-a-reusable-workflow
+# https://docs.github.com/fr/actions/using-workflows/workflow-syntax-for-github-actions#exemple--inclusion-de-chemins-dacc%C3%A8s
+
+name: Full CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+# Concurrency : auto-cancel "old" jobs ie when pushing again
+# https://docs.github.com/fr/actions/using-jobs/using-concurrency
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+defaults:
+  run:
+    shell: bash
+jobs:
+  build-python:
+    name: "Python ${{ matrix.python-version }} on ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false # Do not stop when any job fails
+      matrix:
+        python-version: [ "3.10", "3.11" ]
+        os: [ubuntu-latest]
+        # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+    continue-on-error: false # https://ncorti.com/blog/howto-github-actions-build-matrix
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.0
+        with:
+          fetch-depth: 0
+
+      - name: Setup PDM
+        uses: pdm-project/setup-pdm@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: false # Removing cache, as it's not worth for now (around 3min to restore + time to save vs 3 min to clean install)
+
+      - name: Install dependencies
+        run: pdm install -G :all
+
+      - name: Ensure opencv contrib is working
+        run: pdm run pip install --force-reinstall opencv-contrib-python
+
+      - name: Verify linting, format
+        run: pdm check-format
+
+      - name: Test code
+        run: pdm test
+
+      - name: Test notebooks
+        run: pdm check-notebook
+
+      - name: Build
+        run: pdm build
+
+      - name: "Python client: archive built artifacts"
+        if: ${{ github.event_name == 'push' && matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10' }}
+        uses: actions/upload-artifact@v3
+        with:
+          path: dist/*whl
