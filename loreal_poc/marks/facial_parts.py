@@ -1,57 +1,95 @@
 from dataclasses import dataclass
+from enum import Enum
 
 import numpy as np
-from numpy.lib.mixins import NDArrayOperatorsMixin
 
 
 @dataclass(frozen=True)
-class FacialPart(NDArrayOperatorsMixin):
-    part: np.ndarray
-    name: str = ""
+class FacialPart:
+    name: str
+    idx: np.ndarray
 
-    def __add__(self, o):
-        return FacialPart(np.unique(np.concatenate((self.part, o.part))))
+    @classmethod
+    def from_indices(cls, name: str, start: int, end: int) -> "FacialPart":
+        if not (0 <= start < end <= 68):
+            raise ValueError(f"Indices should be between 0 and 68, and start < end: {start}, {end}")
+        flag_arr = np.zeros(68, dtype=bool)
+        flag_arr[start:end] = True
 
-    def __sub__(self, o):
-        return FacialPart(np.setxor1d(self.part, np.intersect1d(self.part, o.part)))
+        return FacialPart(name, flag_arr)
 
-    def __array__(self):
-        return self.part
+    def __and__(self, other: "FacialPart") -> "FacialPart":
+        if not isinstance(other, FacialPart):
+            raise ValueError(f"Operator & is only implemented for FacialPart, got {type(other)}")
+        return FacialPart(name=f"({self.name} & {other.name})", idx=self.idx & other.idx)
+
+    def __or__(self, other: "FacialPart") -> "FacialPart":
+        if not isinstance(other, FacialPart):
+            raise ValueError(f"Operator | is only implemented for FacialPart, got {type(other)}")
+        return FacialPart(name=f"({self.name} + {other.name})", idx=self.idx | other.idx)
+
+    def __invert__(self) -> "FacialPart":
+        return FacialPart(name=f"~{self.name}", idx=~self.idx)
+
+    def __eq__(self, value: object) -> bool:
+        if not isinstance(value, FacialPart):
+            return False
+        return np.array_equal(self.idx, value.idx)
+
+    def __add__(self, o: "FacialPart") -> "FacialPart":
+        return self | o
+
+    def __xor__(self, other: "FacialPart") -> "FacialPart":
+        if not isinstance(other, FacialPart):
+            raise ValueError(f"Operator ^ is only implemented for FacialPart, got {type(other)}")
+        return FacialPart(name=f"({self.name} ^ {other.name})", idx=self.idx ^ other.idx)
+
+    def __sub__(self, other: "FacialPart") -> "FacialPart":
+        if not isinstance(other, FacialPart):
+            raise ValueError(f"Operator - is only implemented for FacialPart, got {type(other)}")
+        return FacialPart(name=f"({self.name} - {other.name})", idx=(self.idx | other.idx) ^ other.idx)
 
 
-# see https://ibug.doc.ic.ac.uk/resources/300-W/ for definitions
-_entire = np.arange(0, 68)
-_contour = np.arange(0, 17)
-__left_contour = np.arange(0, 9)
-__right_contour = np.arange(10, 18)
-_left_eyebrow = np.arange(17, 22)
-_right_eyebrow = np.arange(22, 27)
-_nose = np.arange(27, 36)
-__left_nose = np.array([31, 32])
-__right_nose = np.array([34, 35])
-_left_eye = np.arange(36, 42)
-_right_eye = np.arange(42, 48)
-_mouth = np.arange(48, 68)
-__left_mouth = np.array([50, 49, 61, 48, 60, 67, 59, 58])
-__right_mouth = np.array([52, 53, 63, 64, 54, 65, 55, 56])
-_bottom_half = np.concatenate([np.arange(3, 15), _mouth])
-_upper_half = np.setdiff1d(_entire, _bottom_half, assume_unique=True)
-__center_axis = np.array([27, 28, 29, 30, 33, 51, 62, 66, 57, 8])
-_left_half = np.concatenate([__left_contour, _left_eyebrow, _left_eye, __left_nose, __left_mouth, __center_axis])
-_right_half = np.concatenate([np.setdiff1d(_entire, _left_half, assume_unique=True), __center_axis])
+_BOTTOM_HALF = np.zeros(68, dtype=bool)
+_BOTTOM_HALF[3:15] = True
+_BOTTOM_HALF[48:68] = True  # Mouth
+
+_LEFT_HALF = np.zeros(68, dtype=bool)
+_LEFT_HALF[0:9] = True  # Left contour
+_LEFT_HALF[17:22] = True  # Left eyebrow
+_LEFT_HALF[36:42] = True  # Left eye
+_LEFT_HALF[[50, 49, 61, 48, 60, 67, 59, 58]] = True  # Left mouth
+_LEFT_HALF[[27, 28, 29, 30, 33, 51, 62, 66, 57, 8]] = True  # Center axis
 
 
-@dataclass(frozen=True)
-class FacialParts:
-    entire: FacialPart = FacialPart(_entire, name="entire face")
-    contour: FacialPart = FacialPart(_contour, name="face contour")
-    left_eyebrow: FacialPart = FacialPart(_left_eyebrow, name="left eyebrow")
-    right_eyebrow: FacialPart = FacialPart(_right_eyebrow, name="right eyebrow")
-    nose: FacialPart = FacialPart(_nose, name="nose")
-    left_eye: FacialPart = FacialPart(_left_eye, name="left eye")
-    right_eye: FacialPart = FacialPart(_right_eye, name="right eye")
-    mouth: FacialPart = FacialPart(_mouth, name="mouth")
-    bottom_half: FacialPart = FacialPart(_bottom_half, name="bottom half")
-    upper_half: FacialPart = FacialPart(_upper_half, name="upper half")
-    left_half: FacialPart = FacialPart(_left_half, name="left half")
-    right_half: FacialPart = FacialPart(_right_half, name="right half")
+class FacialParts(Enum):
+    ENTIRE = FacialPart.from_indices("entire face", 0, 68)
+
+    CONTOUR = FacialPart.from_indices("face contour", 0, 17)
+    LEFT_CONTOUR = FacialPart.from_indices("left contour", 0, 9)
+    RIGHT_CONTOUR = FacialPart.from_indices("right contour", 9, 17)
+
+    EYEBROWS = FacialPart.from_indices("eyebrows", 17, 27)
+    LEFT_EYEBROW = FacialPart.from_indices("left eyebrow", 17, 22)
+    RIGHT_EYEBROW = FacialPart.from_indices("right eyebrow", 22, 27)
+
+    NOSE = FacialPart.from_indices("nose", 27, 36)
+
+    EYES = FacialPart.from_indices("eyes", 36, 48)
+    LEFT_EYE = FacialPart.from_indices("left eye", 36, 42)
+    RIGHT_EYE = FacialPart.from_indices("right eye", 42, 48)
+
+    MOUTH = FacialPart.from_indices("nose", 48, 68)
+
+    BOTTOM_HALF = FacialPart("bottom half", _BOTTOM_HALF)
+    UPPER_HALF = FacialPart("upper half", ~_BOTTOM_HALF)
+
+    LEFT_HALF = FacialPart("left half", _LEFT_HALF)
+    RIGHT_HALF = FacialPart("right half", ~_LEFT_HALF)
+
+
+if __name__ == "__main__":
+    print((FacialParts.LEFT_EYE.value | FacialParts.RIGHT_EYE.value) == FacialParts.EYES.value)
+    print((FacialParts.LEFT_EYE.value + FacialParts.RIGHT_EYE.value) == FacialParts.EYES.value)
+    print((FacialParts.EYES.value - FacialParts.LEFT_EYE.value) == FacialParts.RIGHT_EYE.value)
+    print((FacialParts.EYES.value & FacialParts.LEFT_HALF.value) == FacialParts.LEFT_EYE.value)
