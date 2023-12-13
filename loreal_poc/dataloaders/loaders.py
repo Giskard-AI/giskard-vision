@@ -13,10 +13,7 @@ class DataLoader300W(DataLoaderBase):
     n_landmarks: int = 68
     n_dimensions: int = 2
 
-    def __init__(
-        self,
-        dir_path: Union[str, Path],
-    ) -> None:
+    def __init__(self, dir_path: Union[str, Path], **kwargs) -> None:
         super().__init__(
             dir_path,
             dir_path,
@@ -28,6 +25,7 @@ class DataLoader300W(DataLoaderBase):
                 "preprocessed": False,
                 "preprocessing_time": 0.0,
             },
+            **kwargs,
         )
 
     @classmethod

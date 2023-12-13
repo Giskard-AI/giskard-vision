@@ -1,3 +1,4 @@
+import random
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -6,6 +7,9 @@ import numpy as np
 
 
 class DataIteratorBase(ABC):
+    batch_size: int
+    index_sampler: List[int]
+
     def __init__(self) -> None:
         super().__init__()
         self.index = 0
@@ -31,6 +35,7 @@ class DataIteratorBase(ABC):
     def __getitem__(
         self, idx: int
     ) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:  # (image, marks, meta)
+        idx = self.index_sampler[idx]
         return self.get_image(idx), self.get_marks(idx), self.get_meta(idx)
 
     @property
@@ -49,9 +54,24 @@ class DataIteratorBase(ABC):
     def __next__(self) -> Tuple[np.ndarray, np.ndarray]:
         if self.index >= len(self):
             raise StopIteration
-        elt = self[self.index]
-        self.index += 1
-        return elt
+        elt = [self[idx] for idx in range(self.index, min(len(self), self.index + self.batch_size))]
+        self.index += self.batch_size
+        if self.batch_size == 1:
+            return elt[0]
+        else:
+            return self._collate(elt)
+
+    def _collate(
+        self, elements: List[Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]]
+    ) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:
+        batched_elements = list(zip(*elements))
+        # TO DO: create image stack but require same size images and therefore automatic padding or resize.
+        # batched_elements[0] = batched_elements[0]
+        if elements[0][1] is not None:
+            batched_elements[1] = np.stack(batched_elements[1], axis=0)
+        if elements[0][2] is not None:
+            batched_elements[2] = {key: [meta[key] for meta in batched_elements[2]] for key in batched_elements[2][0]}
+        return batched_elements
 
 
 class DataLoaderBase(DataIteratorBase):
@@ -66,6 +86,8 @@ class DataLoaderBase(DataIteratorBase):
         images_dir_path: Union[str, Path],
         landmarks_dir_path: Union[str, Path],
         meta: Optional[Dict[str, Any]] = None,
+        batch_size: Optional[int] = None,
+        shuffle: Optional[bool] = False,
     ) -> None:
         super().__init__()
         images_dir_path = self._get_absolute_local_path(images_dir_path)
@@ -78,6 +100,13 @@ class DataLoaderBase(DataIteratorBase):
                 f"{self.__class__.__name__}: Only {len(self.marks_paths)} found "
                 f"for {len(self.marks_paths)} of the images."
             )
+
+        self.batch_size = batch_size if batch_size else 1
+
+        self.shuffle = shuffle
+        self.index_sampler = [idx for idx in range(len(self))]
+        if shuffle:
+            random.shuffle(self.index_sampler)
 
         self.meta = {
             **(meta if meta is not None else {}),
