@@ -50,7 +50,7 @@ class NMEs(Metric):
 
 
 @dataclass
-class ME_mean(Metric):
+class MEMean(Metric):
     """Mean of mean Euclidean distances across images"""
 
     name = "ME_mean"
@@ -62,7 +62,7 @@ class ME_mean(Metric):
 
 
 @dataclass
-class ME_std(Metric):
+class MEStd(Metric):
     """Standard Deviation of mean Euclidean distances across images"""
 
     name = "ME_std"
@@ -74,7 +74,7 @@ class ME_std(Metric):
 
 
 @dataclass
-class NME_mean(Metric):
+class NMEMean(Metric):
     """Mean of normalised mean Euclidean distances across images"""
 
     name = "NME_mean"
@@ -86,7 +86,7 @@ class NME_mean(Metric):
 
 
 @dataclass
-class NME_std(Metric):
+class NMEStd(Metric):
     name = "NME_std"
     description = "Standard deviation of normalised Mean Euclidean distances across images"
 

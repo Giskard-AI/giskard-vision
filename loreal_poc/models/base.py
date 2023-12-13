@@ -5,7 +5,8 @@ from typing import List, Optional
 
 import numpy as np
 
-from ..datasets.base import DatasetBase, FacialPart, FacialParts
+from ..dataloaders.base import DataIteratorBase
+from ..marks.facial_parts import FacialPart, FacialParts
 
 
 @dataclass
@@ -65,26 +66,28 @@ class FaceLandmarksModelBase(ABC):
         return prediction
 
     def predict(
-        self, dataset: DatasetBase, idx_range: Optional[List] = None, facial_part: Optional[FacialPart] = None
-    ) -> np.ndarray:
+        self, dataloader: DataIteratorBase, idx_range: Optional[List] = None, facial_part: Optional[FacialPart] = None
+    ) -> PredictionResult:
         """main method to predict the landmarks
 
         Args:
-            dataset (DatasetBase): dataset
-            idx_range (Optional[List], optional): range of images to predict from the dataset. Defaults to None.
+            dataloader (dataloaderBase): dataloader
+            idx_range (Optional[List], optional): range of images to predict from the dataloader. Defaults to None.
             facial_part (Optional[FacialPart], optional): facial part. Defaults to None.
 
         Returns:
-            np.ndarray: an array of the shape [img, landmark, dim] that represents the image index in the first dimension, the landmark index in the second and the dimension index in the third
+            PredictionResult
         """
         ts = time()
-        predictions = list()
-        idx_range = idx_range if idx_range is not None else range(len(dataset))
+        predictions = []
+        idx_range = idx_range if idx_range is not None else range(len(dataloader))
         prediction_fail_rate = 0
         for i in idx_range:
+            img = dataloader.get_image(i)
             try:
-                prediction = self.predict_image(dataset.all_images[i])
+                prediction = self.predict_image(img)
             except Exception:
+                # TODO(Bazire): Add some log here
                 prediction = None
 
             prediction = self._postprocessing(prediction, facial_part)
@@ -93,7 +96,12 @@ class FaceLandmarksModelBase(ABC):
             predictions.append(prediction)
         prediction_fail_rate /= len(idx_range)
         te = time()
+        predictions = np.array(predictions)
+        if len(predictions.shape) > 3:
+            raise ValueError("predict: ME only implemented for 2D images.")
 
         return PredictionResult(
-            prediction=np.array(predictions), prediction_fail_rate=prediction_fail_rate, prediction_time=te - ts
+            prediction=predictions,
+            prediction_fail_rate=prediction_fail_rate,
+            prediction_time=te - ts,
         )
