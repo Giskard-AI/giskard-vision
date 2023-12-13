@@ -18,6 +18,7 @@ class DataIteratorBase(ABC):
     def __len__(self) -> int:
         ...
 
+    @abstractmethod
     def get_image(self, idx: int) -> np.ndarray:
         ...
 
