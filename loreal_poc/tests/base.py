@@ -113,21 +113,21 @@ class TestDiff:
         self,
         model: FaceLandmarksModelBase,
         dataloader: DataIteratorBase,
-        dataloader_other: DataIteratorBase,
+        dataloader_ref: DataIteratorBase,
         facial_part: FacialPart = FacialParts.entire,
     ) -> TestResult:
         ground_truth = dataloader.all_marks
-        prediction_result1 = model.predict(dataloader, facial_part=facial_part)
-        prediction_result2 = model.predict(dataloader_other, facial_part=facial_part)
+        prediction_result = model.predict(dataloader, facial_part=facial_part)
+        prediction_result_ref = model.predict(dataloader_ref, facial_part=facial_part)
 
-        metric1_value = self.metric.get(prediction_result1, ground_truth)
-        metric2_value = self.metric.get(prediction_result2, ground_truth)
+        metric_value = self.metric.get(prediction_result, ground_truth)
+        metric_ref_value = self.metric.get(prediction_result_ref, ground_truth)
 
-        norm = metric1_value if self.relative else 1.0
-        metric_value = abs((metric2_value - metric1_value) / norm)
+        norm = metric_ref_value if self.relative else 1.0
+        metric_value = abs((metric_ref_value - metric_value) / norm)
 
-        prediction_results = [prediction_result1, prediction_result2]
-        prediction_time = prediction_result1.prediction_time + prediction_result2.prediction_time
+        prediction_results = [prediction_result, prediction_result_ref]
+        prediction_time = prediction_result.prediction_time + prediction_result_ref.prediction_time
         return TestResult(
             name=self.metric.name,
             description=self.metric.description,
