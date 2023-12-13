@@ -35,6 +35,46 @@ def example_data_300w():
     return Dataset300W(dir_path=Path(__file__).parent.parent / "examples" / "300W" / "sample")
 
 
+def calculate_me_naive(prediction_result: PredictionResult, marks):
+    return np.asarray(
+        [
+            np.mean(
+                np.asarray(
+                    [
+                        np.sqrt((p_a[0] - p_b[0]) ** 2 + (p_a[1] - p_b[1]) ** 2)
+                        for p_a, p_b in zip(prediction_result.prediction[i], marks[i])
+                    ]
+                )
+            )
+            for i in range(prediction_result.prediction.shape[0])
+        ]
+    )
+
+
+def calculate_distances_naive(marks):
+    return np.asarray(
+        [
+            np.sqrt(
+                (mark[LEFT_EYE_LEFT_LANDMARK][0] - mark[RIGHT_EYE_RIGHT_LANDMARK][0]) ** 2
+                + (mark[LEFT_EYE_LEFT_LANDMARK][1] - mark[RIGHT_EYE_RIGHT_LANDMARK][1]) ** 2
+            )
+            for mark in marks
+        ]
+    )
+
+
+def calculate_euclidean_distances_naive(prediction_result: PredictionResult, marks):
+    return np.asarray(
+        [
+            [
+                np.sqrt((p_a[0] - p_b[0]) ** 2 + (p_a[1] - p_b[1]) ** 2)
+                for p_a, p_b in zip(prediction_result.prediction[i], marks[i])
+            ]
+            for i in range(prediction_result.prediction.shape[0])
+        ]
+    )
+
+
 def test_calculate_es_2d():
     a = np.asarray(TEST_ARRAY_A_2D)
     b = np.asarray(TEST_ARRAY_B_2D)
@@ -77,29 +117,8 @@ def test_calculate_nmes(face_alignment_model: FaceAlignmentWrapper, example_data
     prediction_result: PredictionResult = face_alignment_model.predict(example_data_300w)
     calculated = NMEs.get(prediction_result, marks)
 
-    distances = np.asarray(
-        [
-            np.sqrt(
-                (mark[LEFT_EYE_LEFT_LANDMARK][0] - mark[RIGHT_EYE_RIGHT_LANDMARK][0]) ** 2
-                + (mark[LEFT_EYE_LEFT_LANDMARK][1] - mark[RIGHT_EYE_RIGHT_LANDMARK][1]) ** 2
-            )
-            for mark in marks
-        ]
-    )
-    me = np.asarray(
-        [
-            np.mean(
-                np.asarray(
-                    [
-                        np.sqrt((p_a[0] - p_b[0]) ** 2 + (p_a[1] - p_b[1]) ** 2)
-                        for p_a, p_b in zip(prediction_result.prediction[i], marks[i])
-                    ]
-                )
-            )
-            for i in range(prediction_result.prediction.shape[0])
-        ]
-    )
-
+    distances = calculate_distances_naive(marks)
+    me = calculate_me_naive(prediction_result, marks)
     assert np.all(np.isclose(me / distances, calculated))
 
 
@@ -108,15 +127,7 @@ def test_calculate_me_mean(face_alignment_model: FaceAlignmentWrapper, example_d
     prediction_result: PredictionResult = face_alignment_model.predict(example_data_300w)
 
     me_mean = ME_mean.get(prediction_result=prediction_result, marks=marks)
-    es = np.asarray(
-        [
-            [
-                np.sqrt((p_a[0] - p_b[0]) ** 2 + (p_a[1] - p_b[1]) ** 2)
-                for p_a, p_b in zip(prediction_result.prediction[i], marks[i])
-            ]
-            for i in range(prediction_result.prediction.shape[0])
-        ]
-    )
+    es = calculate_euclidean_distances_naive(prediction_result, marks)
     assert np.all(np.isclose(np.nanmean(es), me_mean))
 
 
@@ -125,15 +136,7 @@ def test_calculate_me_std(face_alignment_model: FaceAlignmentWrapper, example_da
     prediction_result: PredictionResult = face_alignment_model.predict(example_data_300w)
 
     me_std = ME_std.get(prediction_result=prediction_result, marks=marks)
-    es = np.asarray(
-        [
-            [
-                np.sqrt((p_a[0] - p_b[0]) ** 2 + (p_a[1] - p_b[1]) ** 2)
-                for p_a, p_b in zip(prediction_result.prediction[i], marks[i])
-            ]
-            for i in range(prediction_result.prediction.shape[0])
-        ]
-    )
+    es = calculate_euclidean_distances_naive(prediction_result, marks)
     assert np.all(np.isclose(np.nanstd(es), me_std))
 
 
@@ -142,28 +145,8 @@ def test_calculate_nme_mean(face_alignment_model: FaceAlignmentWrapper, example_
     prediction_result: PredictionResult = face_alignment_model.predict(example_data_300w)
 
     nme_mean = NME_mean.get(prediction_result=prediction_result, marks=marks)
-    distances = np.asarray(
-        [
-            np.sqrt(
-                (mark[LEFT_EYE_LEFT_LANDMARK][0] - mark[RIGHT_EYE_RIGHT_LANDMARK][0]) ** 2
-                + (mark[LEFT_EYE_LEFT_LANDMARK][1] - mark[RIGHT_EYE_RIGHT_LANDMARK][1]) ** 2
-            )
-            for mark in marks
-        ]
-    )
-    me = np.asarray(
-        [
-            np.mean(
-                np.asarray(
-                    [
-                        np.sqrt((p_a[0] - p_b[0]) ** 2 + (p_a[1] - p_b[1]) ** 2)
-                        for p_a, p_b in zip(prediction_result.prediction[i], marks[i])
-                    ]
-                )
-            )
-            for i in range(prediction_result.prediction.shape[0])
-        ]
-    )
+    distances = calculate_distances_naive(marks)
+    me = calculate_me_naive(prediction_result, marks)
     assert np.all(np.isclose(np.nanmean(me / distances), nme_mean))
 
 
@@ -172,26 +155,6 @@ def test_calculate_nme_std(face_alignment_model: FaceAlignmentWrapper, example_d
     prediction_result: PredictionResult = face_alignment_model.predict(example_data_300w)
 
     nme_std = NME_std.get(prediction_result=prediction_result, marks=marks)
-    distances = np.asarray(
-        [
-            np.sqrt(
-                (mark[LEFT_EYE_LEFT_LANDMARK][0] - mark[RIGHT_EYE_RIGHT_LANDMARK][0]) ** 2
-                + (mark[LEFT_EYE_LEFT_LANDMARK][1] - mark[RIGHT_EYE_RIGHT_LANDMARK][1]) ** 2
-            )
-            for mark in marks
-        ]
-    )
-    me = np.asarray(
-        [
-            np.mean(
-                np.asarray(
-                    [
-                        np.sqrt((p_a[0] - p_b[0]) ** 2 + (p_a[1] - p_b[1]) ** 2)
-                        for p_a, p_b in zip(prediction_result.prediction[i], marks[i])
-                    ]
-                )
-            )
-            for i in range(prediction_result.prediction.shape[0])
-        ]
-    )
+    distances = calculate_distances_naive(marks)
+    me = calculate_me_naive(prediction_result, marks)
     assert np.all(np.isclose(np.nanstd(me / distances), nme_std))
