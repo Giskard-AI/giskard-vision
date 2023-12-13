@@ -18,19 +18,19 @@ class DataIteratorBase(ABC):
     def __len__(self) -> int:
         ...
 
-    def get_image(self, key: int) -> np.ndarray:
+    def get_image(self, idx: int) -> np.ndarray:
         ...
 
-    def get_marks(self, key: int) -> Optional[np.ndarray]:
+    def get_marks(self, idx: int) -> Optional[np.ndarray]:
         return None
 
-    def get_meta(self, key: int) -> Optional[np.ndarray]:
+    def get_meta(self, idx: int) -> Optional[Dict]:
         return None
 
     def __getitem__(
-        self, key: int
+        self, idx: int
     ) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:  # (image, marks, meta)
-        return self.get_image(key), self.get_marks(key), self.get_meta(key)
+        return self.get_image(idx), self.get_marks(idx), self.get_meta(idx)
 
     @property
     def all_images_generator(self) -> np.array:
@@ -42,7 +42,7 @@ class DataIteratorBase(ABC):
         return np.array([self.get_marks(i) for i in range(len(self))])
 
     @property
-    def all_meta(self) -> np.ndarray:  # (marks)
+    def all_meta(self) -> List:  # (meta)
         return [self.get_meta(i) for i in range(len(self))]
 
     def __next__(self) -> Tuple[np.ndarray, np.ndarray]:
@@ -106,13 +106,13 @@ class DataLoaderBase(DataIteratorBase):
     def __len__(self) -> int:
         return len(self.image_paths)
 
-    def get_image(self, key: int) -> np.ndarray:
-        return self._load_and_validate_image(self.image_paths[key])
+    def get_image(self, idx: int) -> np.ndarray:
+        return self._load_and_validate_image(self.image_paths[idx])
 
-    def get_marks(self, key: int) -> Optional[np.ndarray]:
-        return self._load_and_validate_marks(self.marks_paths[key])
+    def get_marks(self, idx: int) -> Optional[np.ndarray]:
+        return self._load_and_validate_marks(self.marks_paths[idx])
 
-    def get_meta(self, key: int) -> Optional[np.ndarray]:
+    def get_meta(self, idx: int) -> Optional[Dict]:
         return None
 
     @classmethod
@@ -161,14 +161,14 @@ class DataLoaderWrapper(DataIteratorBase):
     def __len__(self) -> int:
         return len(self._wrapped_dataloader)
 
-    def get_image(self, key: int) -> np.ndarray:
-        return self._wrapped_dataloader.get_image(key)
+    def get_image(self, idx: int) -> np.ndarray:
+        return self._wrapped_dataloader.get_image(idx)
 
-    def get_marks(self, key: int) -> Optional[np.ndarray]:
-        return self._wrapped_dataloader.get_marks(key)
+    def get_marks(self, idx: int) -> Optional[np.ndarray]:
+        return self._wrapped_dataloader.get_marks(idx)
 
-    def get_meta(self, key: int) -> Optional[np.ndarray]:
-        return self._wrapped_dataloader.get_meta(key)
+    def get_meta(self, idx: int) -> Optional[Dict]:
+        return self._wrapped_dataloader.get_meta(idx)
 
     def __getattr__(self, attr):
         # This will proxy any dataloader.a to dataloader._wrapped_dataloader.a
