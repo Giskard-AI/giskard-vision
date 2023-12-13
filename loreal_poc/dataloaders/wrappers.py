@@ -22,13 +22,13 @@ class CroppedDataLoader(DataLoaderWrapper):
         self.crop_img = crop_img
         self.crop_marks = crop_marks
 
-    def get_image(self, idx: int, computed_marks: Optional[np.ndarray] = None) -> np.ndarray:
+    def get_image(self, idx: int) -> np.ndarray:
         image = super().get_image(idx)
         if not self.crop_img:
             return image
         h, w, _ = image.shape
         margins = np.array([w, h]) * self._margins
-        marks = self.get_marks(idx) if computed_marks is None else computed_marks
+        marks = self.get_marks(idx)
         return crop_image_from_mark(image, marks, margins)
 
     def get_marks(self, idx: int) -> Optional[np.ndarray]:
@@ -40,7 +40,7 @@ class CroppedDataLoader(DataLoaderWrapper):
     def __getitem__(self, idx: int) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:
         # Overriding to avoid double loading of the marks
         marks = self.get_marks(idx)
-        img = self.get_image(idx, computed_marks=marks)
+        img = self.get_image(idx)
         return img, marks, self.get_meta(idx)
 
 
