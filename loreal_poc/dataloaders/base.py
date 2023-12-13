@@ -6,9 +6,10 @@ import numpy as np
 
 
 class DataIteratorBase(ABC):
-    def __init__(self) -> None:
+    def __init__(self, name: Optional[str] = None) -> None:
         super().__init__()
         self.index = 0
+        self.name = name
 
     def __iter__(self):
         self.index = 0
@@ -65,9 +66,10 @@ class DataLoaderBase(DataIteratorBase):
         self,
         images_dir_path: Union[str, Path],
         landmarks_dir_path: Union[str, Path],
+        name: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
     ) -> None:
-        super().__init__()
+        super().__init__(name=name)
         images_dir_path = self._get_absolute_local_path(images_dir_path)
         landmarks_dir_path = self._get_absolute_local_path(landmarks_dir_path)
 
@@ -156,8 +158,9 @@ class DataLoaderBase(DataIteratorBase):
 
 
 class DataLoaderWrapper(DataIteratorBase):
-    def __init__(self, dataloader: DataIteratorBase) -> None:
+    def __init__(self, dataloader: DataIteratorBase, name: Optional[str] = None) -> None:
         self._wrapped_dataloader = dataloader
+        self.name = name
 
     def __len__(self) -> int:
         return len(self._wrapped_dataloader)

@@ -16,7 +16,8 @@ class CroppedDataLoader(DataLoaderWrapper):
         crop_img: bool = True,
         crop_marks: bool = True,
     ) -> None:
-        super().__init__(dataloader)
+        name = f"Cropped on {part.name}"
+        super().__init__(dataloader, name=name)
         self._part = part
         self._margins = margins
         self.crop_img = crop_img
@@ -46,7 +47,7 @@ class CroppedDataLoader(DataLoaderWrapper):
 
 class CachedDataLoader(DataLoaderWrapper):
     def __init__(self, dataloader: DataIteratorBase, cache_size: int = 20) -> None:
-        super().__init__(dataloader)
+        super().__init__(dataloader, name="Cached")
         self._max_size: int = cache_size
         self._cache_idxs: List[int] = []
         self._cache: Dict[int, Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]] = {}

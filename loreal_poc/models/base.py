@@ -23,15 +23,17 @@ def is_failed(prediction):
 class FaceLandmarksModelBase(ABC):
     """Abstract class that serves as a template for all landmark model predictions"""
 
-    def __init__(self, n_landmarks: int, n_dimensions: int) -> None:
+    def __init__(self, n_landmarks: int, n_dimensions: int, name: Optional[str] = None) -> None:
         """init method that accepts a model object, number of landmarks and dimensions
 
         Args:
             n_landmarks (int): number of landmarks the model predicts
             n_dimensions (int): number of dimensions for the predicted landmarks
+            name (Optional[str]): name of the model
         """
         self.n_landmarks = n_landmarks
         self.n_dimensions = n_dimensions
+        self.name = name
 
     @abstractmethod
     def predict_image(self, image: np.ndarray) -> np.ndarray:

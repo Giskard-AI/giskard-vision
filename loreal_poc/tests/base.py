@@ -11,13 +11,17 @@ from loreal_poc.models.base import FaceLandmarksModelBase, PredictionResult
 
 @dataclass
 class TestResult:
-    name: str
+    test_name: str
     prediction_results: List[PredictionResult]
-    metric: float
+    metric_value: float
     threshold: float
     passed: bool
     description: Optional[str] = None
     prediction_time: float = 0.0
+    facial_part: Optional[FacialPart] = None
+    metric_name: Optional[str] = None
+    model_name: Optional[str] = None
+    dataloader_name: Optional[str] = None
 
     def _repr_html_(self):
         FR = max([round(pred.prediction_fail_rate, 2) for pred in self.prediction_results])
@@ -30,10 +34,10 @@ class TestResult:
                """.format(
             "green" if self.passed else "red",
             "✓" if self.passed else "𐄂",
-            self.name,
+            self.metric_name,
             "succeeded" if self.passed else "failed",
             self.description,
-            str(round(self.metric, 4)),
+            str(round(self.metric_value, 4)),
             str(round(self.threshold, 2)),
             f"Prediction fail rate: {FR}" if FR != 0 else "",
             str(round(self.prediction_time, 2)),
@@ -48,14 +52,26 @@ class TestResult:
                {5}
                Prediction time: {6} s.
                """.format(
-            self.name,
+            self.metric_name,
             "succeeded" if self.passed else "failed",
             self.description,
-            str(round(self.metric, 4)),
+            str(round(self.metric_value, 4)),
             str(round(self.threshold, 2)),
             f"Prediction fail rate: {FR}" if FR != 0 else "",
             str(round(self.prediction_time, 2)),
         )
+
+    def to_dict(self):
+        return {
+            "test_name": self.test_name,
+            "metric_name": self.metric_name,
+            "metric_value": self.metric_value,
+            "threshold": self.threshold,
+            "passed": self.passed,
+            "facial_part": self.facial_part.name,
+            "model_name": self.model_name,
+            "dataloader_name": self.dataloader_name,
+        }
 
 
 @dataclass
@@ -91,13 +107,17 @@ class Test:
         prediction_result = model.predict(dataloader, facial_part=facial_part)
         metric_value = self.metric.get(prediction_result, ground_truth)
         return TestResult(
-            name=self.metric.name,
+            test_name=self.__class__.__name__,
             description=self.metric.description,
-            metric=metric_value,
+            metric_value=metric_value,
             threshold=self.threshold,
             prediction_results=[prediction_result],
             passed=metric_value <= self.threshold,
             prediction_time=prediction_result.prediction_time,
+            facial_part=facial_part,
+            metric_name=self.metric.name,
+            model_name=model.name,
+            dataloader_name=dataloader.name,
         )
 
 
@@ -129,11 +149,15 @@ class TestDiff:
         prediction_results = [prediction_result, prediction_result_ref]
         prediction_time = prediction_result.prediction_time + prediction_result_ref.prediction_time
         return TestResult(
-            name=self.metric.name,
+            test_name=self.__class__.__name__,
             description=self.metric.description,
-            metric=metric_value,
+            metric_value=metric_value,
             threshold=self.threshold,
             prediction_results=prediction_results,
             passed=metric_value <= self.threshold,
             prediction_time=prediction_time,
+            facial_part=facial_part,
+            metric_name=self.metric.name,
+            model_name=model.name,
+            dataloader_name=dataloader.name,
         )
