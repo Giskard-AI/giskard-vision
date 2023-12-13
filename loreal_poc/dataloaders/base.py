@@ -33,7 +33,7 @@ class DataIteratorBase(ABC):
         return self.get_image(key), self.get_marks(key), self.get_meta(key)
 
     @property
-    def all_images(self) -> np.array:
+    def all_images_generator(self) -> np.array:
         for i in range(len(self)):
             yield self.get_image(i)
 
