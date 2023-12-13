@@ -85,10 +85,10 @@ class Test:
     threshold: float
 
     def run(
-        self, model: FaceLandmarksModelBase, dataset: DataIteratorBase, facial_part: FacialPart = FacialParts.entire
+        self, model: FaceLandmarksModelBase, dataloader: DataIteratorBase, facial_part: FacialPart = FacialParts.entire
     ) -> TestResult:
-        prediction_result, ground_truth = model.predict(dataset, facial_part=facial_part)
-
+        ground_truth = dataloader.all_marks
+        prediction_result = model.predict(dataloader, facial_part=facial_part)
         metric_value = self.metric.get(prediction_result, ground_truth)
         return TestResult(
             name=self.metric.name,
@@ -112,12 +112,13 @@ class TestDiff:
     def run(
         self,
         model: FaceLandmarksModelBase,
-        dataset_ref: DataIteratorBase,
-        dataset_other: DataIteratorBase,
+        dataloader: DataIteratorBase,
+        dataloader_other: DataIteratorBase,
         facial_part: FacialPart = FacialParts.entire,
     ) -> TestResult:
-        prediction_result1, ground_truth = model.predict(dataset_ref, facial_part=facial_part)
-        prediction_result2, _ = model.predict(dataset_other, facial_part=facial_part)
+        ground_truth = dataloader.all_marks
+        prediction_result1 = model.predict(dataloader, facial_part=facial_part)
+        prediction_result2 = model.predict(dataloader_other, facial_part=facial_part)
 
         metric1_value = self.metric.get(prediction_result1, ground_truth)
         metric2_value = self.metric.get(prediction_result2, ground_truth)

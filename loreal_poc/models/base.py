@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from time import time
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 import numpy as np
 
@@ -66,13 +66,13 @@ class FaceLandmarksModelBase(ABC):
         return prediction
 
     def predict(
-        self, dataset: DataIteratorBase, idx_range: Optional[List] = None, facial_part: Optional[FacialPart] = None
-    ) -> Tuple[PredictionResult, np.ndarray]:
+        self, dataloader: DataIteratorBase, idx_range: Optional[List] = None, facial_part: Optional[FacialPart] = None
+    ) -> PredictionResult:
         """main method to predict the landmarks
 
         Args:
-            dataset (DatasetBase): dataset
-            idx_range (Optional[List], optional): range of images to predict from the dataset. Defaults to None.
+            dataloader (dataloaderBase): dataloader
+            idx_range (Optional[List], optional): range of images to predict from the dataloader. Defaults to None.
             facial_part (Optional[FacialPart], optional): facial part. Defaults to None.
 
         Returns:
@@ -80,12 +80,10 @@ class FaceLandmarksModelBase(ABC):
         """
         ts = time()
         predictions = []
-        ground_truths = []
-        idx_range = idx_range if idx_range is not None else range(len(dataset))
+        idx_range = idx_range if idx_range is not None else range(len(dataloader))
         prediction_fail_rate = 0
         for i in idx_range:
-            gt, img = dataset[i]
-            ground_truths.append(gt)
+            img = dataloader.get_image(i)
             try:
                 prediction = self.predict_image(img)
             except Exception:
@@ -99,17 +97,11 @@ class FaceLandmarksModelBase(ABC):
         prediction_fail_rate /= len(idx_range)
         te = time()
         predictions = np.array(predictions)
-        ground_truths = np.array(ground_truths)
-        if predictions.shape != ground_truths.shape:
-            raise ValueError(f"predict: arrays have different dimensions :{predictions.shape}, {ground_truths.shape}")
-        if len(predictions.shape) > 3 or len(gt.shape) > 3:
+        if len(predictions.shape) > 3:
             raise ValueError("predict: ME only implemented for 2D images.")
 
-        return (
-            PredictionResult(
-                prediction=predictions,
-                prediction_fail_rate=prediction_fail_rate,
-                prediction_time=te - ts,
-            ),
-            ground_truths,
+        return PredictionResult(
+            prediction=predictions,
+            prediction_fail_rate=prediction_fail_rate,
+            prediction_time=te - ts,
         )

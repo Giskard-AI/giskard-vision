@@ -18,9 +18,32 @@ class DataIteratorBase(ABC):
     def __len__(self) -> int:
         ...
 
-    @abstractmethod
-    def __getitem__(self, key: int) -> Tuple[np.ndarray, np.ndarray]:  # (marks, image)
+    def get_image(self, key: int) -> np.ndarray:
         ...
+
+    def get_marks(self, key: int) -> Optional[np.ndarray]:
+        return None
+
+    def get_meta(self, key: int) -> Optional[np.ndarray]:
+        return None
+
+    def __getitem__(
+        self, key: int
+    ) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:  # (image, marks, meta)
+        return self.get_image(key), self.get_marks(key), self.get_meta(key)
+
+    @property
+    def all_images(self) -> np.array:
+        for i in range(len(self)):
+            yield self.get_image(i)
+
+    @property
+    def all_marks(self) -> np.ndarray:  # (marks)
+        return np.array([self.get_marks(i) for i in range(len(self))])
+
+    @property
+    def all_meta(self) -> np.ndarray:  # (marks)
+        return [self.get_meta(i) for i in range(len(self))]
 
     def __next__(self) -> Tuple[np.ndarray, np.ndarray]:
         if self.index >= len(self):
@@ -83,10 +106,14 @@ class DataLoaderBase(DataIteratorBase):
     def __len__(self) -> int:
         return len(self.image_paths)
 
-    def __getitem__(self, key: int) -> Tuple[np.ndarray, np.ndarray]:
-        return self._load_and_validate_marks(self.marks_paths[key]), self._load_and_validate_image(
-            self.image_paths[key]
-        )
+    def get_image(self, key: int) -> np.ndarray:
+        return self._load_and_validate_image(self.image_paths[key])
+
+    def get_marks(self, key: int) -> Optional[np.ndarray]:
+        return self._load_and_validate_marks(self.marks_paths[key])
+
+    def get_meta(self, key: int) -> Optional[np.ndarray]:
+        return None
 
     @classmethod
     @abstractmethod
@@ -134,9 +161,15 @@ class DataLoaderWrapper(DataIteratorBase):
     def __len__(self) -> int:
         return len(self._wrapped_dataloader)
 
-    def __getitem__(self, key: int) -> Tuple[np.ndarray, np.ndarray]:  # (marks, image)
-        return self._wrapped_dataloader[key]
+    def get_image(self, key: int) -> np.ndarray:
+        return self._wrapped_dataloader.get_image(key)
+
+    def get_marks(self, key: int) -> Optional[np.ndarray]:
+        return self._wrapped_dataloader.get_marks(key)
+
+    def get_meta(self, key: int) -> Optional[np.ndarray]:
+        return self._wrapped_dataloader.get_meta(key)
 
     def __getattr__(self, attr):
-        # This will proxy any dataset.a to dataset._wrapped_dataset.a
+        # This will proxy any dataloader.a to dataloader._wrapped_dataloader.a
         return getattr(self._wrapped_dataloader, attr)
