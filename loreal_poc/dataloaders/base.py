@@ -60,9 +60,9 @@ class DataIteratorBase(ABC):
         self.index = end - 1
         if self.batch_size == 1:
             return elt[0]
-        return self._collate(elt)
+        return self._collate_fn(elt)
 
-    def _collate(
+    def _collate_fn(
         self, elements: List[Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]]
     ) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:
         batched_elements = list(zip(*elements))
@@ -91,7 +91,8 @@ class DataLoaderBase(DataIteratorBase):
         meta: Optional[Dict[str, Any]] = None,
         batch_size: Optional[int] = None,
         shuffle: Optional[bool] = False,
-        collate_fn: Callable = None,
+        rng_seed: Optional[int] = None,
+        collate_fn: Optional[Callable] = None,
     ) -> None:
         super().__init__(name=name)
         images_dir_path = self._get_absolute_local_path(images_dir_path)
@@ -109,11 +110,15 @@ class DataLoaderBase(DataIteratorBase):
 
         self.shuffle = shuffle
         self.index_sampler = list(range(len(self)))
+
+        if rng_seed is not None:
+            random.seed(rng_seed)
+
         if shuffle:
             random.shuffle(self.index_sampler)
 
         if collate_fn is not None:
-            self._collate = collate_fn
+            self._collate_fn = collate_fn
 
         self.meta = {
             **(meta if meta is not None else {}),
