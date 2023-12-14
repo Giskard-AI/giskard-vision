@@ -158,9 +158,12 @@ class DataLoaderBase(DataIteratorBase):
 
 
 class DataLoaderWrapper(DataIteratorBase):
-    def __init__(self, dataloader: DataIteratorBase, name: Optional[str] = None) -> None:
+    def __init__(self, dataloader: DataIteratorBase) -> None:
         self._wrapped_dataloader = dataloader
-        self.name = name
+
+    @property
+    def name(self):
+        return f"{self.__class__.__name__}({self._wrapped_dataloader.name})"
 
     def __len__(self) -> int:
         return len(self._wrapped_dataloader)

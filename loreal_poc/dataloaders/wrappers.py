@@ -16,12 +16,15 @@ class CroppedDataLoader(DataLoaderWrapper):
         crop_img: bool = True,
         crop_marks: bool = True,
     ) -> None:
-        name = f"Cropped on {part.name}"
-        super().__init__(dataloader, name=name)
+        super().__init__(dataloader)
         self._part = part
         self._margins = margins
         self.crop_img = crop_img
         self.crop_marks = crop_marks
+
+    @property
+    def name(self):
+        return f"{self._wrapped_dataloader.name} cropped on {self._part.name}"
 
     def get_image(self, idx: int) -> np.ndarray:
         image = super().get_image(idx)
@@ -47,10 +50,14 @@ class CroppedDataLoader(DataLoaderWrapper):
 
 class CachedDataLoader(DataLoaderWrapper):
     def __init__(self, dataloader: DataIteratorBase, cache_size: int = 20) -> None:
-        super().__init__(dataloader, name="Cached")
+        super().__init__(dataloader)
         self._max_size: int = cache_size
         self._cache_idxs: List[int] = []
         self._cache: Dict[int, Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]] = {}
+
+    @property
+    def name(self):
+        return f"Cached {self._wrapped_dataloader.name}"
 
     def __getitem__(self, idx: int) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:
         # Add basic LRU cache to avoid reloading images and marks on small dataloaders
