@@ -9,7 +9,7 @@ from .base import FaceLandmarksModelBase
 
 class FaceAlignmentWrapper(FaceLandmarksModelBase):
     def __init__(self, model):
-        super().__init__(n_landmarks=68, n_dimensions=2)
+        super().__init__(n_landmarks=68, n_dimensions=2, name="FaceAlignment")
         self.model = model
 
     def predict_image(self, image):
@@ -24,7 +24,7 @@ class OpenCVWrapper(FaceLandmarksModelBase):
     """
 
     def __init__(self):
-        super().__init__(n_landmarks=68, n_dimensions=2)
+        super().__init__(n_landmarks=68, n_dimensions=2, name="OpenCV")
 
         # save face detection algorithm's url in haarcascade_url variable
         haarcascade_url = (
@@ -35,12 +35,9 @@ class OpenCVWrapper(FaceLandmarksModelBase):
         haarcascade = "haarcascade_frontalface_alt2.xml"
 
         # chech if file is in working directory
-        if haarcascade in os.listdir(os.curdir):
-            print("File exists")
-        else:
+        if haarcascade not in os.listdir(os.curdir):
             # download file from url and save locally as haarcascade_frontalface_alt2.xml, < 1MB
             urlreq.urlretrieve(haarcascade_url, haarcascade)
-            print("File downloaded")
 
         # create an instance of the Face Detection Cascade Classifier
         self.detector = cv2.CascadeClassifier(haarcascade)
@@ -52,12 +49,9 @@ class OpenCVWrapper(FaceLandmarksModelBase):
         LBFmodel = "lbfmodel.yaml"
 
         # check if file is in working directory
-        if LBFmodel in os.listdir(os.curdir):
-            print("File exists")
-        else:
+        if LBFmodel not in os.listdir(os.curdir):
             # download picture from url and save locally as lbfmodel.yaml, < 54MB
             urlreq.urlretrieve(LBFmodel_url, LBFmodel)
-            print("File downloaded")
 
         # create an instance of the Facial landmark Detector with the model
         self.landmark_detector = cv2.face.createFacemarkLBF()

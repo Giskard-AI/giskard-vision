@@ -17,7 +17,8 @@ class DataLoader300W(DataLoaderBase):
         super().__init__(
             dir_path,
             dir_path,
-            {
+            name="300W",
+            meta={
                 "authors": "Imperial College London",
                 "year": 2013,
                 "n_landmarks": self.n_landmarks,

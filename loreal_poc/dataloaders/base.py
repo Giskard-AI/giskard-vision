@@ -10,9 +10,10 @@ class DataIteratorBase(ABC):
     batch_size: int
     index_sampler: List[int]
 
-    def __init__(self) -> None:
+    def __init__(self, name: Optional[str] = None) -> None:
         super().__init__()
         self.index = 0
+        self.name = name
 
     def __iter__(self):
         self.index = 0
@@ -86,12 +87,13 @@ class DataLoaderBase(DataIteratorBase):
         self,
         images_dir_path: Union[str, Path],
         landmarks_dir_path: Union[str, Path],
+        name: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         batch_size: Optional[int] = None,
         shuffle: Optional[bool] = False,
         collate_fn: Callable = None,
     ) -> None:
-        super().__init__()
+        super().__init__(name=name)
         images_dir_path = self._get_absolute_local_path(images_dir_path)
         landmarks_dir_path = self._get_absolute_local_path(landmarks_dir_path)
 
@@ -192,6 +194,10 @@ class DataLoaderBase(DataIteratorBase):
 class DataLoaderWrapper(DataIteratorBase):
     def __init__(self, dataloader: DataIteratorBase) -> None:
         self._wrapped_dataloader = dataloader
+
+    @property
+    def name(self):
+        return f"{self.__class__.__name__}({self._wrapped_dataloader.name})"
 
     def __len__(self) -> int:
         return len(self._wrapped_dataloader)
