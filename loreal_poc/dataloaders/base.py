@@ -54,19 +54,18 @@ class DataIteratorBase(ABC):
     def __next__(self) -> Tuple[np.ndarray, np.ndarray]:
         if self.index >= len(self):
             raise StopIteration
-        elt = [self[idx] for idx in range(self.index, min(len(self), self.index + self.batch_size))]
-        self.index += self.batch_size
+        end = min(len(self), self.index + self.batch_size)
+        elt = [self[idx] for idx in range(self.index, end)]
+        self.index = end - 1
         if self.batch_size == 1:
             return elt[0]
-        else:
-            return self._collate(elt)
+        return self._collate(elt)
 
     def _collate(
         self, elements: List[Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]]
     ) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:
         batched_elements = list(zip(*elements))
         # TO DO: create image stack but require same size images and therefore automatic padding or resize.
-        # batched_elements[0] = batched_elements[0]
         if elements[0][1] is not None:
             batched_elements[1] = np.stack(batched_elements[1], axis=0)
         if elements[0][2] is not None:
@@ -104,7 +103,7 @@ class DataLoaderBase(DataIteratorBase):
         self.batch_size = batch_size if batch_size else 1
 
         self.shuffle = shuffle
-        self.index_sampler = [idx for idx in range(len(self))]
+        self.index_sampler = list(range(len(self)))
         if shuffle:
             random.shuffle(self.index_sampler)
 
