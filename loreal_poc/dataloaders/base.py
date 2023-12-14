@@ -1,7 +1,7 @@
 import random
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -66,10 +66,12 @@ class DataIteratorBase(ABC):
     ) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:
         batched_elements = list(zip(*elements))
         # TO DO: create image stack but require same size images and therefore automatic padding or resize.
-        if elements[0][1] is not None:
+        if all(elt is not None for elt in batched_elements[1]):  # check if all marks are not None
             batched_elements[1] = np.stack(batched_elements[1], axis=0)
-        if elements[0][2] is not None:
+
+        if all(elt is not None for elt in batched_elements[2]):  # check if all meta_data elements are not None
             batched_elements[2] = {key: [meta[key] for meta in batched_elements[2]] for key in batched_elements[2][0]}
+
         return batched_elements
 
 
@@ -87,6 +89,7 @@ class DataLoaderBase(DataIteratorBase):
         meta: Optional[Dict[str, Any]] = None,
         batch_size: Optional[int] = None,
         shuffle: Optional[bool] = False,
+        collate_fn: Callable = None,
     ) -> None:
         super().__init__()
         images_dir_path = self._get_absolute_local_path(images_dir_path)
@@ -106,6 +109,9 @@ class DataLoaderBase(DataIteratorBase):
         self.index_sampler = list(range(len(self)))
         if shuffle:
             random.shuffle(self.index_sampler)
+
+        if collate_fn is not None:
+            self._collate = collate_fn
 
         self.meta = {
             **(meta if meta is not None else {}),
