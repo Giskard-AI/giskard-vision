@@ -19,8 +19,8 @@ NME_CNN_CRF = 3.30
 DATA_URL = "https://poc-face-aligment.s3.eu-north-1.amazonaws.com/300W/300W.tar.gz"
 DIR_PATH = Path.home() / ".giskard" / "300W"
 DATA_PATH = DIR_PATH / "300W.tar.gz"
-DIR_PATH_INDOOR = DIR_PATH / "01_Indoor"
-DIR_PATH_OUTDOOR = DIR_PATH / "02_Outdoor"
+DIR_PATH_INDOOR = DIR_PATH / "300W" / "01_Indoor"
+DIR_PATH_OUTDOOR = DIR_PATH / "300W" / "02_Outdoor"
 
 
 @pytest.fixture(scope="session")
