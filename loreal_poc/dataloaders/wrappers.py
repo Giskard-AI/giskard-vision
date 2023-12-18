@@ -4,6 +4,7 @@ import numpy as np
 
 from ..marks.facial_parts import FacialPart
 from ..transformation_functions.crop import crop_image_from_mark, crop_mark
+from ..transformation_functions.resize import resize_image_marks
 from .base import DataIteratorBase, DataLoaderWrapper
 
 
@@ -69,3 +70,21 @@ class CachedDataLoader(DataLoaderWrapper):
         if len(self._cache_idxs) > self._max_size:
             self._cache.pop(self._cache_idxs.pop(-1))
         return self._cache[idx]
+
+
+class ResizedDataLoader(DataLoaderWrapper):
+    def __init__(
+        self,
+        dataloader: DataIteratorBase,
+        scales: Union[Tuple[float, float], float] = [1.0, 1.0],
+    ) -> None:
+        super().__init__(dataloader)
+        self._scales = scales
+
+    @property
+    def name(self):
+        return f"{self._wrapped_dataloader.name} resized {self._margins}"
+
+    def __getitem__(self, idx: int) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:
+        img, marks, meta = super().__getitem__(idx)
+        return *resize_image_marks(img, marks, self._scales), meta
