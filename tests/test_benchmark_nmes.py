@@ -17,22 +17,41 @@ NME_CHR2C = 3.3
 NME_CNN_CRF = 3.30
 
 DATA_URL = "https://poc-face-aligment.s3.eu-north-1.amazonaws.com/300W/300W.tar.gz"
-DATA_PATH = Path.home() / ".giskard" / "300W" / "300W.tar.gz"
 DIR_PATH = Path.home() / ".giskard" / "300W"
+DATA_PATH = DIR_PATH / "300W.tar.gz"
+DIR_PATH_INDOOR = DIR_PATH / "01_Indoor"
+DIR_PATH_OUTDOOR = DIR_PATH / "02_Outdoor"
 
 
 @pytest.fixture(scope="session")
-def full_data_300w():
+def full_data_300w_indoor():
     fetch_remote(DATA_URL, DATA_PATH)
     ungzip(DATA_PATH, DIR_PATH)
 
-    return DataLoader300W(dir_path=DIR_PATH)
+    return DataLoader300W(dir_path=DIR_PATH_INDOOR)
 
 
-def test_face_alignment_model(full_data_300w):
+@pytest.fixture(scope="session")
+def full_data_300w_outdoor():
+    fetch_remote(DATA_URL, DATA_PATH)
+    ungzip(DATA_PATH, DIR_PATH)
+
+    return DataLoader300W(dir_path=DIR_PATH_OUTDOOR)
+
+
+def test_face_alignment_model(full_data_300w_indoor, full_data_300w_outdoor):
     model = FaceAlignmentWrapper(model=FaceAlignment(LandmarksType.TWO_D, device="cpu", flip_input=False))
-    predictions = model.predict(full_data_300w)
-    nmes = NMEs.get(predictions, full_data_300w.all_marks)
+    predictions = model.predict(full_data_300w_indoor)
+    nmes = NMEs.get(predictions, full_data_300w_indoor.all_marks)
+    dataset_nmes = np.nanmean(nmes)
+    assert dataset_nmes < NME_SPIGA
+    assert dataset_nmes < NME_3DDE
+    assert dataset_nmes < NME_DCFE
+    assert dataset_nmes < NME_CHR2C
+    assert dataset_nmes < NME_CNN_CRF
+
+    predictions = model.predict(full_data_300w_outdoor)
+    nmes = NMEs.get(predictions, full_data_300w_outdoor.all_marks)
     dataset_nmes = np.nanmean(nmes)
     assert dataset_nmes < NME_SPIGA
     assert dataset_nmes < NME_3DDE
@@ -41,10 +60,19 @@ def test_face_alignment_model(full_data_300w):
     assert dataset_nmes < NME_CNN_CRF
 
 
-def test_opencv_model(full_data_300w):
+def test_opencv_model(full_data_300w_indoor, full_data_300w_outdoor):
     model = OpenCVWrapper()
-    predictions = model.predict(full_data_300w)
-    nmes = NMEs.get(predictions, full_data_300w.all_marks)
+    predictions = model.predict(full_data_300w_indoor)
+    nmes = NMEs.get(predictions, full_data_300w_indoor.all_marks)
+    dataset_nmes = np.nanmean(nmes)
+    assert dataset_nmes < NME_SPIGA
+    assert dataset_nmes < NME_3DDE
+    assert dataset_nmes < NME_DCFE
+    assert dataset_nmes < NME_CHR2C
+    assert dataset_nmes < NME_CNN_CRF
+
+    predictions = model.predict(full_data_300w_outdoor)
+    nmes = NMEs.get(predictions, full_data_300w_outdoor.all_marks)
     dataset_nmes = np.nanmean(nmes)
     assert dataset_nmes < NME_SPIGA
     assert dataset_nmes < NME_3DDE
