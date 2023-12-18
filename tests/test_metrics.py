@@ -4,18 +4,18 @@ import numpy as np
 import pytest
 from face_alignment import FaceAlignment, LandmarksType
 
-from loreal_poc.datasets.dataset_300W import Dataset300W
+from loreal_poc.dataloaders.loaders import DataLoader300W
 from loreal_poc.models.base import PredictionResult
 from loreal_poc.models.wrappers import FaceAlignmentWrapper
 from loreal_poc.tests.performance import (
     LEFT_EYE_LEFT_LANDMARK,
     RIGHT_EYE_RIGHT_LANDMARK,
     Es,
-    ME_mean,
-    ME_std,
-    NME_mean,
-    NME_std,
+    MEMean,
+    MEStd,
+    NMEMean,
     NMEs,
+    NMEStd,
     _calculate_d_outers,
 )
 
@@ -32,7 +32,7 @@ def face_alignment_model():
 
 @pytest.fixture()
 def example_data_300w():
-    return Dataset300W(dir_path=Path(__file__).parent.parent / "examples" / "300W" / "sample")
+    return DataLoader300W(dir_path=Path(__file__).parent.parent / "examples" / "300W" / "sample")
 
 
 def calculate_me_naive(prediction_result: PredictionResult, marks):
@@ -97,7 +97,7 @@ def test_calculate_es_3d():
     assert np.all(np.isclose(np.asarray([c]), calculated))
 
 
-def test_calculate_d_outers(example_data_300w: Dataset300W):
+def test_calculate_d_outers(example_data_300w: DataLoader300W):
     marks = example_data_300w.all_marks
     calculated = _calculate_d_outers(marks)
     original = np.asarray(
@@ -112,7 +112,7 @@ def test_calculate_d_outers(example_data_300w: Dataset300W):
     assert np.all(np.isclose(original, calculated))
 
 
-def test_calculate_nmes(face_alignment_model: FaceAlignmentWrapper, example_data_300w: Dataset300W):
+def test_calculate_nmes(face_alignment_model: FaceAlignmentWrapper, example_data_300w: DataLoader300W):
     marks = example_data_300w.all_marks
     prediction_result: PredictionResult = face_alignment_model.predict(example_data_300w)
     calculated = NMEs.get(prediction_result, marks)
@@ -122,39 +122,39 @@ def test_calculate_nmes(face_alignment_model: FaceAlignmentWrapper, example_data
     assert np.all(np.isclose(me / distances, calculated))
 
 
-def test_calculate_me_mean(face_alignment_model: FaceAlignmentWrapper, example_data_300w: Dataset300W):
+def test_calculate_me_mean(face_alignment_model: FaceAlignmentWrapper, example_data_300w: DataLoader300W):
     marks = example_data_300w.all_marks
     prediction_result: PredictionResult = face_alignment_model.predict(example_data_300w)
 
-    me_mean = ME_mean.get(prediction_result=prediction_result, marks=marks)
+    me_mean = MEMean.get(prediction_result=prediction_result, marks=marks)
     es = calculate_euclidean_distances_naive(prediction_result, marks)
     assert np.all(np.isclose(np.nanmean(es), me_mean))
 
 
-def test_calculate_me_std(face_alignment_model: FaceAlignmentWrapper, example_data_300w: Dataset300W):
+def test_calculate_me_std(face_alignment_model: FaceAlignmentWrapper, example_data_300w: DataLoader300W):
     marks = example_data_300w.all_marks
     prediction_result: PredictionResult = face_alignment_model.predict(example_data_300w)
 
-    me_std = ME_std.get(prediction_result=prediction_result, marks=marks)
+    me_std = MEStd.get(prediction_result=prediction_result, marks=marks)
     es = calculate_euclidean_distances_naive(prediction_result, marks)
     assert np.all(np.isclose(np.nanstd(es), me_std))
 
 
-def test_calculate_nme_mean(face_alignment_model: FaceAlignmentWrapper, example_data_300w: Dataset300W):
+def test_calculate_nme_mean(face_alignment_model: FaceAlignmentWrapper, example_data_300w: DataLoader300W):
     marks = example_data_300w.all_marks
     prediction_result: PredictionResult = face_alignment_model.predict(example_data_300w)
 
-    nme_mean = NME_mean.get(prediction_result=prediction_result, marks=marks)
+    nme_mean = NMEMean.get(prediction_result=prediction_result, marks=marks)
     distances = calculate_distances_naive(marks)
     me = calculate_me_naive(prediction_result, marks)
     assert np.all(np.isclose(np.nanmean(me / distances), nme_mean))
 
 
-def test_calculate_nme_std(face_alignment_model: FaceAlignmentWrapper, example_data_300w: Dataset300W):
+def test_calculate_nme_std(face_alignment_model: FaceAlignmentWrapper, example_data_300w: DataLoader300W):
     marks = example_data_300w.all_marks
     prediction_result: PredictionResult = face_alignment_model.predict(example_data_300w)
 
-    nme_std = NME_std.get(prediction_result=prediction_result, marks=marks)
+    nme_std = NMEStd.get(prediction_result=prediction_result, marks=marks)
     distances = calculate_distances_naive(marks)
     me = calculate_me_naive(prediction_result, marks)
     assert np.all(np.isclose(np.nanstd(me / distances), nme_std))
