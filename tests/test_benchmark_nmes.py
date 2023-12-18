@@ -26,7 +26,8 @@ DIR_PATH_OUTDOOR = DIR_PATH / "300W" / "02_Outdoor"
 @pytest.fixture(scope="session")
 def full_data_300w_indoor():
     fetch_remote(DATA_URL, DATA_PATH)
-    ungzip(DATA_PATH, DIR_PATH)
+    if not DIR_PATH_INDOOR.exists():
+        ungzip(DATA_PATH, DIR_PATH)
 
     return DataLoader300W(dir_path=DIR_PATH_INDOOR)
 
@@ -34,7 +35,8 @@ def full_data_300w_indoor():
 @pytest.fixture(scope="session")
 def full_data_300w_outdoor():
     fetch_remote(DATA_URL, DATA_PATH)
-    ungzip(DATA_PATH, DIR_PATH)
+    if not DIR_PATH_OUTDOOR.exists():
+        ungzip(DATA_PATH, DIR_PATH)
 
     return DataLoader300W(dir_path=DIR_PATH_OUTDOOR)
 
