@@ -68,4 +68,4 @@ class CachedDataLoader(DataLoaderWrapper):
         self._cache_idxs.insert(0, idx)
         if len(self._cache_idxs) > self._max_size:
             self._cache.pop(self._cache_idxs.pop(-1))
-        return self._cache_idxs[idx]
+        return self._cache[idx]
