@@ -86,10 +86,3 @@ class FacialParts(Enum):
 
     LEFT_HALF = FacialPart("left half", _LEFT_HALF)
     RIGHT_HALF = FacialPart("right half", ~_LEFT_HALF)
-
-
-if __name__ == "__main__":
-    print((FacialParts.LEFT_EYE.value | FacialParts.RIGHT_EYE.value) == FacialParts.EYES.value)
-    print((FacialParts.LEFT_EYE.value + FacialParts.RIGHT_EYE.value) == FacialParts.EYES.value)
-    print((FacialParts.EYES.value - FacialParts.LEFT_EYE.value) == FacialParts.RIGHT_EYE.value)
-    print((FacialParts.EYES.value & FacialParts.LEFT_HALF.value) == FacialParts.LEFT_EYE.value)
