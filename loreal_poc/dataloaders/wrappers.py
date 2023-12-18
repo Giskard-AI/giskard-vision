@@ -77,9 +77,11 @@ class ResizedDataLoader(DataLoaderWrapper):
         self,
         dataloader: DataIteratorBase,
         scales: Union[Tuple[float, float], float] = [1.0, 1.0],
+        absolute_scales: Optional[bool] = False,
     ) -> None:
         super().__init__(dataloader)
         self._scales = scales
+        self._absolute_scales = absolute_scales
 
     @property
     def name(self):
@@ -87,4 +89,4 @@ class ResizedDataLoader(DataLoaderWrapper):
 
     def __getitem__(self, idx: int) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:
         img, marks, meta = super().__getitem__(idx)
-        return *resize_image_marks(img, marks, self._scales), meta
+        return *resize_image_marks(img, marks, self._scales, self._absolute_scales), meta
