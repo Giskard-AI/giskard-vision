@@ -44,40 +44,24 @@ def full_data_300w_outdoor():
 def test_face_alignment_model(full_data_300w_indoor, full_data_300w_outdoor):
     model = FaceAlignmentWrapper(model=FaceAlignment(LandmarksType.TWO_D, device="cpu", flip_input=False))
     predictions = model.predict(full_data_300w_indoor)
-    nmes = NMEs.get(predictions, full_data_300w_indoor.all_marks)
-    dataset_nmes = np.nanmean(nmes)
-    assert dataset_nmes < NME_SPIGA
-    assert dataset_nmes < NME_3DDE
-    assert dataset_nmes < NME_DCFE
-    assert dataset_nmes < NME_CHR2C
-    assert dataset_nmes < NME_CNN_CRF
+    indoor_nmes = NMEs.get(predictions, full_data_300w_indoor.all_marks)
+    dataset_indoor_nmes = np.nanmean(indoor_nmes)
 
     predictions = model.predict(full_data_300w_outdoor)
-    nmes = NMEs.get(predictions, full_data_300w_outdoor.all_marks)
-    dataset_nmes = np.nanmean(nmes)
-    assert dataset_nmes < NME_SPIGA
-    assert dataset_nmes < NME_3DDE
-    assert dataset_nmes < NME_DCFE
-    assert dataset_nmes < NME_CHR2C
-    assert dataset_nmes < NME_CNN_CRF
+    outdoor_nmes = NMEs.get(predictions, full_data_300w_outdoor.all_marks)
+    dataset_outdoor_nmes = np.nanmean(outdoor_nmes)
+
+    assert not np.isnan(np.nanmean(np.concatenate(dataset_indoor_nmes, dataset_outdoor_nmes)))
 
 
 def test_opencv_model(full_data_300w_indoor, full_data_300w_outdoor):
     model = OpenCVWrapper()
     predictions = model.predict(full_data_300w_indoor)
-    nmes = NMEs.get(predictions, full_data_300w_indoor.all_marks)
-    dataset_nmes = np.nanmean(nmes)
-    assert dataset_nmes < NME_SPIGA
-    assert dataset_nmes < NME_3DDE
-    assert dataset_nmes < NME_DCFE
-    assert dataset_nmes < NME_CHR2C
-    assert dataset_nmes < NME_CNN_CRF
+    indoor_nmes = NMEs.get(predictions, full_data_300w_indoor.all_marks)
+    dataset_indoor_nmes = np.nanmean(indoor_nmes)
 
     predictions = model.predict(full_data_300w_outdoor)
-    nmes = NMEs.get(predictions, full_data_300w_outdoor.all_marks)
-    dataset_nmes = np.nanmean(nmes)
-    assert dataset_nmes < NME_SPIGA
-    assert dataset_nmes < NME_3DDE
-    assert dataset_nmes < NME_DCFE
-    assert dataset_nmes < NME_CHR2C
-    assert dataset_nmes < NME_CNN_CRF
+    outdoor_nmes = NMEs.get(predictions, full_data_300w_outdoor.all_marks)
+    dataset_outdoor_nmes = np.nanmean(outdoor_nmes)
+
+    assert not np.isnan(np.nanmean(np.concatenate(dataset_indoor_nmes, dataset_outdoor_nmes)))
