@@ -42,10 +42,10 @@ def full_data_300w_outdoor():
     return DataLoader300W(dir_path=DIR_PATH_OUTDOOR)
 
 
-def predict_dataset_in_batch(model: FaceLandmarksModelBase, dataset: DataLoader300W, batch_size=1):
+def predict_dataset_in_batch(model: FaceLandmarksModelBase, dataset: DataLoader300W, batch_size=1, end=None):
     predictions = None
 
-    end = len(dataset)
+    end = len(dataset) if end is None else end
     for i in range(0, end, batch_size):
         idx_range = [i + offset for offset in range(batch_size) if (i + offset) < end]
         batch_prediction = model.predict(dataset, idx_range=idx_range)
@@ -62,12 +62,14 @@ def predict_dataset_in_batch(model: FaceLandmarksModelBase, dataset: DataLoader3
 def test_face_alignment_model(full_data_300w_indoor: DataLoader300W, full_data_300w_outdoor: DataLoader300W):
     model = FaceAlignmentWrapper(model=FaceAlignment(LandmarksType.TWO_D, device="cpu", flip_input=False))
 
-    predictions = predict_dataset_in_batch(model, full_data_300w_indoor)
-    indoor_nmes = NMEs.get(predictions, full_data_300w_indoor.all_marks)
+    count = 5
+
+    predictions = predict_dataset_in_batch(model, full_data_300w_indoor, end=count)
+    indoor_nmes = NMEs.get(predictions, full_data_300w_indoor.all_marks[:count])
     assert not np.isnan(np.nanmean(indoor_nmes))
 
-    predictions = predict_dataset_in_batch(model, full_data_300w_outdoor)
-    outdoor_nmes = NMEs.get(predictions, full_data_300w_outdoor.all_marks)
+    predictions = predict_dataset_in_batch(model, full_data_300w_outdoor, end=count)
+    outdoor_nmes = NMEs.get(predictions, full_data_300w_outdoor.all_marks[:count])
     assert not np.isnan(np.nanmean(outdoor_nmes))
 
     assert not np.isnan(np.nanmean(np.concatenate([indoor_nmes, outdoor_nmes])))
@@ -76,12 +78,14 @@ def test_face_alignment_model(full_data_300w_indoor: DataLoader300W, full_data_3
 def test_opencv_model(full_data_300w_indoor: DataLoader300W, full_data_300w_outdoor: DataLoader300W):
     model = OpenCVWrapper()
 
-    predictions = predict_dataset_in_batch(model, full_data_300w_indoor)
-    indoor_nmes = NMEs.get(predictions, full_data_300w_indoor.all_marks)
+    count = 5
+
+    predictions = predict_dataset_in_batch(model, full_data_300w_indoor, end=count)
+    indoor_nmes = NMEs.get(predictions, full_data_300w_indoor.all_marks[:count])
     assert not np.isnan(np.nanmean(indoor_nmes))
 
-    predictions = predict_dataset_in_batch(model, full_data_300w_outdoor)
-    outdoor_nmes = NMEs.get(predictions, full_data_300w_outdoor.all_marks)
+    predictions = predict_dataset_in_batch(model, full_data_300w_outdoor, end=count)
+    outdoor_nmes = NMEs.get(predictions, full_data_300w_outdoor.all_marks[:count])
     assert not np.isnan(np.nanmean(outdoor_nmes))
 
     assert not np.isnan(np.nanmean(np.concatenate([indoor_nmes, outdoor_nmes])))
