@@ -1,21 +1,21 @@
-from typing import Tuple, Union
+from typing import Sequence, Tuple, Union
 
 import cv2
 import numpy as np
 
 
-def resize_image_marks(
+def resize_image_with_marks(
     img: np.ndarray, marks: np.ndarray | None, scales: Union[Tuple[float, float], float], absolute_scales: bool
 ) -> np.ndarray:
     h, w, _ = img.shape
     if absolute_scales:
-        if isinstance(scales, list):
+        if isinstance(scales, Sequence):
             scale_ratios = [scales[0] / h, scales[1] / w]
         else:
             largest_dim = max(h, w)
             scale_ratios = [scales / largest_dim, scales / largest_dim]
     else:
-        if isinstance(scales, list):
+        if not isinstance(scales, Sequence):
             scale_ratios = [scales, scales]
 
     if any([s <= 0 for s in scale_ratios]):

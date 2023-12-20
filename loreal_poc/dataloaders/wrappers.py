@@ -1,10 +1,14 @@
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
+import cv2
 import numpy as np
 
 from ..marks.facial_parts import FacialPart
-from ..transformation_functions.crop import crop_image_from_mark, crop_mark
-from ..transformation_functions.resize import resize_image_marks
+from ..transformation_functions import (
+    crop_image_from_mark,
+    crop_mark,
+    resize_image_with_marks,
+)
 from .base import DataIteratorBase, DataLoaderWrapper
 
 
@@ -89,4 +93,52 @@ class ResizedDataLoader(DataLoaderWrapper):
 
     def __getitem__(self, idx: int) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:
         img, marks, meta = super().__getitem__(idx)
-        return *resize_image_marks(img, marks, self._scales, self._absolute_scales), meta
+        return *resize_image_with_marks(img, marks, self._scales, self._absolute_scales), meta
+
+
+class BlurDataLoader(DataLoaderWrapper):
+    def __init__(
+        self,
+        dataloader: DataIteratorBase,
+        kernel_size: Union[Tuple[int, int], int] = [11, 11],
+        sigma: Union[Tuple[float, float], float] = [3.0, 3.0],
+    ) -> None:
+        super().__init__(dataloader)
+
+        self._kernel_size = kernel_size if isinstance(kernel_size, Sequence) else [kernel_size, kernel_size]
+        if any([ks % 2 == 0 or ks <= 0 for ks in self._kernel_size]):
+            raise ValueError(f"Kernel size must be a list of positive odd integers not {self._kernel_size}")
+        self._sigma = sigma if isinstance(sigma, Sequence) else [sigma, sigma]
+
+    @property
+    def name(self):
+        return f"{self._wrapped_dataloader.name} blurred"
+
+    def __getitem__(self, idx: int) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:
+        img, marks, meta = super().__getitem__(idx)
+        blurred_img = cv2.GaussianBlur(img, self._kernel_size, *self._sigma)
+        return blurred_img, marks, meta
+
+
+class ColorDataLoader(DataLoaderWrapper):
+    def __init__(
+        self,
+        dataloader: DataIteratorBase,
+        mode: str = "grayscale",  # grayscale / bgr for now it is only
+    ) -> None:
+        super().__init__(dataloader)
+        self._mode = mode
+
+    @property
+    def name(self):
+        return f"{self._wrapped_dataloader.name} altered with {self._mode} colors"
+
+    def __getitem__(self, idx: int) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:
+        img, marks, meta = super().__getitem__(idx)
+        if self._mode == "grayscale":
+            colored_img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+        elif self._mode == "bgr":
+            colored_img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+        else:
+            raise NotImplementedError(f"The mode {self._mode} is not supported.")
+        return colored_img, marks, meta
