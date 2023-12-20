@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import numpy as np
 
 from ..marks.facial_parts import FacialPart
-from ..transformation_functions.crop import crop_image_from_mark
+from ..transformation_functions.crop import crop_image_from_mark, crop_mark
 from .base import DataIteratorBase, DataLoaderWrapper
 
 
@@ -30,7 +30,7 @@ class CroppedDataLoader(DataLoaderWrapper):
             return image
         h, w, _ = image.shape
         margins = np.array([w, h]) * self._margins
-        marks = self.get_marks(idx)
+        marks = crop_mark(self.get_marks(idx), self._part)
         return crop_image_from_mark(image, marks, margins)
 
     def __getitem__(self, idx: int) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:
