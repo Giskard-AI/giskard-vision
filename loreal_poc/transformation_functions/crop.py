@@ -2,7 +2,7 @@ from typing import Tuple
 
 import numpy as np
 
-from ..marks.facial_parts import FacialPart, FacialParts
+from ..marks.facial_parts import FacialPart
 
 
 def get_boundaries_from_marks(marks, margins) -> Tuple[int, int, int, int]:
@@ -16,11 +16,10 @@ def get_boundaries_from_marks(marks, margins) -> Tuple[int, int, int, int]:
 
 
 def crop_mark(mark: np.ndarray, part: FacialPart, exclude=False):
-    idx = np.isin(FacialParts.entire, part)
     if not exclude:
-        idx = ~idx
+        part = ~part
     res = mark.copy()
-    res[idx, :] = np.nan
+    res[part.idx, :] = np.nan
     return res
 
 

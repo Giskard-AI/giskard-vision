@@ -101,7 +101,10 @@ class Test:
     threshold: float
 
     def run(
-        self, model: FaceLandmarksModelBase, dataloader: DataIteratorBase, facial_part: FacialPart = FacialParts.entire
+        self,
+        model: FaceLandmarksModelBase,
+        dataloader: DataIteratorBase,
+        facial_part: FacialPart = FacialParts.ENTIRE.value,
     ) -> TestResult:
         ground_truth = dataloader.all_marks
         prediction_result = model.predict(dataloader, facial_part=facial_part)
@@ -134,7 +137,7 @@ class TestDiff:
         model: FaceLandmarksModelBase,
         dataloader: DataIteratorBase,
         dataloader_ref: DataIteratorBase,
-        facial_part: FacialPart = FacialParts.entire,
+        facial_part: FacialPart = FacialParts.ENTIRE.value,
     ) -> TestResult:
         ground_truth = dataloader.all_marks
         prediction_result = model.predict(dataloader, facial_part=facial_part)

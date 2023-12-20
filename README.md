@@ -2,6 +2,8 @@
 
 Assessing the quality of facial landmark models
 
+[![Full CI](https://github.com/Giskard-AI/loreal-poc/actions/workflows/build-python.yml/badge.svg?branch=main)](https://github.com/Giskard-AI/loreal-poc/actions/workflows/build-python.yml)
+
 ## Setup
 
 prod-env

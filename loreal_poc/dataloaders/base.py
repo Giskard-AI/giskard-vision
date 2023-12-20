@@ -1,19 +1,21 @@
-import random
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
 
 class DataIteratorBase(ABC):
+    name: str
+    index_sampler: Sequence[int]
     batch_size: int
-    index_sampler: List[int]
 
-    def __init__(self, name: Optional[str] = None) -> None:
-        super().__init__()
-        self.index = 0
+    def __init__(self, name: str, batch_size: int = 1):
         self.name = name
+        self.batch_size = batch_size
+        self.index = 0
+        if (not isinstance(self.batch_size, int)) or self.batch_size <= 0:
+            raise ValueError(f"Batch size must be a strictly positive integer: {self.batch_size}")
 
     def __iter__(self):
         self.index = 0
@@ -57,7 +59,8 @@ class DataIteratorBase(ABC):
             raise StopIteration
         end = min(len(self), self.index + self.batch_size)
         elt = [self[idx] for idx in range(self.index, end)]
-        self.index = end - 1
+        self.index += self.batch_size
+
         if self.batch_size == 1:
             return elt[0]
         return self._collate_fn(elt)
@@ -89,12 +92,12 @@ class DataLoaderBase(DataIteratorBase):
         landmarks_dir_path: Union[str, Path],
         name: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
-        batch_size: Optional[int] = None,
+        batch_size: Optional[int] = 1,
         shuffle: Optional[bool] = False,
         rng_seed: Optional[int] = None,
         collate_fn: Optional[Callable] = None,
     ) -> None:
-        super().__init__(name=name)
+        super().__init__(name, batch_size=batch_size)
         images_dir_path = self._get_absolute_local_path(images_dir_path)
         landmarks_dir_path = self._get_absolute_local_path(landmarks_dir_path)
 
@@ -106,16 +109,14 @@ class DataLoaderBase(DataIteratorBase):
                 f"for {len(self.marks_paths)} of the images."
             )
 
-        self.batch_size = batch_size if batch_size else 1
-
         self.shuffle = shuffle
+
+        self.rng = np.random.default_rng(rng_seed)
+
+        print("create sampler")
         self.index_sampler = list(range(len(self)))
-
-        if rng_seed is not None:
-            random.seed(rng_seed)
-
         if shuffle:
-            random.shuffle(self.index_sampler)
+            self.rng.shuffle(self.index_sampler)
 
         if collate_fn is not None:
             self._collate_fn = collate_fn
