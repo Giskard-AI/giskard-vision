@@ -46,10 +46,6 @@ def test_cropped_dataloader():
     cropped = CroppedDataLoader(dl, part=FacialParts.left_eye)
 
     for (img, marks, _), (cropped_img, cropped_marks, _) in zip(dl, cropped):
-        print(np.isnan(cropped_marks).sum(axis=None))
-        print(len(FacialParts.left_eye.part))
-        assert np.isnan(cropped_marks).sum(axis=None) == marks.shape[1] * (
-            marks.shape[0] - len(FacialParts.left_eye.part)
-        )
-        assert np.isnan(cropped_marks[FacialParts.left_eye.part]).sum(axis=None) == 0
+        assert np.isnan(cropped_marks).sum() == 0
+        assert np.isnan(cropped_marks[FacialParts.left_eye.part]).sum() == 0
         assert not np.array_equal(img, cropped_img)
