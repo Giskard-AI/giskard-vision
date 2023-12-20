@@ -6,7 +6,7 @@ from typing import List, Optional
 import numpy as np
 
 from ..dataloaders.base import DataIteratorBase
-from ..marks.facial_parts import FacialPart, FacialParts
+from ..marks.facial_parts import FacialPart
 
 
 @dataclass
@@ -63,8 +63,7 @@ class FaceLandmarksModelBase(ABC):
                 f"{self.__class__.__name__}: The array shape expected from predict_image is ({self.n_landmarks}, {self.n_dimensions}) but {prediction.shape} was found."
             )
         if facial_part is not None:
-            idx = ~np.isin(FacialParts.entire, facial_part)
-            prediction[idx, :] = np.nan
+            prediction[~facial_part.idx, :] = np.nan
         return prediction
 
     def predict(
