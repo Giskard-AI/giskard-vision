@@ -10,7 +10,7 @@ class DataIteratorBase(ABC):
     index_sampler: Sequence[int]
     batch_size: int
 
-    def __init__(self, name: str, batch_size: int):
+    def __init__(self, name: str, batch_size: int = 1):
         self.name = name
         self.batch_size = batch_size
         self.index = 0
