@@ -16,7 +16,7 @@ class FacialPart:
         flag_arr = np.zeros(68, dtype=bool)
         flag_arr[start:end] = True
 
-        return FacialPart(name, flag_arr)
+        return cls(name, flag_arr)
 
     def __and__(self, other: "FacialPart") -> "FacialPart":
         if not isinstance(other, FacialPart):
