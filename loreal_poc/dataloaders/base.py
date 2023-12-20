@@ -216,6 +216,9 @@ class DataLoaderWrapper(DataIteratorBase):
     def get_meta(self, idx: int) -> Optional[Dict]:
         return self._wrapped_dataloader.get_meta(idx)
 
+    def __getitem__(self, idx: int) -> Tuple[np.ndarray, np.ndarray | None, Dict[Any, Any] | None]:
+        return self._wrapped_dataloader[idx]
+
     def __getattr__(self, attr):
         # This will proxy any dataloader.a to dataloader._wrapped_dataloader.a
         return getattr(self._wrapped_dataloader, attr)
