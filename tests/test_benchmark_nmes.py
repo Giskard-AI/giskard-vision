@@ -8,7 +8,6 @@ from loreal_poc.dataloaders.loaders import DataLoader300W
 from loreal_poc.models.base import FaceLandmarksModelBase, PredictionResult
 from loreal_poc.models.wrappers import FaceAlignmentWrapper, OpenCVWrapper
 from loreal_poc.tests.performance import NMEs
-from tests.utils import fetch_remote, ungzip
 
 # NMEs using inter-ocular distance from https://paperswithcode.com/sota/facial-landmark-detection-on-300w
 NME_SPIGA = 2.99
@@ -17,29 +16,10 @@ NME_DCFE = 3.24
 NME_CHR2C = 3.3
 NME_CNN_CRF = 3.30
 
-DATA_URL = "https://poc-face-aligment.s3.eu-north-1.amazonaws.com/300W/300W.tar.gz"
-DIR_PATH = Path.home() / ".giskard" / "300W"
-DATA_PATH = DIR_PATH / "300W.tar.gz"
-DIR_PATH_INDOOR = DIR_PATH / "300W" / "01_Indoor"
-DIR_PATH_OUTDOOR = DIR_PATH / "300W" / "02_Outdoor"
-
 
 @pytest.fixture(scope="session")
-def full_data_300w_indoor():
-    fetch_remote(DATA_URL, DATA_PATH)
-    if not DIR_PATH_INDOOR.exists():
-        ungzip(DATA_PATH, DIR_PATH)
-
-    return DataLoader300W(dir_path=DIR_PATH_INDOOR)
-
-
-@pytest.fixture(scope="session")
-def full_data_300w_outdoor():
-    fetch_remote(DATA_URL, DATA_PATH)
-    if not DIR_PATH_OUTDOOR.exists():
-        ungzip(DATA_PATH, DIR_PATH)
-
-    return DataLoader300W(dir_path=DIR_PATH_OUTDOOR)
+def sample_dataset_300w():
+    return DataLoader300W(dir_path=Path(__file__).parent.parent / "examples" / "300W" / "sample")
 
 
 def predict_dataset_in_batch(model: FaceLandmarksModelBase, dataset: DataLoader300W, batch_size=1, end=None):
@@ -59,33 +39,19 @@ def predict_dataset_in_batch(model: FaceLandmarksModelBase, dataset: DataLoader3
     return PredictionResult(prediction=predictions if predictions is not None else np.array([]))
 
 
-def test_face_alignment_model(full_data_300w_indoor: DataLoader300W, full_data_300w_outdoor: DataLoader300W):
+def test_face_alignment_model(sample_dataset_300w: DataLoader300W):
     model = FaceAlignmentWrapper(model=FaceAlignment(LandmarksType.TWO_D, device="cpu", flip_input=False))
 
-    count = 5
-
-    predictions = predict_dataset_in_batch(model, full_data_300w_indoor, end=count)
-    indoor_nmes = NMEs.get(predictions, full_data_300w_indoor.all_marks[:count])
-    assert not np.isnan(np.nanmean(indoor_nmes))
-
-    predictions = predict_dataset_in_batch(model, full_data_300w_outdoor, end=count)
-    outdoor_nmes = NMEs.get(predictions, full_data_300w_outdoor.all_marks[:count])
-    assert not np.isnan(np.nanmean(outdoor_nmes))
-
-    assert not np.isnan(np.nanmean(np.concatenate([indoor_nmes, outdoor_nmes])))
+    predictions = predict_dataset_in_batch(model, sample_dataset_300w)
+    nmes = NMEs.get(predictions, sample_dataset_300w.all_marks)
+    dataset_nmes = np.nanmean(nmes)
+    assert np.isclose(0.06233510979950631, dataset_nmes)
 
 
-def test_opencv_model(full_data_300w_indoor: DataLoader300W, full_data_300w_outdoor: DataLoader300W):
+def test_opencv_model(sample_dataset_300w: DataLoader300W):
     model = OpenCVWrapper()
 
-    count = 5
-
-    predictions = predict_dataset_in_batch(model, full_data_300w_indoor, end=count)
-    indoor_nmes = NMEs.get(predictions, full_data_300w_indoor.all_marks[:count])
-    assert not np.isnan(np.nanmean(indoor_nmes))
-
-    predictions = predict_dataset_in_batch(model, full_data_300w_outdoor, end=count)
-    outdoor_nmes = NMEs.get(predictions, full_data_300w_outdoor.all_marks[:count])
-    assert not np.isnan(np.nanmean(outdoor_nmes))
-
-    assert not np.isnan(np.nanmean(np.concatenate([indoor_nmes, outdoor_nmes])))
+    predictions = predict_dataset_in_batch(model, sample_dataset_300w)
+    nmes = NMEs.get(predictions, sample_dataset_300w.all_marks)
+    dataset_nmes = np.nanmean(nmes)
+    assert np.isclose(0.04136279942306024, dataset_nmes)
