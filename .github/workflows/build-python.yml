@@ -48,6 +48,14 @@ jobs:
       - name: Verify linting, format
         run: pdm check-format
 
+      - name: Cache test resources
+        uses: actions/cache@v3
+        if: ${{ github.event_name == 'pull_request' }}
+        with:
+          path: ~/.giskard
+          key: ${{ matrix.os }}-python-test-resources # TODO: Separate fixtures and for hashing
+          restore-keys: ${{ matrix.os }}-python-test-resources
+
       - name: Test code
         run: pdm test
 
