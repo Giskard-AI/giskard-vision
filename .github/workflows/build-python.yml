@@ -53,8 +53,8 @@ jobs:
         if: ${{ github.event_name == 'pull_request' }}
         with:
           path: ~/.giskard
-          key: ${{ matrix.os }}-python-test-resources # TODO: Separate fixtures and for hashing
-          restore-keys: ${{ matrix.os }}-python-test-resources
+          key: ${{ matrix.os }}-python-${{ matrix.python-version }}-test-resources # TODO: Separate fixtures and for hashing
+          restore-keys: ${{ matrix.os }}-python-${{ matrix.python-version }}-test-resources
 
       - name: Test code
         run: pdm test
