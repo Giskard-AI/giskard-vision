@@ -114,7 +114,7 @@ def test_calculate_nmes(opencv_model, dataset_300w):
         ("face_alignment_model", "dataset_300w", 0.06233510979950631),
     ],
 )
-def text_benchmark_nmes(model_name, dataset_name, benchmark, request):
+def test_benchmark_nmes(model_name, dataset_name, benchmark, request):
     model = request.getfixturevalue(model_name)
     dataset = request.getfixturevalue(dataset_name)
     predictions = model.predict(dataset)
