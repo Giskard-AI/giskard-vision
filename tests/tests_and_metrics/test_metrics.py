@@ -20,22 +20,6 @@ TEST_ARRAY_A_3D = [[0.0, 0.0, 1.0], [1.0, 0.0, 0.0], [0.0, 1.0, 1.0], [1.0, 1.0,
 TEST_ARRAY_B_3D = [[4.0, 0.0, 0.0], [1.0, 1.0, 1.0], [2.0, 2.0, 0.0], [2.0, 3.0, 1.0]]
 
 
-@pytest.mark.parametrize(
-    "model_name, dataset_name, benchmark",
-    [
-        ("opencv_model", "dataset_300w", 0.04136279942306024),
-        ("face_alignment_model", "dataset_300w", 0.06233510979950631),
-    ],
-)
-def test_metric(model_name, dataset_name, benchmark, request):
-    model = request.getfixturevalue(model_name)
-    dataset = request.getfixturevalue(dataset_name)
-    predictions = model.predict(dataset)
-    nmes = NMEs.get(predictions, dataset.all_marks)
-    dataset_nmes = np.nanmean(nmes)
-    assert np.isclose(benchmark, dataset_nmes)
-
-
 def calculate_me_naive(prediction_result: PredictionResult, marks):
     return np.asarray(
         [
@@ -121,6 +105,22 @@ def test_calculate_nmes(opencv_model, dataset_300w):
     distances = calculate_distances_naive(marks)
     me = calculate_me_naive(prediction_result, marks)
     assert np.all(np.isclose(me / distances, calculated))
+
+
+@pytest.mark.parametrize(
+    "model_name, dataset_name, benchmark",
+    [
+        ("opencv_model", "dataset_300w", 0.04136279942306024),
+        ("face_alignment_model", "dataset_300w", 0.06233510979950631),
+    ],
+)
+def text_benchmark_nmes(model_name, dataset_name, benchmark, request):
+    model = request.getfixturevalue(model_name)
+    dataset = request.getfixturevalue(dataset_name)
+    predictions = model.predict(dataset)
+    nmes = NMEs.get(predictions, dataset.all_marks)
+    dataset_nmes = np.nanmean(nmes)
+    assert np.isclose(benchmark, dataset_nmes)
 
 
 def test_calculate_me_mean(opencv_model, dataset_300w):
