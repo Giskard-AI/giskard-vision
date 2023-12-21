@@ -1,3 +1,4 @@
+import math
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
@@ -55,9 +56,9 @@ class DataIteratorBase(ABC):
         return [self.get_meta(i) for i in range(len(self))]
 
     def __next__(self) -> Tuple[np.ndarray, np.ndarray]:
-        if self.index >= len(self):
+        if self.index >= len(self.index_sampler):
             raise StopIteration
-        end = min(len(self), self.index + self.batch_size)
+        end = min(len(self.index_sampler), self.index + self.batch_size)
         elt = [self[idx] for idx in range(self.index, end)]
         self.index += self.batch_size
 
@@ -69,12 +70,18 @@ class DataIteratorBase(ABC):
         self, elements: List[Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]]
     ) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:
         batched_elements = list(zip(*elements))
-        # TO DO: create image stack but require same size images and therefore automatic padding or resize.
-        if all(elt is not None for elt in batched_elements[1]):  # check if all marks are not None
-            batched_elements[1] = np.stack(batched_elements[1], axis=0)
 
-        if all(elt is not None for elt in batched_elements[2]):  # check if all meta_data elements are not None
-            batched_elements[2] = {key: [meta[key] for meta in batched_elements[2]] for key in batched_elements[2][0]}
+        default_marks = np.empty((68, 2))
+        default_marks.fill(np.nan)
+        batched_elements[1] = np.stack(
+            [marks if marks is not None else default_marks for marks in batched_elements[1]], axis=0
+        )
+
+        meta_keys = next((list(elt.keys()) for elt in batched_elements[2] if elt is not None), [])
+        batched_elements[2] = {
+            key: [meta[key] if (meta is not None and key in meta) else None for meta in batched_elements[2]]
+            for key in meta_keys
+        }
 
         return batched_elements
 
@@ -114,7 +121,7 @@ class DataLoaderBase(DataIteratorBase):
         self.rng = np.random.default_rng(rng_seed)
 
         print("create sampler")
-        self.index_sampler = list(range(len(self)))
+        self.index_sampler = list(range(len(self.image_paths)))
         if shuffle:
             self.rng.shuffle(self.index_sampler)
 
@@ -147,7 +154,7 @@ class DataLoaderBase(DataIteratorBase):
         return all_paths_with_suffix
 
     def __len__(self) -> int:
-        return len(self.image_paths)
+        return math.ceil(len(self.image_paths) / self.batch_size)
 
     def get_image(self, idx: int) -> np.ndarray:
         return self._load_and_validate_image(self.image_paths[idx])
@@ -156,7 +163,8 @@ class DataLoaderBase(DataIteratorBase):
         return self._load_and_validate_marks(self.marks_paths[idx])
 
     def get_meta(self, idx: int) -> Optional[Dict]:
-        return None
+        m = None if np.random.random() < 0.5 else {"test": np.random.randint(10), "suite": np.random.randint(10)}
+        return m
 
     @classmethod
     @abstractmethod
