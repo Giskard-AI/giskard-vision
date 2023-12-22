@@ -8,6 +8,8 @@ __pycache__/
 .idea
 *.iml
 .vscode
+*.xml
+*.yaml
 
 # examples
 300W
