@@ -118,45 +118,31 @@ class DataLoaderFFHQ(DataLoaderBase):
         pass
 
 
-try:
-    import scipy
-    import tensorflow
-    import tensorflow_datasets as tfds
+class DataLoader300WLP(DataIteratorBase):
+    LANDMARKS_2D_KEY = "landmarks_2d"
+    IMAGE_KEY = "image"
 
-    class DataLoader300WLP(DataIteratorBase):
-        LANDMARKS_2D_KEY = "landmarks_2d"
-        IMAGE_KEY = "image"
+    def __init__(self, name: str | None = None) -> None:
+        super().__init__(name)
 
-        def __init__(self, name: str | None = None) -> None:
-            super().__init__(name)
+        import tensorflow_datasets as tfds
 
-            self.splits, self.info = tfds.load("the300w_lp", with_info=True)
-            self.split_name = "train"  # Only this one
-            self.ds = self.splits[self.split_name]
+        self.splits, self.info = tfds.load("the300w_lp", with_info=True)
+        self.split_name = "train"  # Only this one is in `the300w_lp`
+        self.ds = self.splits[self.split_name]
 
-            # Note the dependencies and versions
-            self._dependencies = {
-                tensorflow.__name__: tensorflow.__version__,
-                scipy.__name__: scipy.__version__,
-                tfds.__name__: scipy.__version__,
-            }
+    def __len__(self) -> int:
+        return self.info.splits[self.split_name].num_examples
 
-        def __len__(self) -> int:
-            return self.info.splits[self.split_name].num_examples
+    def get_image(self, idx: int) -> np.ndarray:
+        datarows = self.ds.skip(idx)
+        for row in datarows:
+            return row[DataLoader300WLP.IMAGE_KEY]
 
-        def get_image(self, idx: int) -> np.ndarray:
-            datarows = self.ds.skip(idx)
-            for row in datarows:
-                return row[DataLoader300WLP.IMAGE_KEY]
+    def get_marks(self, idx: int) -> Optional[np.ndarray]:
+        datarows = self.ds.skip(idx)
+        for row in datarows:
+            return row[DataLoader300WLP.LANDMARKS_2D_KEY]
 
-        def get_marks(self, idx: int) -> Optional[np.ndarray]:
-            datarows = self.ds.skip(idx)
-            for row in datarows:
-                return row[DataLoader300WLP.LANDMARKS_2D_KEY]
-
-        def get_meta(self, idx: int) -> Optional[Dict]:
-            return None
-
-except ImportError:
-    # Optional libs are needed
-    pass
+    def get_meta(self, idx: int) -> Optional[Dict]:
+        return None
