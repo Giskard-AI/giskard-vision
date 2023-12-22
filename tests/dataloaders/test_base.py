@@ -14,7 +14,7 @@ class DataloaderForTest(DataIteratorBase):
         self.dataset = generator.integers(0, 255, size=(length, 32, 32, 3))
         self.marks = generator.integers(0, 32, size=(length, 68, 2)).astype(float)
 
-        self.index_sampler = list(range(length))
+        self.idx_sampler = list(range(length))
 
     def __len__(self) -> int:
         return math.ceil(len(self.dataset) / self.batch_size)
@@ -34,7 +34,7 @@ class DataloaderMissingAnnotation(DataIteratorBase):
         self.dataset = generator.integers(0, 255, size=(length, 32, 32, 3))
         self.marks = generator.integers(0, 32, size=(length, 68, 2)).astype(float)
 
-        self.index_sampler = list(range(length))
+        self.idx_sampler = list(range(length))
 
     def __len__(self) -> int:
         return math.ceil(len(self.dataset) / self.batch_size)

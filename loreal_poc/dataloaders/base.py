@@ -8,18 +8,18 @@ import numpy as np
 
 class DataIteratorBase(ABC):
     name: str
-    index_sampler: Sequence[int]
+    idx_sampler: Sequence[int]
     batch_size: int
 
     def __init__(self, name: str, batch_size: int = 1):
         self.name = name
         self.batch_size = batch_size
-        self.index = 0
+        self.idx = 0
         if (not isinstance(self.batch_size, int)) or self.batch_size <= 0:
             raise ValueError(f"Batch size must be a strictly positive integer: {self.batch_size}")
 
     def __iter__(self):
-        self.index = 0
+        self.idx = 0
         return self
 
     @abstractmethod
@@ -47,7 +47,7 @@ class DataIteratorBase(ABC):
     def __getitem__(
         self, idx: int
     ) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:  # (image, marks, meta)
-        idx = self.index_sampler[idx]
+        idx = self.idx_sampler[idx]
         marks = self.get_marks(idx)
         marks = marks if marks is not None else self.marks_none
         meta = self.get_meta(idx)
@@ -56,23 +56,23 @@ class DataIteratorBase(ABC):
 
     @property
     def all_images_generator(self) -> np.array:
-        for i in range(len(self)):
-            yield self.get_image(i)
+        for idx in range(len(self)):
+            yield self.get_image(idx)
 
     @property
     def all_marks(self) -> np.ndarray:  # (marks)
-        return np.array([self.get_marks(i) for i in range(len(self))])
+        return np.array([self.get_marks(idx) for idx in range(len(self))])
 
     @property
     def all_meta(self) -> List:  # (meta)
-        return [self.get_meta(i) for i in range(len(self))]
+        return [self.get_meta(idx) for idx in range(len(self))]
 
     def __next__(self) -> Tuple[np.ndarray, np.ndarray]:
-        if self.index >= len(self.index_sampler):
+        if self.idx >= len(self.idx_sampler):
             raise StopIteration
-        end = min(len(self.index_sampler), self.index + self.batch_size)
-        elt = [self[idx] for idx in range(self.index, end)]
-        self.index += self.batch_size
+        end = min(len(self.idx_sampler), self.idx + self.batch_size)
+        elt = [self[idx] for idx in range(self.idx, end)]
+        self.idx += self.batch_size
 
         if self.batch_size == 1:
             return elt[0]
@@ -129,10 +129,9 @@ class DataLoaderBase(DataIteratorBase):
 
         self.rng = np.random.default_rng(rng_seed)
 
-        print("create sampler")
-        self.index_sampler = list(range(len(self.image_paths)))
+        self.idx_sampler = list(range(len(self.image_paths)))
         if shuffle:
-            self.rng.shuffle(self.index_sampler)
+            self.rng.shuffle(self.idx_sampler)
 
         if collate_fn is not None:
             self._collate_fn = collate_fn
