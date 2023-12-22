@@ -1,18 +1,25 @@
+import math
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
 
 class DataIteratorBase(ABC):
-    def __init__(self, name: Optional[str] = None) -> None:
-        super().__init__()
-        self.index = 0
+    name: str
+    idx_sampler: Sequence[int]
+    batch_size: int
+
+    def __init__(self, name: str, batch_size: int = 1):
         self.name = name
+        self.batch_size = batch_size
+        self.idx = 0
+        if (not isinstance(self.batch_size, int)) or self.batch_size <= 0:
+            raise ValueError(f"Batch size must be a strictly positive integer: {self.batch_size}")
 
     def __iter__(self):
-        self.index = 0
+        self.idx = 0
         return self
 
     @abstractmethod
@@ -23,6 +30,14 @@ class DataIteratorBase(ABC):
     def get_image(self, idx: int) -> np.ndarray:
         ...
 
+    @property
+    def marks_none(self) -> Optional[np.ndarray]:
+        return None
+
+    @property
+    def meta_none(self) -> Optional[Dict]:
+        return None
+
     def get_marks(self, idx: int) -> Optional[np.ndarray]:
         return None
 
@@ -32,27 +47,52 @@ class DataIteratorBase(ABC):
     def __getitem__(
         self, idx: int
     ) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:  # (image, marks, meta)
-        return self.get_image(idx), self.get_marks(idx), self.get_meta(idx)
+        idx = self.idx_sampler[idx]
+        marks = self.get_marks(idx)
+        marks = marks if marks is not None else self.marks_none
+        meta = self.get_meta(idx)
+        meta = meta if meta is not None else self.meta_none
+        return self.get_image(idx), marks, meta
 
     @property
     def all_images_generator(self) -> np.array:
-        for i in range(len(self)):
-            yield self.get_image(i)
+        for idx in range(len(self)):
+            yield self.get_image(idx)
 
     @property
     def all_marks(self) -> np.ndarray:  # (marks)
-        return np.array([self.get_marks(i) for i in range(len(self))])
+        return np.array([self.get_marks(idx) for idx in range(len(self))])
 
     @property
     def all_meta(self) -> List:  # (meta)
-        return [self.get_meta(i) for i in range(len(self))]
+        return [self.get_meta(idx) for idx in range(len(self))]
 
     def __next__(self) -> Tuple[np.ndarray, np.ndarray]:
-        if self.index >= len(self):
+        if self.idx >= len(self.idx_sampler):
             raise StopIteration
-        elt = self[self.index]
-        self.index += 1
-        return elt
+        end = min(len(self.idx_sampler), self.idx + self.batch_size)
+        elt = [self[idx] for idx in range(self.idx, end)]
+        self.idx += self.batch_size
+
+        if self.batch_size == 1:
+            return elt[0]
+        return self._collate_fn(elt)
+
+    def _collate_fn(
+        self, elements: List[Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]]
+    ) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:
+        batched_elements = list(zip(*elements))
+
+        batched_elements[1] = np.array(batched_elements[1])
+
+        # INFO: Restore if we want to concatenate all meta under one dict instead of keeping them as records (list of dicts)
+        # meta_keys = next((list(elt.keys()) for elt in batched_elements[2] if elt is not None), [])
+        # batched_elements[2] = {
+        #    key: [meta[key] if (meta is not None and key in meta) else None for meta in batched_elements[2]]
+        #    for key in meta_keys
+        # }
+
+        return batched_elements
 
 
 class DataLoaderBase(DataIteratorBase):
@@ -68,8 +108,12 @@ class DataLoaderBase(DataIteratorBase):
         landmarks_dir_path: Union[str, Path],
         name: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
+        batch_size: Optional[int] = 1,
+        shuffle: Optional[bool] = False,
+        rng_seed: Optional[int] = None,
+        collate_fn: Optional[Callable] = None,
     ) -> None:
-        super().__init__(name=name)
+        super().__init__(name, batch_size=batch_size)
         images_dir_path = self._get_absolute_local_path(images_dir_path)
         landmarks_dir_path = self._get_absolute_local_path(landmarks_dir_path)
 
@@ -80,6 +124,17 @@ class DataLoaderBase(DataIteratorBase):
                 f"{self.__class__.__name__}: Only {len(self.marks_paths)} found "
                 f"for {len(self.marks_paths)} of the images."
             )
+
+        self.shuffle = shuffle
+
+        self.rng = np.random.default_rng(rng_seed)
+
+        self.idx_sampler = list(range(len(self.image_paths)))
+        if shuffle:
+            self.rng.shuffle(self.idx_sampler)
+
+        if collate_fn is not None:
+            self._collate_fn = collate_fn
 
         self.meta = {
             **(meta if meta is not None else {}),
@@ -107,16 +162,17 @@ class DataLoaderBase(DataIteratorBase):
         return all_paths_with_suffix
 
     def __len__(self) -> int:
-        return len(self.image_paths)
+        return math.ceil(len(self.image_paths) / self.batch_size)
+
+    @property
+    def marks_none(self):
+        return np.full((self.n_landmarks, self.n_landmarks), np.nan)
 
     def get_image(self, idx: int) -> np.ndarray:
         return self._load_and_validate_image(self.image_paths[idx])
 
     def get_marks(self, idx: int) -> Optional[np.ndarray]:
         return self._load_and_validate_marks(self.marks_paths[idx])
-
-    def get_meta(self, idx: int) -> Optional[Dict]:
-        return None
 
     @classmethod
     @abstractmethod
@@ -131,6 +187,8 @@ class DataLoaderBase(DataIteratorBase):
     @classmethod
     def _load_and_validate_marks(cls, mark_file: Path) -> np.ndarray:
         marks = cls.load_marks_from_file(mark_file)
+        if marks is None:
+            marks = cls.marks_none()
         cls._validate_marks(marks)
         return marks
 
