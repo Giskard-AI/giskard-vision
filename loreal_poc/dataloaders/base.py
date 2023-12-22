@@ -30,6 +30,14 @@ class DataIteratorBase(ABC):
     def get_image(self, idx: int) -> np.ndarray:
         ...
 
+    @property
+    def marks_none(self) -> Optional[np.ndarray]:
+        return None
+
+    @property
+    def meta_none(self) -> Optional[Dict]:
+        return None
+
     def get_marks(self, idx: int) -> Optional[np.ndarray]:
         return None
 
@@ -40,7 +48,11 @@ class DataIteratorBase(ABC):
         self, idx: int
     ) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:  # (image, marks, meta)
         idx = self.index_sampler[idx]
-        return self.get_image(idx), self.get_marks(idx), self.get_meta(idx)
+        marks = self.get_marks(idx)
+        marks = marks if marks is not None else self.marks_none
+        meta = self.get_meta(idx)
+        meta = meta if meta is not None else self.meta_none
+        return self.get_image(idx), marks, meta
 
     @property
     def all_images_generator(self) -> np.array:
@@ -71,17 +83,14 @@ class DataIteratorBase(ABC):
     ) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:
         batched_elements = list(zip(*elements))
 
-        default_marks = np.empty((68, 2))
-        default_marks.fill(np.nan)
-        batched_elements[1] = np.stack(
-            [marks if marks is not None else default_marks for marks in batched_elements[1]], axis=0
-        )
+        batched_elements[1] = np.array(batched_elements[1])
 
-        meta_keys = next((list(elt.keys()) for elt in batched_elements[2] if elt is not None), [])
-        batched_elements[2] = {
-            key: [meta[key] if (meta is not None and key in meta) else None for meta in batched_elements[2]]
-            for key in meta_keys
-        }
+        # INFO: Restore if we want to concatenate all meta under one dict instead of keeping them as records (list of dicts)
+        # meta_keys = next((list(elt.keys()) for elt in batched_elements[2] if elt is not None), [])
+        # batched_elements[2] = {
+        #    key: [meta[key] if (meta is not None and key in meta) else None for meta in batched_elements[2]]
+        #    for key in meta_keys
+        # }
 
         return batched_elements
 
@@ -156,15 +165,15 @@ class DataLoaderBase(DataIteratorBase):
     def __len__(self) -> int:
         return math.ceil(len(self.image_paths) / self.batch_size)
 
+    @property
+    def marks_none(self):
+        return np.full((self.n_landmarks, self.n_landmarks), np.nan)
+
     def get_image(self, idx: int) -> np.ndarray:
         return self._load_and_validate_image(self.image_paths[idx])
 
     def get_marks(self, idx: int) -> Optional[np.ndarray]:
         return self._load_and_validate_marks(self.marks_paths[idx])
-
-    def get_meta(self, idx: int) -> Optional[Dict]:
-        m = None if np.random.random() < 0.5 else {"test": np.random.randint(10), "suite": np.random.randint(10)}
-        return m
 
     @classmethod
     @abstractmethod
@@ -179,6 +188,8 @@ class DataLoaderBase(DataIteratorBase):
     @classmethod
     def _load_and_validate_marks(cls, mark_file: Path) -> np.ndarray:
         marks = cls.load_marks_from_file(mark_file)
+        if marks is None:
+            marks = cls.marks_none()
         cls._validate_marks(marks)
         return marks
 

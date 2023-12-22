@@ -42,11 +42,19 @@ class DataloaderMissingAnnotation(DataIteratorBase):
     def get_image(self, idx: int) -> np.ndarray:
         return self.dataset[idx]
 
+    @property
+    def marks_none(self):
+        return np.full((68, 2), np.nan)
+
+    @property
+    def meta_none(self):
+        return {"key1": -1, "key2": -1}
+
     def get_marks(self, idx: int) -> np.ndarray | None:
         return self.marks[idx] if idx % 2 == 0 else None
 
     def get_meta(self, idx: int) -> dict | None:
-        return {"meta": idx, "data": 0} if idx < 5 else None
+        return {"key1": 1, "key2": 1} if idx < 5 else None
 
 
 def test_nominal():
@@ -57,8 +65,8 @@ def test_nominal():
         dl[2]
         assert "index 2 is out of bounds for axis 0 with size 1" in str(exc_info)
 
-    img, mark, meta = dl[0]
-    img2, mark2, meta2 = next(dl)
+    img, _, _ = dl[0]
+    img2, _, _ = next(dl)
 
     assert np.array_equal(img, img2)
     with pytest.raises(StopIteration) as exc_info:
@@ -78,17 +86,19 @@ def test_batch_dataloader():
 
 def test_batch_dataloader_missing_annotation():
     dl = DataloaderMissingAnnotation("examples", length=10, batch_size=3)
-    imgs, marks, meta = next(dl)
+    _, marks, meta = next(dl)
 
     assert marks.shape == (3, 68, 2)
     assert np.isnan(marks[1]).all()
     assert not np.isnan(marks[2]).all()
 
-    assert all([m is not None for m in meta["meta"]])
+    assert all([m["key1"] for m in meta])
+    assert all([m["key2"] for m in meta])
+    assert len(set([m["key1"] for m in meta])) == 1
+    assert len(set([m["key2"] for m in meta])) == 1
 
-    imgs, marks, meta = next(dl)
-    assert meta["meta"][0] is not None
-    assert meta["data"][2] is None
-
-    imgs, marks, meta = next(dl)
-    assert meta == {}
+    _, marks, meta = next(dl)
+    assert all([m["key1"] for m in meta])
+    assert all([m["key2"] for m in meta])
+    assert len(set([m["key1"] for m in meta])) == 2
+    assert len(set([m["key2"] for m in meta])) == 2
