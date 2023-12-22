@@ -36,7 +36,10 @@ dev = [
     "pip>=23.2.1",
     "pre-commit>=2.19.0",
     "ruff",
-    "isort"
+    "isort",
+    "tensorflow",
+    "tensorflow_datasets",
+    "scipy"
 ]
 
 [tool.ruff]
