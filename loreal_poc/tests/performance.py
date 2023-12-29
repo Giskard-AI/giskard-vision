@@ -1,13 +1,11 @@
 from dataclasses import dataclass
+from typing import Any, Optional
 
 import numpy as np
 
+from ..marks.utils import compute_d_outers
 from ..models.base import PredictionResult
 from .base import Metric
-
-# See https://ibug.doc.ic.ac.uk/resources/300-W/ for definition
-LEFT_EYE_LEFT_LANDMARK = 36
-RIGHT_EYE_RIGHT_LANDMARK = 45
 
 
 @dataclass
@@ -30,12 +28,6 @@ class Es(Metric):
         return np.sqrt(np.einsum("ijk->ij", (prediction_result.prediction - marks) ** 2))
 
 
-def _calculate_d_outers(marks):
-    return np.sqrt(
-        np.einsum("ij->i", (marks[:, LEFT_EYE_LEFT_LANDMARK, :] - marks[:, RIGHT_EYE_RIGHT_LANDMARK, :]) ** 2)
-    )
-
-
 @dataclass
 class NMEs(Metric):
     name = "NMEs"
@@ -45,7 +37,7 @@ class NMEs(Metric):
     def definition(prediction_result: PredictionResult, marks: np.ndarray):
         es = Es.get(prediction_result, marks)
         mes = np.nanmean(es, axis=1)
-        d_outers = _calculate_d_outers(marks)
+        d_outers = compute_d_outers(marks)
         return mes / d_outers
 
 
@@ -93,3 +85,114 @@ class NMEStd(Metric):
     @staticmethod
     def definition(prediction_result: PredictionResult, marks: np.ndarray):
         return np.nanstd(NMEs.get(prediction_result, marks))
+
+
+@dataclass
+class NEs(Metric):
+    name = "NEs"
+    description = "Array of normalised Euclidean Distance per mark"
+
+    @staticmethod
+    def definition(prediction_result: PredictionResult, marks: np.ndarray) -> Any:
+        es = Es.get(prediction_result, marks)
+        d_outers = compute_d_outers(marks)
+        return es / d_outers[:, None]
+
+
+@dataclass
+class NERFMarks(Metric):
+    name: Optional[str] = "NERFs_marks"
+    description: Optional[str] = "Array of Normalised Euclidean distance Range Failure rate"
+
+    @staticmethod
+    def definition(prediction_result: PredictionResult, marks: np.ndarray, radius_limit: float) -> Any:
+        nes = NEs.get(prediction_result, marks)
+        return (nes > radius_limit).astype(float)
+
+    @classmethod
+    def validation(cls, prediction_result: PredictionResult, marks: np.ndarray, radius_limit: float) -> None:
+        super().validation(prediction_result, marks)
+        if not isinstance(radius_limit, float) or radius_limit < 0 or radius_limit > 1:
+            raise ValueError(f"{cls.__name__}: radius_limit must be a float between 0 and 1.")
+
+    @classmethod
+    def get(cls, prediction_result: PredictionResult, marks: np.ndarray, radius_limit: float = 0.1) -> Any:
+        cls.validation(prediction_result, marks, radius_limit)
+        return cls.definition(prediction_result, marks, radius_limit)
+
+
+@dataclass
+class NERFImagesMean(NERFMarks):
+    name = "NERFs_mean_per_mark"
+    description = "Array of Means per mark of Normalised Euclidean distance Range Failure rate across images"
+
+    @staticmethod
+    def definition(prediction_result: PredictionResult, marks: np.ndarray, radius_limit: float) -> Any:
+        nerfs_marks = NERFMarks.get(prediction_result, marks, radius_limit)
+        return np.nanmean(nerfs_marks, axis=0)
+
+
+@dataclass
+class NERFImagesStd(NERFMarks):
+    name = "NERFs_std_per_mark"
+    description = (
+        "Array of Standard Deviations per mark of Normalised Euclidean distance Range Failure rate across images"
+    )
+
+    @staticmethod
+    def definition(prediction_result: PredictionResult, marks: np.ndarray, radius_limit: float) -> Any:
+        nerfs_marks = NERFMarks.get(prediction_result, marks, radius_limit)
+        return np.nanstd(nerfs_marks, axis=0)
+
+
+@dataclass
+class NERFMarksMean(NERFMarks):
+    name = "NERFs_mean"
+    description = "Mean of Normalised Euclidean distance Range Failure across landmarks"
+
+    @staticmethod
+    def definition(prediction_result: PredictionResult, marks: np.ndarray, radius_limit: float) -> Any:
+        nerfs_marks = NERFMarks.get(prediction_result, marks, radius_limit)
+        return np.nanmean(nerfs_marks, axis=1)
+
+
+@dataclass
+class NERFMarksStd(NERFMarks):
+    name = "NERFs_std"
+    description = "Standard Deviation of Normalised Euclidean distance Range Failure across landmarks"
+
+    @staticmethod
+    def definition(prediction_result: PredictionResult, marks: np.ndarray, radius_limit: float) -> Any:
+        nerfs_marks = NERFMarks.get(prediction_result, marks, radius_limit)
+        return np.nanstd(nerfs_marks, axis=1)
+
+
+@dataclass
+class NERFImages(NERFMarks):
+    name = "NERF_images"
+    description = "Average number of images for which the Mean Normalised Euclidean distance Range Failure across landmarks is above failed_mark_percentage"
+
+    @staticmethod
+    def definition(
+        prediction_result: PredictionResult, marks: np.ndarray, radius_limit: float, failed_mark_percentage: float
+    ) -> Any:
+        return np.nanmean(NERFMarksMean.get(prediction_result, marks, radius_limit) > failed_mark_percentage)
+
+    @classmethod
+    def validation(
+        cls, prediction_result: PredictionResult, marks: np.ndarray, radius_limit: float, failed_mark_percentage: float
+    ) -> None:
+        super().validation(prediction_result, marks, radius_limit)
+        if not isinstance(failed_mark_percentage, float) or failed_mark_percentage < 0 or failed_mark_percentage > 1:
+            raise ValueError(f"{cls.__name__}: failed_mark_percentage must be a float between 0 and 1.")
+
+    @classmethod
+    def get(
+        cls,
+        prediction_result: PredictionResult,
+        marks: np.ndarray,
+        radius_limit: float = 0.1,
+        failed_mark_percentage: float = 0.1,
+    ) -> Any:
+        cls.validation(prediction_result, marks, radius_limit, failed_mark_percentage)
+        return cls.definition(prediction_result, marks, radius_limit, failed_mark_percentage)
