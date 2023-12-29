@@ -170,21 +170,21 @@ class NERFMarksStd(NERFMarks):
 @dataclass
 class NERFImages(NERFMarks):
     name = "NERF_images"
-    description = "Average number of images for which the Mean Normalised Euclidean distance Range Failure across landmarks is above failed_mark_percentage"
+    description = "Average number of images for which the Mean Normalised Euclidean distance Range Failure across landmarks is above failed_mark_ratio"
 
     @staticmethod
     def definition(
-        prediction_result: PredictionResult, marks: np.ndarray, radius_limit: float, failed_mark_percentage: float
+        prediction_result: PredictionResult, marks: np.ndarray, radius_limit: float, failed_mark_ratio: float
     ) -> Any:
-        return np.nanmean(NERFMarksMean.get(prediction_result, marks, radius_limit) > failed_mark_percentage)
+        return np.nanmean(NERFMarksMean.get(prediction_result, marks, radius_limit) > failed_mark_ratio)
 
     @classmethod
     def validation(
-        cls, prediction_result: PredictionResult, marks: np.ndarray, radius_limit: float, failed_mark_percentage: float
+        cls, prediction_result: PredictionResult, marks: np.ndarray, radius_limit: float, failed_mark_ratio: float
     ) -> None:
         super().validation(prediction_result, marks, radius_limit)
-        if not isinstance(failed_mark_percentage, float) or failed_mark_percentage < 0 or failed_mark_percentage > 1:
-            raise ValueError(f"{cls.__name__}: failed_mark_percentage must be a float between 0 and 1.")
+        if not isinstance(failed_mark_ratio, float) or failed_mark_ratio < 0 or failed_mark_ratio > 1:
+            raise ValueError(f"{cls.__name__}: failed_mark_ratio must be a float between 0 and 1.")
 
     @classmethod
     def get(
@@ -192,7 +192,7 @@ class NERFImages(NERFMarks):
         prediction_result: PredictionResult,
         marks: np.ndarray,
         radius_limit: float = 0.1,
-        failed_mark_percentage: float = 0.1,
+        failed_mark_ratio: float = 0.1,
     ) -> Any:
-        cls.validation(prediction_result, marks, radius_limit, failed_mark_percentage)
-        return cls.definition(prediction_result, marks, radius_limit, failed_mark_percentage)
+        cls.validation(prediction_result, marks, radius_limit, failed_mark_ratio)
+        return cls.definition(prediction_result, marks, radius_limit, failed_mark_ratio)

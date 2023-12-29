@@ -313,7 +313,7 @@ def test_calculate_nerf_images(opencv_model, dataset_300w):
     prediction_result = opencv_model.predict(dataset_300w)
 
     radius_limit = 0.2
-    failed_mark_percentage = 0.1
+    failed_mark_ratio = 0.1
     distances = calculate_normalisation_distances_naive(marks)[:, None, None]
 
     prediction_result.prediction[:, ::2] = (
@@ -322,20 +322,20 @@ def test_calculate_nerf_images(opencv_model, dataset_300w):
 
     nerfs = compute_nes_naive(prediction_result, marks) > radius_limit
     nerfs_mean = np.nanmean(nerfs.astype(float), axis=1)
-    nb_failed_images = np.nanmean((nerfs_mean > failed_mark_percentage).astype(float))
+    nb_failed_images = np.nanmean((nerfs_mean > failed_mark_ratio).astype(float))
 
-    calculated = NERFImages.get(prediction_result, marks, radius_limit, failed_mark_percentage)
+    calculated = NERFImages.get(prediction_result, marks, radius_limit, failed_mark_ratio)
 
     assert np.all(np.isclose(calculated, nb_failed_images))
     assert calculated == 1.0
 
-    failed_mark_percentage = 0.55
+    failed_mark_ratio = 0.55
 
     nerfs = compute_nes_naive(prediction_result, marks) > radius_limit
     nerfs_mean = np.nanmean(nerfs.astype(float), axis=1)
-    nb_failed_images = np.nanmean((nerfs_mean > failed_mark_percentage).astype(float))
+    nb_failed_images = np.nanmean((nerfs_mean > failed_mark_ratio).astype(float))
 
-    calculated = NERFImages.get(prediction_result, marks, radius_limit, failed_mark_percentage)
+    calculated = NERFImages.get(prediction_result, marks, radius_limit, failed_mark_ratio)
 
     assert np.all(np.isclose(calculated, nb_failed_images))
     assert calculated == 0.2  # img 0 in dataset is poorly predicted by opencv model
