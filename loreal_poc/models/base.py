@@ -45,30 +45,36 @@ class FaceLandmarksModelBase(ABC):
 
         ...
 
-    def _postprocessing(self, prediction: np.ndarray, facial_part: FacialPart) -> np.ndarray:
-        """method that performs postprocessing on the single image prediction
+    def predict_batch(self, images: List[np.ndarray]) -> np.ndarray:
+        """method that should be implemented if the passed dataloader has batch_size != 1
 
         Args:
-            prediction (np.ndarray): single image prediction
+            images (List[np.ndarray]): input images
+        """
+        return np.array([self.predict_image(image) for image in images])
+
+    def _postprocessing(self, batch_prediction: np.ndarray, batch_size: int, facial_part: FacialPart) -> np.ndarray:
+        """method that performs postprocessing on single batch prediction
+
+        Args:
+            prediction (np.ndarray): batched image prediction
             facial_part (FacialPart): facial part to filter the landmarks
 
         Returns:
-            np.ndarray: single image prediction filtered based on landmarks in facial_part
+            np.ndarray: single batch image prediction filtered based on landmarks in facial_part
         """
-        if prediction is None or not prediction.shape:
-            prediction = np.empty((self.n_landmarks, self.n_dimensions))
-            prediction[:, :] = np.nan
-        if prediction.shape != (self.n_landmarks, self.n_dimensions):
+        if batch_prediction is None or not batch_prediction.shape:
+            batch_prediction = np.empty((batch_size, self.n_landmarks, self.n_dimensions))
+            batch_prediction[:, :, :] = np.nan
+        if batch_prediction.shape != (batch_size, self.n_landmarks, self.n_dimensions):
             raise ValueError(
-                f"{self.__class__.__name__}: The array shape expected from predict_image is ({self.n_landmarks}, {self.n_dimensions}) but {prediction.shape} was found."
+                f"{self.__class__.__name__}: The array shape expected from predict_batch is ({batch_size}, {self.n_landmarks}, {self.n_dimensions}) but {batch_prediction.shape} was found."
             )
         if facial_part is not None:
-            prediction[~facial_part.idx, :] = np.nan
-        return prediction
+            batch_prediction[:, ~facial_part.idx, :] = np.nan
+        return batch_prediction
 
-    def predict(
-        self, dataloader: DataIteratorBase, idx_range: Optional[List] = None, facial_part: Optional[FacialPart] = None
-    ) -> PredictionResult:
+    def predict(self, dataloader: DataIteratorBase, facial_part: Optional[FacialPart] = None) -> PredictionResult:
         """main method to predict the landmarks
 
         Args:
@@ -81,23 +87,22 @@ class FaceLandmarksModelBase(ABC):
         """
         ts = time()
         predictions = []
-        idx_range = idx_range if idx_range is not None else range(len(dataloader))
         prediction_fail_rate = 0
-        for i in idx_range:
-            img = dataloader.get_image(i)
+
+        for images, _, _ in dataloader:
             try:
-                prediction = self.predict_image(img)
+                batch_prediction = self.predict_batch(images)
             except Exception:
                 # TODO(Bazire): Add some log here
-                prediction = None
+                batch_prediction = None
 
-            prediction = self._postprocessing(prediction, facial_part)
-            if is_failed(prediction):
+            batch_prediction = self._postprocessing(batch_prediction, dataloader.batch_size, facial_part)
+            if is_failed(batch_prediction):
                 prediction_fail_rate += 1
-            predictions.append(prediction)
-        prediction_fail_rate /= len(idx_range)
+            predictions.append(batch_prediction)
+        prediction_fail_rate /= len(dataloader)
         te = time()
-        predictions = np.array(predictions)
+        predictions = np.concatenate(predictions)
         if len(predictions.shape) > 3:
             raise ValueError("predict: ME only implemented for 2D images.")
 
