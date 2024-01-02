@@ -68,7 +68,8 @@ def test_nominal():
     img, _, _ = dl[0]
     img2, _, _ = next(dl)
 
-    assert np.array_equal(img, img2)
+    assert isinstance(img, type(img2[0]))
+    assert np.array_equal(img, img2[0])
     with pytest.raises(StopIteration) as exc_info:
         assert next(dl) is None
 

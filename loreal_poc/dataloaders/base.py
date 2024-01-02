@@ -56,16 +56,16 @@ class DataIteratorBase(ABC):
 
     @property
     def all_images_generator(self) -> np.array:
-        for idx in range(len(self)):
+        for idx in range(len(self) * self.batch_size):
             yield self.get_image(idx)
 
     @property
     def all_marks(self) -> np.ndarray:  # (marks)
-        return np.array([self.get_marks(idx) for idx in range(len(self))])
+        return np.array([self.get_marks(idx) for idx in range(len(self) * self.batch_size)])
 
     @property
     def all_meta(self) -> List:  # (meta)
-        return [self.get_meta(idx) for idx in range(len(self))]
+        return [self.get_meta(idx) for idx in range(len(self) * self.batch_size)]
 
     def __next__(self) -> Tuple[np.ndarray, np.ndarray]:
         if self.idx >= len(self.idx_sampler):
@@ -74,15 +74,12 @@ class DataIteratorBase(ABC):
         elt = [self[idx] for idx in range(self.idx, end)]
         self.idx += self.batch_size
 
-        if self.batch_size == 1:
-            return elt[0]
         return self._collate_fn(elt)
 
     def _collate_fn(
         self, elements: List[Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]]
     ) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:
         batched_elements = list(zip(*elements))
-
         batched_elements[1] = np.array(batched_elements[1])
 
         # INFO: Restore if we want to concatenate all meta under one dict instead of keeping them as records (list of dicts)
@@ -91,6 +88,9 @@ class DataIteratorBase(ABC):
         #    key: [meta[key] if (meta is not None and key in meta) else None for meta in batched_elements[2]]
         #    for key in meta_keys
         # }
+
+        if len(batched_elements[0]) != self.batch_size:
+            raise StopIteration
 
         return batched_elements
 
@@ -162,7 +162,7 @@ class DataLoaderBase(DataIteratorBase):
         return all_paths_with_suffix
 
     def __len__(self) -> int:
-        return math.ceil(len(self.image_paths) / self.batch_size)
+        return math.floor(len(self.image_paths) / self.batch_size)
 
     @property
     def marks_none(self):
@@ -234,6 +234,9 @@ class DataLoaderWrapper(DataIteratorBase):
 
     def get_meta(self, idx: int) -> Optional[Dict]:
         return self._wrapped_dataloader.get_meta(idx)
+
+    def __getitem__(self, idx: int) -> Tuple[np.ndarray, np.ndarray | None, Dict[Any, Any] | None]:
+        return self._wrapped_dataloader[idx]
 
     def __getattr__(self, attr):
         # This will proxy any dataloader.a to dataloader._wrapped_dataloader.a
