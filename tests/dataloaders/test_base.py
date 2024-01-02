@@ -17,7 +17,7 @@ class DataloaderForTest(DataIteratorBase):
         self.idx_sampler = list(range(length))
 
     def __len__(self) -> int:
-        return math.ceil(len(self.dataset) / self.batch_size)
+        return math.floor(len(self.dataset) / self.batch_size)
 
     def get_image(self, idx: int) -> np.ndarray:
         return self.dataset[idx]
@@ -37,17 +37,17 @@ class DataloaderMissingAnnotation(DataIteratorBase):
         self.idx_sampler = list(range(length))
 
     def __len__(self) -> int:
-        return math.ceil(len(self.dataset) / self.batch_size)
+        return math.floor(len(self.dataset) / self.batch_size)
 
     def get_image(self, idx: int) -> np.ndarray:
         return self.dataset[idx]
 
-    @property
-    def marks_none(self):
+    @classmethod
+    def marks_none(cls):
         return np.full((68, 2), np.nan)
 
-    @property
-    def meta_none(self):
+    @classmethod
+    def meta_none(cls):
         return {"key1": -1, "key2": -1}
 
     def get_marks(self, idx: int) -> np.ndarray | None:

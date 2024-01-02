@@ -30,12 +30,12 @@ class DataIteratorBase(ABC):
     def get_image(self, idx: int) -> np.ndarray:
         ...
 
-    @property
-    def marks_none(self) -> Optional[np.ndarray]:
+    @classmethod
+    def marks_none(cls) -> Optional[np.ndarray]:
         return None
 
-    @property
-    def meta_none(self) -> Optional[Dict]:
+    @classmethod
+    def meta_none(cls) -> Optional[Dict]:
         return None
 
     def get_marks(self, idx: int) -> Optional[np.ndarray]:
@@ -49,9 +49,9 @@ class DataIteratorBase(ABC):
     ) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:  # (image, marks, meta)
         idx = self.idx_sampler[idx]
         marks = self.get_marks(idx)
-        marks = marks if marks is not None else self.marks_none
+        marks = marks if marks is not None else self.marks_none()
         meta = self.get_meta(idx)
-        meta = meta if meta is not None else self.meta_none
+        meta = meta if meta is not None else self.meta_none()
         return self.get_image(idx), marks, meta
 
     @property
@@ -114,16 +114,21 @@ class DataLoaderBase(DataIteratorBase):
         collate_fn: Optional[Callable] = None,
     ) -> None:
         super().__init__(name, batch_size=batch_size)
+        # Get the images paths
         images_dir_path = self._get_absolute_local_path(images_dir_path)
-        landmarks_dir_path = self._get_absolute_local_path(landmarks_dir_path)
-
         self.image_paths = self._get_all_paths_based_on_suffix(images_dir_path, self.image_suffix)
-        self.marks_paths = self._get_all_paths_based_on_suffix(landmarks_dir_path, self.marks_suffix)
-        if len(self.marks_paths) != len(self.image_paths):
-            raise ValueError(
-                f"{self.__class__.__name__}: Only {len(self.marks_paths)} found "
-                f"for {len(self.marks_paths)} of the images."
-            )
+
+        self.marks_paths = None
+        # If landmarks folder is not none, we should load them
+        # Else, the get marks method should be overridden
+        if landmarks_dir_path is not None:
+            landmarks_dir_path = self._get_absolute_local_path(landmarks_dir_path)
+            self.marks_paths = self._get_all_paths_based_on_suffix(landmarks_dir_path, self.marks_suffix)
+            if len(self.marks_paths) != len(self.image_paths):
+                raise ValueError(
+                    f"{self.__class__.__name__}: Only {len(self.marks_paths)} found "
+                    f"for {len(self.marks_paths)} of the images."
+                )
 
         self.shuffle = shuffle
 
@@ -151,9 +156,7 @@ class DataLoaderBase(DataIteratorBase):
 
     @classmethod
     def _get_all_paths_based_on_suffix(cls, dir_path: Path, suffix: str) -> List[Path]:
-        all_paths_with_suffix = list(
-            sorted([p for p in dir_path.iterdir() if p.suffix == suffix], key=lambda p: str(p))
-        )
+        all_paths_with_suffix = list(sorted([p for p in dir_path.iterdir() if p.suffix == suffix], key=str))
         if len(all_paths_with_suffix) == 0:
             raise ValueError(
                 f"{cls.__class__.__name__}: Landmarks with suffix {suffix}"
@@ -164,9 +167,9 @@ class DataLoaderBase(DataIteratorBase):
     def __len__(self) -> int:
         return math.floor(len(self.image_paths) / self.batch_size)
 
-    @property
-    def marks_none(self):
-        return np.full((self.n_landmarks, self.n_landmarks), np.nan)
+    @classmethod
+    def marks_none(cls) -> np.ndarray:
+        return np.full((cls.n_landmarks, cls.n_landmarks), np.nan)
 
     def get_image(self, idx: int) -> np.ndarray:
         return self._load_and_validate_image(self.image_paths[idx])
