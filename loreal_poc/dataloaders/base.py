@@ -67,7 +67,9 @@ class DataIteratorBase(ABC):
     def __getitem__(
         self, idx: int
     ) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:  # (image, marks, meta)
-        return self._collate_fn([self.get_single_element(i) for i in self.idx_sampler[idx : idx + self.batch_size]])
+        return self._collate_fn(
+            [self.get_single_element(i) for i in self.idx_sampler[idx * self.batch_size : (idx + 1) * self.batch_size]]
+        )
 
     @property
     def all_images_generator(self) -> np.array:
@@ -83,10 +85,10 @@ class DataIteratorBase(ABC):
         return [self.get_meta_with_default(idx) for idx in self.idx_sampler]
 
     def __next__(self) -> Tuple[np.ndarray, np.ndarray]:
-        if self.idx >= len(self.idx_sampler):
+        if self.idx >= len(self):
             raise StopIteration
         elt = self[self.idx]
-        self.idx += self.batch_size
+        self.idx += 1
         return elt
 
     def _collate_fn(
@@ -234,9 +236,6 @@ class DataLoaderWrapper(DataIteratorBase):
     @property
     def idx_sampler(self) -> np.ndarray:
         return self._wrapped_dataloader.idx_sampler
-
-    def __len__(self) -> int:
-        return len(self._wrapped_dataloader)
 
     def get_image(self, idx: int) -> np.ndarray:
         return self._wrapped_dataloader.get_image(idx)
