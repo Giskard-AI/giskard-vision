@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import cv2
 import numpy as np
@@ -17,7 +17,8 @@ class CroppedDataLoader(DataLoaderWrapper):
         self,
         dataloader: DataIteratorBase,
         part: FacialPart,
-        margins: Union[Tuple[float, float], float] = [0, 0],
+        margins: Union[Tuple[float, float], float] = (0, 0),
+        crop_img: bool = True,
     ) -> None:
         super().__init__(dataloader)
         self._part = part
@@ -62,7 +63,7 @@ class ResizedDataLoader(DataLoaderWrapper):
     def __init__(
         self,
         dataloader: DataIteratorBase,
-        scales: Union[Tuple[float, float], float] = [1.0, 1.0],
+        scales: Union[Tuple[float, float], float] = (1.0, 1.0),
         absolute_scales: Optional[bool] = False,
     ) -> None:
         super().__init__(dataloader)
@@ -71,26 +72,26 @@ class ResizedDataLoader(DataLoaderWrapper):
 
     @property
     def name(self):
-        return f"{self._wrapped_dataloader.name} resized {self._margins}"
+        return f"{self._wrapped_dataloader.name} resizing with ratios: {self._scales}"
 
     def __getitem__(self, idx: int) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:
         img, marks, meta = super().__getitem__(idx)
         return *resize_image_with_marks(img, marks, self._scales, self._absolute_scales), meta
 
 
-class BlurDataLoader(DataLoaderWrapper):
+class BlurredDataLoader(DataLoaderWrapper):
     def __init__(
         self,
         dataloader: DataIteratorBase,
-        kernel_size: Union[Tuple[int, int], int] = [11, 11],
-        sigma: Union[Tuple[float, float], float] = [3.0, 3.0],
+        kernel_size: Union[Tuple[int, int], int] = (11, 11),
+        sigma: Union[Tuple[float, float], float] = (3.0, 3.0),
     ) -> None:
         super().__init__(dataloader)
 
-        self._kernel_size = kernel_size if isinstance(kernel_size, Sequence) else [kernel_size, kernel_size]
+        self._kernel_size = kernel_size if isinstance(kernel_size, tuple) else (kernel_size, kernel_size)
         if any([ks % 2 == 0 or ks <= 0 for ks in self._kernel_size]):
             raise ValueError(f"Kernel size must be a list of positive odd integers not {self._kernel_size}")
-        self._sigma = sigma if isinstance(sigma, Sequence) else [sigma, sigma]
+        self._sigma = sigma if isinstance(sigma, tuple) else (sigma, sigma)
 
     @property
     def name(self):
@@ -102,11 +103,11 @@ class BlurDataLoader(DataLoaderWrapper):
         return blurred_img, marks, meta
 
 
-class ColorDataLoader(DataLoaderWrapper):
+class ColoredDataLoader(DataLoaderWrapper):
     def __init__(
         self,
         dataloader: DataIteratorBase,
-        mode: str = "grayscale",  # grayscale / bgr for now it is only
+        mode: int = cv2.COLOR_RGB2GRAY,  # Color codes are int in cv2
     ) -> None:
         super().__init__(dataloader)
         self._mode = mode
@@ -117,10 +118,8 @@ class ColorDataLoader(DataLoaderWrapper):
 
     def __getitem__(self, idx: int) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:
         img, marks, meta = super().__getitem__(idx)
-        if self._mode == "grayscale":
-            colored_img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-        elif self._mode == "bgr":
-            colored_img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+        if isinstance(self._mode, int) and self._mode >= 0 and self._mode < cv2.COLOR_COLORCVT_MAX:
+            colored_img = cv2.cvtColor(img, self._mode)
         else:
-            raise NotImplementedError(f"The mode {self._mode} is not supported.")
+            raise NotImplementedError(f"The mode {self._mode} is not a valid opencv color conversion code.")
         return colored_img, marks, meta
