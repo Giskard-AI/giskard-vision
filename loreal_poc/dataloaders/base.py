@@ -104,8 +104,8 @@ class DataIteratorBase(ABC):
         #    for key in meta_keys
         # }
 
-        if len(batched_elements[0]) != self.batch_size:
-            raise StopIteration
+        # if len(batched_elements[0]) != self.batch_size:
+        #     raise StopIteration
 
         return batched_elements
 

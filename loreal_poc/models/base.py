@@ -1,12 +1,15 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from logging import getLogger
 from time import time
-from typing import List, Optional
+from typing import List, Optional, Union
 
 import numpy as np
 
 from ..dataloaders.base import DataIteratorBase
 from ..marks.facial_parts import FacialPart
+
+logger = getLogger(__name__)
 
 
 @dataclass
@@ -51,9 +54,19 @@ class FaceLandmarksModelBase(ABC):
         Args:
             images (List[np.ndarray]): input images
         """
-        return np.array([self.predict_image(image) for image in images])
+        res = []
+        for img in images:
+            try:
+                res.append(self.predict_image(img))
+            except Exception as e:
+                res.append(None)
+                logger.warning(e)
 
-    def _postprocessing(self, batch_prediction: np.ndarray, batch_size: int, facial_part: FacialPart) -> np.ndarray:
+        return res
+
+    def _postprocessing(
+        self, batch_prediction: Union[np.ndarray, List[Optional[np.ndarray]]], batch_size: int, facial_part: FacialPart
+    ) -> np.ndarray:
         """method that performs postprocessing on single batch prediction
 
         Args:
@@ -63,16 +76,25 @@ class FaceLandmarksModelBase(ABC):
         Returns:
             np.ndarray: single batch image prediction filtered based on landmarks in facial_part
         """
-        if batch_prediction is None or not batch_prediction.shape:
-            batch_prediction = np.empty((batch_size, self.n_landmarks, self.n_dimensions))
-            batch_prediction[:, :, :] = np.nan
-        if batch_prediction.shape != (batch_size, self.n_landmarks, self.n_dimensions):
+        if batch_prediction is None or (hasattr(batch_prediction, "shape") and not batch_prediction.shape):
+            res = np.empty((batch_size, self.n_landmarks, self.n_dimensions))
+            res[:, :, :] = np.nan
+        elif not hasattr(batch_prediction, "shape") and all([elt is not None for elt in batch_prediction]):
+            res = np.array(batch_prediction)
+        elif not hasattr(batch_prediction, "shape"):
+            res = np.empty((batch_size, self.n_landmarks, self.n_dimensions))
+            for i, elt in enumerate(batch_prediction):
+                if elt is not None:
+                    res[i] = elt if elt is not None else np.nan
+        else:
+            res = batch_prediction
+        if res.shape[1:] != (self.n_landmarks, self.n_dimensions):
             raise ValueError(
-                f"{self.__class__.__name__}: The array shape expected from predict_batch is ({batch_size}, {self.n_landmarks}, {self.n_dimensions}) but {batch_prediction.shape} was found."
+                f"{self.__class__.__name__}: The array shape expected from predict_batch is ({batch_size}, {self.n_landmarks}, {self.n_dimensions}) but {res.shape} was found."
             )
         if facial_part is not None:
-            batch_prediction[:, ~facial_part.idx, :] = np.nan
-        return batch_prediction
+            res[:, ~facial_part.idx, :] = np.nan
+        return res
 
     def predict(self, dataloader: DataIteratorBase, facial_part: Optional[FacialPart] = None) -> PredictionResult:
         """main method to predict the landmarks
@@ -90,13 +112,8 @@ class FaceLandmarksModelBase(ABC):
         prediction_fail_rate = 0
 
         for images, _, _ in dataloader:
-            try:
-                batch_prediction = self.predict_batch(images)
-            except Exception:
-                # TODO(Bazire): Add some log here
-                batch_prediction = None
-
-            batch_prediction = self._postprocessing(batch_prediction, dataloader.batch_size, facial_part)
+            batch_prediction = self.predict_batch(images)
+            batch_prediction = self._postprocessing(batch_prediction, len(images), facial_part)
             if is_failed(batch_prediction):
                 prediction_fail_rate += 1
             predictions.append(batch_prediction)
