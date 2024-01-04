@@ -2,7 +2,11 @@ from collections import defaultdict
 
 import numpy as np
 
-from loreal_poc.dataloaders.wrappers import CachedDataLoader, CroppedDataLoader
+from loreal_poc.dataloaders.wrappers import (
+    CachedDataLoader,
+    CroppedDataLoader,
+    ResizedDataLoader,
+)
 from loreal_poc.marks.facial_parts import FacialParts
 
 from .test_base import DataloaderForTest
@@ -44,3 +48,19 @@ def test_cropped_dataloader():
         assert np.isnan(cropped_marks).sum() == 0
         assert np.isnan(cropped_marks[:, FacialParts.LEFT_EYE.value.idx]).sum() == 0
         assert not np.array_equal(img, cropped_img)
+
+
+def test_resized_dataloader():
+    dl = DataloaderForTest("example", length=10)
+    resized = ResizedDataLoader(dl, scales=(0.5, 0.3))
+
+    for (img, marks, _), (resized_img, resized_marks, _) in zip(dl, resized):
+        assert np.array_equal(resized_marks, marks * (0.5, 0.3))
+        assert int(img[0].shape[0] * 0.3) == resized_img[0].shape[0]
+        assert int(img[0].shape[1] * 0.5) == resized_img[0].shape[1]
+
+    resized = ResizedDataLoader(dl, scales=(500, 300), absolute_scales=True)
+
+    for resized_img, resized_marks, _ in resized:
+        assert resized_img[0].shape[0] == 300
+        assert resized_img[0].shape[1] == 500

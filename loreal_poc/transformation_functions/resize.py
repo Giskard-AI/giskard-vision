@@ -9,7 +9,6 @@ def resize_image_with_marks(
 ) -> np.ndarray:
     resized_img, scale_ratios = resize_image(img, scales, absolute_scales, return_ratios=True)
     if marks is not None:
-        print(scale_ratios)
         resized_marks = resize_marks(marks, scale_ratios)
         return resized_img, resized_marks
     return resized_img
