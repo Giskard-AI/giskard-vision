@@ -10,8 +10,7 @@ def compute_scale_ratios(scales: Union[Tuple[float, float], float], absolute_sca
         if isinstance(scales, tuple):
             scale_ratios = (scales[0] / w, scales[1] / h)
         else:
-            largest_dim = max(w, h)
-            scale_ratios = (scales / largest_dim, scales / largest_dim)
+            scale_ratios = (scales / w, scales / h)
     else:
         if not isinstance(scales, tuple):
             scale_ratios = (scales, scales)
