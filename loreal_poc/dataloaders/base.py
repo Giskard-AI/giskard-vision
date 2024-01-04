@@ -104,7 +104,6 @@ class DataIteratorBase(ABC):
         #    for key in meta_keys
         # }
 
-
         return batched_elements
 
 
