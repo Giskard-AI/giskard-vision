@@ -7,15 +7,9 @@ import numpy as np
 def compute_scale_ratios(scales: Union[Tuple[float, float], float], absolute_scales: bool, img_shape: tuple) -> tuple:
     h, w = img_shape
     if absolute_scales:
-        if isinstance(scales, tuple):
-            scale_ratios = (scales[0] / w, scales[1] / h)
-        else:
-            scale_ratios = (scales / w, scales / h)
+        scale_ratios = (scales[0] / w, scales[1] / h) if isinstance(scales, tuple) else (scales / w, scales / h)
     else:
-        if not isinstance(scales, tuple):
-            scale_ratios = (scales, scales)
-        else:
-            scale_ratios = scales
+        scale_ratios = (scales, scales) if not isinstance(scales, tuple) else scales
 
     if any([s <= 0 for s in scale_ratios]):
         raise ValueError(f"Invalid scale parameter: {scale_ratios} contains at least one non-positive scale ratio.")
@@ -51,10 +45,7 @@ def resize_image(
 
 
 def resize_marks(marks: np.ndarray, scales: Union[Tuple[float, float], float]) -> np.ndarray:
-    if not isinstance(scales, tuple):
-        scale_ratios = (scales, scales)
-    else:
-        scale_ratios = scales
+    scale_ratios = (scales, scales) if not isinstance(scales, tuple) else scales
 
     if any([s <= 0 for s in scale_ratios]):
         raise ValueError(f"Invalid scale parameter: {scale_ratios} contains at least one non-positive scale ratio.")
