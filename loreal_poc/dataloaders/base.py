@@ -26,7 +26,7 @@ class DataIteratorBase(ABC):
             raise ValueError(f"Batch size must be a strictly positive integer: {self.batch_size}")
 
     @property
-    def name(self) -> np.ndarray:
+    def name(self) -> str:
         return self._name
 
     def __iter__(self):
