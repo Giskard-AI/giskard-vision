@@ -81,5 +81,5 @@ def test_resized_dataloader():
     resized = ResizedDataLoader(dl, scales=(500, 300), absolute_scales=True)
 
     for resized_img, resized_marks, _ in resized:
-        assert resized_img[0].shape[0] == 300
-        assert resized_img[0].shape[1] == 500
+        assert resized_img[0][0][0].shape[0] == 300
+        assert resized_img[0][0][0].shape[1] == 500
