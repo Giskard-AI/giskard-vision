@@ -139,12 +139,14 @@ class TestDiff:
         dataloader_ref: DataIteratorBase,
         facial_part: FacialPart = FacialParts.ENTIRE.value,
     ) -> TestResult:
-        ground_truth = dataloader.all_marks
         prediction_result = model.predict(dataloader, facial_part=facial_part)
         prediction_result_ref = model.predict(dataloader_ref, facial_part=facial_part)
 
+        ground_truth = dataloader.all_marks
         metric_value = self.metric.get(prediction_result, ground_truth)
-        metric_ref_value = self.metric.get(prediction_result_ref, ground_truth)
+
+        ground_truth_ref = dataloader_ref.all_marks
+        metric_ref_value = self.metric.get(prediction_result_ref, ground_truth_ref)
 
         norm = metric_ref_value if self.relative else 1.0
         metric_value = abs((metric_ref_value - metric_value) / norm)
