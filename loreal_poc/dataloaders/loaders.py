@@ -66,7 +66,6 @@ class DataLoaderFFHQ(DataLoaderBase):
     def __init__(
         self,
         dir_path: Union[str, Path],
-        name: Optional[str] = None,
         batch_size: Optional[int] = 1,
         shuffle: Optional[bool] = False,
         rng_seed: Optional[int] = None,
@@ -74,7 +73,7 @@ class DataLoaderFFHQ(DataLoaderBase):
         super().__init__(
             images_dir_path=dir_path,
             landmarks_dir_path=None,
-            name=name,
+            name="ffhq",
             batch_size=batch_size,
             rng_seed=rng_seed,
             shuffle=shuffle,

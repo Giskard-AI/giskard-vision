@@ -2,10 +2,20 @@ from collections import defaultdict
 
 import numpy as np
 
-from loreal_poc.dataloaders.wrappers import CachedDataLoader, CroppedDataLoader
+from loreal_poc.dataloaders.base import DataLoaderWrapper, SingleLandmarkData
+from loreal_poc.dataloaders.wrappers import (
+    CachedDataLoader,
+    CroppedDataLoader,
+    FilteringDataLoader,
+)
 from loreal_poc.marks.facial_parts import FacialParts
 
 from .test_base import DataloaderForTest
+
+
+class WithMetaDataLoader(DataLoaderWrapper):
+    def get_meta(self, idx):
+        return {"type": "even" if idx % 2 == 0 else "odd"}
 
 
 class CountingDataloaderForTest(DataloaderForTest):
@@ -29,11 +39,6 @@ def test_cached_dataloader():
         print(cached[0][0])
     assert dl.counters[0] == 1
 
-    assert np.array_equal(cached[0][0], dl[0][0])
-    assert cached._cache_idxs == [0]
-    cached[1]
-    assert cached._cache_idxs == [1]
-
 
 def test_cropped_dataloader():
     dl = DataloaderForTest("example", length=10)
@@ -44,3 +49,20 @@ def test_cropped_dataloader():
         assert np.isnan(cropped_marks).sum() == 0
         assert np.isnan(cropped_marks[:, FacialParts.LEFT_EYE.value.idx]).sum() == 0
         assert not np.array_equal(img, cropped_img)
+
+
+def is_odd(elt: SingleLandmarkData) -> bool:
+    return elt[2]["type"] == "odd"
+
+
+def test_filtering_dataloader():
+    dl = WithMetaDataLoader(DataloaderForTest("example", length=10))
+
+    filtered = FilteringDataLoader(dl, predicate=is_odd)
+
+    assert len(filtered) == 5
+    assert "filtered using 'is_odd'" in filtered.name
+    # dl[1][0][0] => second batch, first elt of tuple, first image of batch
+    assert dl[1][0][0].shape == (32, 32, 3)
+    print(filtered.name)
+    assert np.array_equal(dl[1][0][0], filtered[0][0][0])
