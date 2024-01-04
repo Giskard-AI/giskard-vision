@@ -33,7 +33,7 @@ class DataIteratorBase(ABC):
         self.idx = 0
         return self
 
-    def flat_len(self):
+    def flat_len(self) -> int:
         return len(self.idx_sampler)
 
     def __len__(self) -> int:
