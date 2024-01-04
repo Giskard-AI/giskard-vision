@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Callable, Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 import cv2
 import numpy as np
@@ -70,14 +70,12 @@ class DataLoaderFFHQ(DataLoaderBase):
         batch_size: Optional[int] = 1,
         shuffle: Optional[bool] = False,
         rng_seed: Optional[int] = None,
-        collate_fn: Optional[Callable] = None,
     ) -> None:
         super().__init__(
             images_dir_path=dir_path,
             landmarks_dir_path=None,
             name=name,
             batch_size=batch_size,
-            collate_fn=collate_fn,
             rng_seed=rng_seed,
             shuffle=shuffle,
             meta=None,

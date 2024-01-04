@@ -1,41 +1,48 @@
 import math
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
 
 class DataIteratorBase(ABC):
-    name: str
-    idx_sampler: Sequence[int]
     batch_size: int
 
-    def __init__(self, name: str, batch_size: int = 1):
-        self.name = name
-        self.batch_size = batch_size
-        self.idx = 0
-        if (not isinstance(self.batch_size, int)) or self.batch_size <= 0:
-            raise ValueError(f"Batch size must be a strictly positive integer: {self.batch_size}")
-
-    def __iter__(self):
-        self.idx = 0
-        return self
-
+    @property
     @abstractmethod
-    def __len__(self) -> int:
+    def idx_sampler(self) -> np.ndarray:
         ...
 
     @abstractmethod
     def get_image(self, idx: int) -> np.ndarray:
         ...
 
-    @classmethod
-    def marks_none(cls) -> Optional[np.ndarray]:
+    def __init__(self, name: str, batch_size: int = 1):
+        self._name = name
+        self.batch_size = batch_size
+        self.idx = 0
+        if (not isinstance(self.batch_size, int)) or self.batch_size <= 0:
+            raise ValueError(f"Batch size must be a strictly positive integer: {self.batch_size}")
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    def __iter__(self):
+        self.idx = 0
+        return self
+
+    def flat_len(self) -> int:
+        return len(self.idx_sampler)
+
+    def __len__(self) -> int:
+        return math.ceil(len(self.idx_sampler) / self.batch_size)
+
+    def marks_none(self) -> Optional[np.ndarray]:
         return None
 
-    @classmethod
-    def meta_none(cls) -> Optional[Dict]:
+    def meta_none(self) -> Optional[Dict]:
         return None
 
     def get_marks(self, idx: int) -> Optional[np.ndarray]:
@@ -44,37 +51,45 @@ class DataIteratorBase(ABC):
     def get_meta(self, idx: int) -> Optional[Dict]:
         return None
 
+    def get_marks_with_default(self, idx: int) -> np.ndarray:
+        marks = self.get_marks(idx)
+        marks = marks if marks is not None else self.marks_none()
+        return marks
+
+    def get_meta_with_default(self, idx: int) -> np.ndarray:
+        marks = self.get_meta(idx)
+        marks = marks if marks is not None else self.meta_none()
+        return marks
+
+    def get_single_element(self, idx) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:
+        return self.get_image(idx), self.get_marks_with_default(idx), self.get_meta_with_default(idx)
+
     def __getitem__(
         self, idx: int
     ) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:  # (image, marks, meta)
-        idx = self.idx_sampler[idx]
-        marks = self.get_marks(idx)
-        marks = marks if marks is not None else self.marks_none()
-        meta = self.get_meta(idx)
-        meta = meta if meta is not None else self.meta_none()
-        return self.get_image(idx), marks, meta
+        return self._collate_fn(
+            [self.get_single_element(i) for i in self.idx_sampler[idx * self.batch_size : (idx + 1) * self.batch_size]]
+        )
 
     @property
     def all_images_generator(self) -> np.array:
-        for idx in range(len(self) * self.batch_size):
+        for idx in self.idx_sampler:
             yield self.get_image(idx)
 
     @property
     def all_marks(self) -> np.ndarray:  # (marks)
-        return np.array([self.get_marks(idx) for idx in range(len(self) * self.batch_size)])
+        return np.array([self.get_marks_with_default(idx) for idx in self.idx_sampler])
 
     @property
     def all_meta(self) -> List:  # (meta)
-        return [self.get_meta(idx) for idx in range(len(self) * self.batch_size)]
+        return [self.get_meta_with_default(idx) for idx in self.idx_sampler]
 
     def __next__(self) -> Tuple[np.ndarray, np.ndarray]:
-        if self.idx >= len(self.idx_sampler):
+        if self.idx >= len(self):
             raise StopIteration
-        end = min(len(self.idx_sampler), self.idx + self.batch_size)
-        elt = [self[idx] for idx in range(self.idx, end)]
-        self.idx += self.batch_size
-
-        return self._collate_fn(elt)
+        elt = self[self.idx]
+        self.idx += 1
+        return elt
 
     def _collate_fn(
         self, elements: List[Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]]
@@ -89,8 +104,6 @@ class DataIteratorBase(ABC):
         #    for key in meta_keys
         # }
 
-        if len(batched_elements[0]) != self.batch_size:
-            raise StopIteration
 
         return batched_elements
 
@@ -111,7 +124,6 @@ class DataLoaderBase(DataIteratorBase):
         batch_size: Optional[int] = 1,
         shuffle: Optional[bool] = False,
         rng_seed: Optional[int] = None,
-        collate_fn: Optional[Callable] = None,
     ) -> None:
         super().__init__(name, batch_size=batch_size)
         # Get the images paths
@@ -131,15 +143,10 @@ class DataLoaderBase(DataIteratorBase):
                 )
 
         self.shuffle = shuffle
-
         self.rng = np.random.default_rng(rng_seed)
-
-        self.idx_sampler = list(range(len(self.image_paths)))
+        self._idx_sampler = list(range(len(self.image_paths)))
         if shuffle:
-            self.rng.shuffle(self.idx_sampler)
-
-        if collate_fn is not None:
-            self._collate_fn = collate_fn
+            self.rng.shuffle(self._idx_sampler)
 
         self.meta = {
             **(meta if meta is not None else {}),
@@ -147,6 +154,10 @@ class DataLoaderBase(DataIteratorBase):
             "images_dir_path": images_dir_path,
             "landmarks_dir_path": landmarks_dir_path,
         }
+
+    @property
+    def idx_sampler(self):
+        return self._idx_sampler
 
     def _get_absolute_local_path(self, local_path: Union[str, Path]) -> Path:
         local_path = Path(local_path).resolve()
@@ -164,12 +175,8 @@ class DataLoaderBase(DataIteratorBase):
             )
         return all_paths_with_suffix
 
-    def __len__(self) -> int:
-        return math.floor(len(self.image_paths) / self.batch_size)
-
-    @classmethod
-    def marks_none(cls) -> np.ndarray:
-        return np.full((cls.n_landmarks, cls.n_landmarks), np.nan)
+    def marks_none(self) -> np.ndarray:
+        return np.full((self.n_landmarks, self.n_landmarks), np.nan)
 
     def get_image(self, idx: int) -> np.ndarray:
         return self._load_and_validate_image(self.image_paths[idx])
@@ -187,18 +194,16 @@ class DataLoaderBase(DataIteratorBase):
     def load_image_from_file(cls, image_file: Path) -> np.ndarray:
         ...
 
-    @classmethod
-    def _load_and_validate_marks(cls, mark_file: Path) -> np.ndarray:
-        marks = cls.load_marks_from_file(mark_file)
+    def _load_and_validate_marks(self, mark_file: Path) -> np.ndarray:
+        marks = self.load_marks_from_file(mark_file)
         if marks is None:
-            marks = cls.marks_none()
-        cls._validate_marks(marks)
+            marks = self.marks_none()
+        self._validate_marks(marks)
         return marks
 
-    @classmethod
-    def _load_and_validate_image(cls, image_file: Path) -> np.ndarray:
-        image = cls.load_image_from_file(image_file)
-        cls._validate_image(image)
+    def _load_and_validate_image(self, image_file: Path) -> np.ndarray:
+        image = self.load_image_from_file(image_file)
+        self._validate_image(image)
         return image
 
     @classmethod
@@ -226,8 +231,9 @@ class DataLoaderWrapper(DataIteratorBase):
     def name(self):
         return f"{self.__class__.__name__}({self._wrapped_dataloader.name})"
 
-    def __len__(self) -> int:
-        return len(self._wrapped_dataloader)
+    @property
+    def idx_sampler(self) -> np.ndarray:
+        return self._wrapped_dataloader.idx_sampler
 
     def get_image(self, idx: int) -> np.ndarray:
         return self._wrapped_dataloader.get_image(idx)
@@ -237,9 +243,6 @@ class DataLoaderWrapper(DataIteratorBase):
 
     def get_meta(self, idx: int) -> Optional[Dict]:
         return self._wrapped_dataloader.get_meta(idx)
-
-    def __getitem__(self, idx: int) -> Tuple[np.ndarray, np.ndarray | None, Dict[Any, Any] | None]:
-        return self._wrapped_dataloader[idx]
 
     def __getattr__(self, attr):
         # This will proxy any dataloader.a to dataloader._wrapped_dataloader.a
