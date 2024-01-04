@@ -18,12 +18,10 @@ class CroppedDataLoader(DataLoaderWrapper):
         dataloader: DataIteratorBase,
         part: FacialPart,
         margins: Union[Tuple[float, float], float] = [0, 0],
-        crop_img: bool = True,
     ) -> None:
         super().__init__(dataloader)
         self._part = part
         self._margins = margins
-        self.crop_img = crop_img
 
     @property
     def name(self):
@@ -31,18 +29,10 @@ class CroppedDataLoader(DataLoaderWrapper):
 
     def get_image(self, idx: int) -> np.ndarray:
         image = super().get_image(idx)
-        if not self.crop_img:
-            return image
         h, w, _ = image.shape
         margins = np.array([w, h]) * self._margins
-        marks = crop_mark(self.get_marks(idx), self._part)
+        marks = crop_mark(self.get_marks_with_default(idx), self._part)
         return crop_image_from_mark(image, marks, margins)
-
-    def __getitem__(self, idx: int) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:
-        # Overriding to avoid double loading of the marks
-        marks = self.get_marks(idx)
-        img = self.get_image(idx)
-        return img, marks, self.get_meta(idx)
 
 
 class CachedDataLoader(DataLoaderWrapper):

@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Callable, Dict, Optional, Union
+from typing import Dict, List, Optional, Union
 
 import cv2
 import numpy as np
@@ -70,36 +70,30 @@ class DataLoaderFFHQ(DataLoaderBase):
         batch_size: Optional[int] = 1,
         shuffle: Optional[bool] = False,
         rng_seed: Optional[int] = None,
-        collate_fn: Optional[Callable] = None,
     ) -> None:
-        # TODO!!: super __init__!!
+        super().__init__(
+            images_dir_path=dir_path,
+            landmarks_dir_path=None,
+            name=name,
+            batch_size=batch_size,
+            rng_seed=rng_seed,
+            shuffle=shuffle,
+            meta=None,
+        )
+        with (Path(dir_path) / "ffhq-dataset-meta.json").open(encoding="utf-8") as fp:
+            self.landmarks: Dict[int, List[List[float]]] = {
+                int(k): v["image"]["face_landmarks"] for k, v in json.load(fp).items()
+            }
+
         images_dir_path = self._get_absolute_local_path(dir_path)
         self.image_paths = self._get_all_paths_based_on_suffix(images_dir_path, self.image_suffix)
-        f = open(Path(dir_path) / "ffhq-dataset-meta.json")
-        self.landmarks_data = json.load(f)
-        f.close()
-
-        # TODO: No good
-        self.name = name
-        self.batch_size = batch_size
-        self.shuffle = shuffle
-
-        self.rng = np.random.default_rng(rng_seed)
-
-        self.idx_sampler = list(range(len(self.image_paths)))
-        if shuffle:
-            self.rng.shuffle(self.idx_sampler)
-
-        if collate_fn is not None:
-            self._collate_fn = collate_fn
 
     def get_marks(self, idx: int) -> Optional[np.ndarray]:
-        return np.array(self.landmarks_data[str(idx)]["image"]["face_landmarks"])
+        return np.array(self.landmarks[idx])
 
     def get_meta(self, idx: int) -> Optional[Dict]:
-        f = open(f"ffhq/{idx:05d}.json")
-        meta = json.load(f)
-        f.close()
+        with Path(f"ffhq/{idx:05d}.json").open(encoding="utf-8") as fp:
+            meta = json.load(fp)
         return meta[0]
 
     @classmethod
@@ -114,5 +108,6 @@ class DataLoaderFFHQ(DataLoaderBase):
         """
         return cv2.imread(str(image_file))
 
+    @classmethod
     def load_marks_from_file(cls, mark_file: Path) -> np.ndarray:
-        pass
+        raise NotImplementedError("Should not be called for FFHQ")
