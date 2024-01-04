@@ -5,6 +5,9 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
+SingleLandmarkData = Tuple[np.ndarray, np.ndarray, Optional[Dict[Any, Any]]]
+BatchedLandmarkData = Tuple[Tuple[np.ndarray], np.ndarray, Tuple[Optional[Dict[Any, Any]]]]
+
 
 class DataIteratorBase(ABC):
     batch_size: int
@@ -61,12 +64,10 @@ class DataIteratorBase(ABC):
         marks = marks if marks is not None else self.meta_none()
         return marks
 
-    def get_single_element(self, idx) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:
+    def get_single_element(self, idx) -> SingleLandmarkData:
         return self.get_image(idx), self.get_marks_with_default(idx), self.get_meta_with_default(idx)
 
-    def __getitem__(
-        self, idx: int
-    ) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:  # (image, marks, meta)
+    def __getitem__(self, idx: int) -> BatchedLandmarkData:
         return self._collate_fn(
             [self.get_single_element(i) for i in self.idx_sampler[idx * self.batch_size : (idx + 1) * self.batch_size]]
         )
@@ -84,30 +85,22 @@ class DataIteratorBase(ABC):
     def all_meta(self) -> List:  # (meta)
         return [self.get_meta_with_default(idx) for idx in self.idx_sampler]
 
-    def __next__(self) -> Tuple[np.ndarray, np.ndarray]:
+    def __next__(self) -> BatchedLandmarkData:
         if self.idx >= len(self):
             raise StopIteration
         elt = self[self.idx]
         self.idx += 1
         return elt
 
-    def _collate_fn(
-        self, elements: List[Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]]
-    ) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:
-        batched_elements = list(zip(*elements))
-        batched_elements[1] = np.array(batched_elements[1])
-
+    def _collate_fn(self, elements: List[SingleLandmarkData]) -> BatchedLandmarkData:
+        batched_elements = list(zip(*elements, strict=True))
         # INFO: Restore if we want to concatenate all meta under one dict instead of keeping them as records (list of dicts)
         # meta_keys = next((list(elt.keys()) for elt in batched_elements[2] if elt is not None), [])
         # batched_elements[2] = {
         #    key: [meta[key] if (meta is not None and key in meta) else None for meta in batched_elements[2]]
         #    for key in meta_keys
         # }
-
-        # if len(batched_elements[0]) != self.batch_size:
-        #     raise StopIteration
-
-        return batched_elements
+        return batched_elements[0], np.array(batched_elements[1]), batched_elements[2]
 
 
 class DataLoaderBase(DataIteratorBase):

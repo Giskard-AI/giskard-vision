@@ -1,10 +1,10 @@
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
 from ..marks.facial_parts import FacialPart
 from ..transformation_functions.crop import crop_image_from_mark, crop_mark
-from .base import DataIteratorBase, DataLoaderWrapper
+from .base import DataIteratorBase, DataLoaderWrapper, SingleLandmarkData
 
 
 class CroppedDataLoader(DataLoaderWrapper):
@@ -51,3 +51,22 @@ class CachedDataLoader(DataLoaderWrapper):
         if len(self._cache_idxs) > self._max_size:
             self._cache.pop(self._cache_idxs.pop(-1))
         return self._cache[idx]
+
+
+class FilteringDataLoader(DataLoaderWrapper):
+    @property
+    def name(self):
+        return f"({self._wrapped_dataloader.name}) filtered using {self._predicate_name}"
+
+    @property
+    def idx_sampler(self) -> np.ndarray:
+        return self._reindex
+
+    def __init__(self, dataloader: DataIteratorBase, predicate: Callable[[SingleLandmarkData], bool]):
+        super().__init__(dataloader)
+        self._predicate_name = predicate.__name__ if hasattr(predicate, "__name__") else str(predicate)
+        self._reindex = [
+            idx
+            for idx in self._wrapped_dataloader.idx_sampler
+            if predicate(self._wrapped_dataloader.get_single_element(idx))
+        ]
