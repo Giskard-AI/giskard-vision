@@ -29,14 +29,14 @@ class DataIteratorBase(ABC):
             raise ValueError(f"Batch size must be a strictly positive integer: {self.batch_size}")
 
     @property
-    def name(self) -> np.ndarray:
+    def name(self) -> str:
         return self._name
 
     def __iter__(self):
         self.idx = 0
         return self
 
-    def flat_len(self):
+    def flat_len(self) -> int:
         return len(self.idx_sampler)
 
     def __len__(self) -> int:
@@ -101,6 +101,7 @@ class DataIteratorBase(ABC):
         #    for key in meta_keys
         # }
         return batched_elements[0], np.array(batched_elements[1]), batched_elements[2]
+
 
 
 class DataLoaderBase(DataIteratorBase):
