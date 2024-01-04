@@ -7,6 +7,7 @@ from loreal_poc.dataloaders.wrappers import (
     CachedDataLoader,
     CroppedDataLoader,
     FilteringDataLoader,
+    ResizedDataLoader,
 )
 from loreal_poc.marks.facial_parts import FacialParts
 
@@ -66,3 +67,19 @@ def test_filtering_dataloader():
     assert dl[1][0][0].shape == (32, 32, 3)
     print(filtered.name)
     assert np.array_equal(dl[1][0][0], filtered[0][0][0])
+
+
+def test_resized_dataloader():
+    dl = DataloaderForTest("example", length=10)
+    resized = ResizedDataLoader(dl, scales=(0.5, 0.3))
+
+    for (img, marks, _), (resized_img, resized_marks, _) in zip(dl, resized):
+        assert np.array_equal(resized_marks, marks * (0.5, 0.3))
+        assert int(img[0].shape[0] * 0.3) == resized_img[0].shape[0]
+        assert int(img[0].shape[1] * 0.5) == resized_img[0].shape[1]
+
+    resized = ResizedDataLoader(dl, scales=(500, 300), absolute_scales=True)
+
+    for resized_img, resized_marks, _ in resized:
+        assert resized_img[0].shape[0] == 300
+        assert resized_img[0].shape[1] == 500
