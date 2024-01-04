@@ -103,7 +103,6 @@ class DataIteratorBase(ABC):
         return batched_elements[0], np.array(batched_elements[1]), batched_elements[2]
 
 
-
 class DataLoaderBase(DataIteratorBase):
     image_suffix: str
     marks_suffix: str
