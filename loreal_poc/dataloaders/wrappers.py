@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Any, Callable, Dict, Optional, Tuple, Union
+from typing import Callable, Dict, Optional, Tuple, Union
 
 import cv2
 import numpy as np
@@ -8,7 +8,8 @@ from ..marks.facial_parts import FacialPart
 from ..transformation_functions import (
     crop_image_from_mark,
     crop_mark,
-    resize_image_with_marks,
+    resize_image,
+    resize_marks,
 )
 from .base import DataIteratorBase, DataLoaderWrapper, SingleLandmarkData
 
@@ -85,9 +86,13 @@ class ResizedDataLoader(DataLoaderWrapper):
     def name(self):
         return f"{self._wrapped_dataloader.name} resizing with ratios: {self._scales}"
 
-    def __getitem__(self, idx: int) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:
-        img, marks, meta = super().__getitem__(idx)
-        return *resize_image_with_marks(img, marks, self._scales, self._absolute_scales), meta
+    def get_image(self, idx: int) -> np.ndarray:
+        image = super().get_image(idx)
+        return resize_image(image, self._scales, self._absolute_scales)
+
+    def get_marks(self, idx: int) -> np.ndarray:
+        image = super().get_marks(idx)
+        return resize_marks(image, self._scales)
 
 
 class BlurredDataLoader(DataLoaderWrapper):
@@ -108,10 +113,9 @@ class BlurredDataLoader(DataLoaderWrapper):
     def name(self):
         return f"{self._wrapped_dataloader.name} blurred"
 
-    def __getitem__(self, idx: int) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:
-        img, marks, meta = super().__getitem__(idx)
-        blurred_img = cv2.GaussianBlur(img, self._kernel_size, *self._sigma)
-        return blurred_img, marks, meta
+    def get_image(self, idx: int) -> np.ndarray:
+        image = super().get_image(idx)
+        return cv2.GaussianBlur(image, self._kernel_size, *self._sigma)
 
 
 class ColoredDataLoader(DataLoaderWrapper):
@@ -122,18 +126,16 @@ class ColoredDataLoader(DataLoaderWrapper):
     ) -> None:
         super().__init__(dataloader)
         self._mode = mode
+        if not (isinstance(self._mode, int) and self._mode >= 0 and self._mode < cv2.COLOR_COLORCVT_MAX):
+            raise NotImplementedError(f"The mode {self._mode} is not a valid opencv color conversion code.")
 
     @property
     def name(self):
         return f"{self._wrapped_dataloader.name} altered with {self._mode} colors"
 
-    def __getitem__(self, idx: int) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[Dict[Any, Any]]]:
-        img, marks, meta = super().__getitem__(idx)
-        if isinstance(self._mode, int) and self._mode >= 0 and self._mode < cv2.COLOR_COLORCVT_MAX:
-            colored_img = cv2.cvtColor(img, self._mode)
-        else:
-            raise NotImplementedError(f"The mode {self._mode} is not a valid opencv color conversion code.")
-        return colored_img, marks, meta
+    def get_image(self, idx: int) -> np.ndarray:
+        image = super().get_image(idx)
+        return cv2.cvtColor(image, self._mode)
 
 
 class FilteringDataLoader(DataLoaderWrapper):
