@@ -1,5 +1,3 @@
-import math
-
 import numpy as np
 import pytest
 
@@ -14,10 +12,11 @@ class DataloaderForTest(DataIteratorBase):
         self.dataset = generator.integers(0, 255, size=(length, 32, 32, 3))
         self.marks = generator.integers(0, 32, size=(length, 68, 2)).astype(float)
 
-        self.idx_sampler = list(range(length))
+        self._idx_sampler = list(range(length))
 
-    def __len__(self) -> int:
-        return math.ceil(len(self.dataset) / self.batch_size)
+    @property
+    def idx_sampler(self):
+        return self._idx_sampler
 
     def get_image(self, idx: int) -> np.ndarray:
         return self.dataset[idx]
@@ -34,20 +33,21 @@ class DataloaderMissingAnnotation(DataIteratorBase):
         self.dataset = generator.integers(0, 255, size=(length, 32, 32, 3))
         self.marks = generator.integers(0, 32, size=(length, 68, 2)).astype(float)
 
-        self.idx_sampler = list(range(length))
+        self._idx_sampler = list(range(length))
 
-    def __len__(self) -> int:
-        return math.ceil(len(self.dataset) / self.batch_size)
+    @property
+    def idx_sampler(self):
+        return self._idx_sampler
 
     def get_image(self, idx: int) -> np.ndarray:
         return self.dataset[idx]
 
-    @property
-    def marks_none(self):
+    @classmethod
+    def marks_none(cls):
         return np.full((68, 2), np.nan)
 
-    @property
-    def meta_none(self):
+    @classmethod
+    def meta_none(cls):
         return {"key1": -1, "key2": -1}
 
     def get_marks(self, idx: int) -> np.ndarray | None:
@@ -67,9 +67,9 @@ def test_nominal():
 
     img, _, _ = dl[0]
     img2, _, _ = next(dl)
-
-    assert isinstance(img, type(img2[0]))
-    assert np.array_equal(img, img2[0])
+    assert isinstance(img, tuple)  # batch of size 1
+    assert isinstance(img[0], type(img2[0]))
+    assert np.array_equal(img[0], img2[0])
     with pytest.raises(StopIteration) as exc_info:
         assert next(dl) is None
 
