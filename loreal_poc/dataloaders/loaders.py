@@ -115,6 +115,7 @@ class DataLoaderFFHQ(DataLoaderBase):
 class DataLoader300WLP(DataIteratorBase):
     LANDMARKS_2D_KEY = "landmarks_2d"
     IMAGE_KEY = "image"
+    DATASET_SPLIT = "train"
 
     def __init__(self, name: str | None = None) -> None:
         super().__init__(name)
@@ -122,11 +123,10 @@ class DataLoader300WLP(DataIteratorBase):
         import tensorflow_datasets as tfds
 
         self.splits, self.info = tfds.load("the300w_lp", with_info=True)
-        self.split_name = "train"  # Only this one is in `the300w_lp`
-        self.ds = self.splits[self.split_name]
+        self.ds = self.splits[DataLoader300WLP.DATASET_SPLIT]
 
     def __len__(self) -> int:
-        return self.info.splits[self.split_name].num_examples
+        return self.info.splits[DataLoader300WLP.DATASET_SPLIT].num_examples
 
     def get_image(self, idx: int) -> np.ndarray:
         datarows = self.ds.skip(idx)
