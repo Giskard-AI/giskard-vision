@@ -7,7 +7,9 @@ import numpy as np
 def compute_scale_ratios(scales: Union[Tuple[float, float], float], absolute_scales: bool, img_shape: tuple) -> tuple:
     h, w = img_shape
     if absolute_scales:
-        scale_ratios = (scales[0] / w, scales[1] / h) if isinstance(scales, tuple) else (scales / w, scales / h)
+        scale_ratios = (
+            (scales[0] / w, scales[1] / h) if isinstance(scales, tuple) else (scales / max(w, h), scales / max(w, h))
+        )
     else:
         scale_ratios = (scales, scales) if not isinstance(scales, tuple) else scales
 
