@@ -136,12 +136,12 @@ class DataLoader300WLP(DataIteratorBase):
     def get_image(self, idx: int) -> np.ndarray:
         datarows = self.ds.skip(idx)
         for row in datarows:
-            return row[DataLoader300WLP.IMAGE_KEY]
+            return row[DataLoader300WLP.IMAGE_KEY].numpy()
 
     def get_marks(self, idx: int) -> Optional[np.ndarray]:
         datarows = self.ds.skip(idx)
         for row in datarows:
-            return row[DataLoader300WLP.LANDMARKS_2D_KEY]
+            return row[DataLoader300WLP.LANDMARKS_2D_KEY].numpy()
 
     def get_meta(self, idx: int) -> Optional[Dict]:
         return None
