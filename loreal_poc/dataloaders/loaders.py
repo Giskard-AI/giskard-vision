@@ -120,7 +120,12 @@ class DataLoader300WLP(DataIteratorBase):
     def __init__(self, name: str | None = None) -> None:
         super().__init__(name)
 
-        import tensorflow_datasets as tfds
+        try:
+            import scipy.io  # noqa
+            import tensorflow  # noqa
+            import tensorflow_datasets as tfds
+        except ImportError as e:
+            raise ImportError("Loading 300w_lp dataset requires tensorflow, tensorflow dataset and scipy.") from e
 
         self.splits, self.info = tfds.load("the300w_lp", with_info=True)
         self.ds = self.splits[DataLoader300WLP.DATASET_SPLIT]
