@@ -199,11 +199,14 @@ class EthnicityDataLoader(DataLoaderWrapper):
     def __init__(self, dataloader: DataIteratorBase, ethnicity_map: Optional[Dict] = None) -> None:
         super().__init__(dataloader)
 
-        keys_and_values = set(ethnicity_map.keys()).union(set(ethnicity_map.values()))
-        if ethnicity_map and not keys_and_values.issubset(self.supported_ethnicities):
-            raise ValueError(f"Only the following ethnicities {self.supported_ethnicities} are estimated by DeepFace.")
-        if set(ethnicity_map.keys()).issubset(ethnicity_map.values()):
-            raise ValueError("Only one-to-one mapping is allowed in ethnicity_map.")
+        if ethnicity_map is not None:
+            keys_and_values = set(ethnicity_map.keys()).union(set(ethnicity_map.values()))
+            if not keys_and_values.issubset(self.supported_ethnicities):
+                raise ValueError(
+                    f"Only the following ethnicities {self.supported_ethnicities} are estimated by DeepFace."
+                )
+            if set(ethnicity_map.keys()).issubset(ethnicity_map.values()):
+                raise ValueError("Only one-to-one mapping is allowed in ethnicity_map.")
         self.ethnicity_map = ethnicity_map
 
     @property
@@ -211,12 +214,11 @@ class EthnicityDataLoader(DataLoaderWrapper):
         return f"({self._wrapped_dataloader.name}) with ethnicity estimation'"
 
     def _map_ethnicities(self, ethnicities: Dict):
-        if self.ethnicity_map:
-            # merging
-            for k, v in self.ethnicity_map.items():
-                ethnicities[v] += ethnicities[k]
-            # purging
-            [ethnicities.pop(k) for k in self.ethnicity_map.keys()]
+        # merging
+        for k, v in self.ethnicity_map.items():
+            ethnicities[v] += ethnicities[k]
+        # purging
+        [ethnicities.pop(k) for k in self.ethnicity_map.keys()]
         return ethnicities
 
     def get_meta(self, idx):
@@ -226,7 +228,7 @@ class EthnicityDataLoader(DataLoaderWrapper):
             raise GiskardImportError("deepface") from e
         try:
             ethnicities = DeepFace.analyze(img_path=self.get_image(idx), actions=["race"])[0]["race"]
-            ethnicities = self._map_ethnicities(ethnicities) if self._map_ethnicities else ethnicities
+            ethnicities = self._map_ethnicities(ethnicities) if self.ethnicity_map else ethnicities
             return {"ethnicity": max(ethnicities, key=ethnicities.get)}
         except ValueError:
             return {"ethnicity": "unknown"}
