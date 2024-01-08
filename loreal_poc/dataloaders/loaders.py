@@ -117,7 +117,7 @@ class DataLoader300WLP(DataIteratorBase):
     IMAGE_KEY = "image"
     DATASET_SPLIT = "train"
 
-    def __init__(self, name: str | None = None) -> None:
+    def __init__(self, name: str | None = None, data_dir=None) -> None:
         super().__init__(name)
 
         try:
@@ -127,7 +127,7 @@ class DataLoader300WLP(DataIteratorBase):
         except ImportError as e:
             raise ImportError("Loading 300w_lp dataset requires tensorflow, tensorflow dataset and scipy.") from e
 
-        self.splits, self.info = tfds.load("the300w_lp", with_info=True)
+        self.splits, self.info = tfds.load("the300w_lp", data_dir=data_dir, with_info=True)
         self.ds = self.splits[DataLoader300WLP.DATASET_SPLIT]
 
     def __len__(self) -> int:
