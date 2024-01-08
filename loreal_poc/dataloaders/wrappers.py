@@ -132,7 +132,7 @@ class ColoredDataLoader(DataLoaderWrapper):
 
     @property
     def name(self):
-        return f"{self._wrapped_dataloader.name} altered with {self._mode} colors"
+        return f"{self._wrapped_dataloader.name} altered with color mode {self._mode}"
 
     def get_image(self, idx: int) -> np.ndarray:
         image = super().get_image(idx)
@@ -180,7 +180,7 @@ class HeadPoseDataLoader(DataLoaderWrapper):
 
     @property
     def name(self):
-        return f"({self._wrapped_dataloader.name}) with head pose estimation'"
+        return f"({self._wrapped_dataloader.name}) with head-pose"
 
     def get_meta(self, idx):
         pitch, yaw, roll = self.pose_detection_model.predict(self.get_image(idx))
@@ -211,7 +211,7 @@ class EthnicityDataLoader(DataLoaderWrapper):
 
     @property
     def name(self):
-        return f"({self._wrapped_dataloader.name}) with ethnicity estimation'"
+        return f"({self._wrapped_dataloader.name}) with ethnicity"
 
     def _map_ethnicities(self, ethnicities: Dict):
         # merging
