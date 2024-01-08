@@ -11,6 +11,7 @@ from ..transformation_functions import (
     resize_image,
     resize_marks,
 )
+from ..utils.errors import GiskardImportError
 from .base import DataIteratorBase, DataLoaderWrapper, SingleLandmarkData
 
 
@@ -138,7 +139,7 @@ class ColoredDataLoader(DataLoaderWrapper):
         return cv2.cvtColor(image, self._mode)
 
 
-class FilteringDataLoader(DataLoaderWrapper):
+class FilteredDataLoader(DataLoaderWrapper):
     @property
     def name(self):
         return f"({self._wrapped_dataloader.name}) filtered using '{self._predicate_name}'"
@@ -155,3 +156,32 @@ class FilteringDataLoader(DataLoaderWrapper):
             for idx in self._wrapped_dataloader.idx_sampler
             if predicate(self._wrapped_dataloader.get_single_element(idx))
         ]
+
+
+class HeadPoseDataLoader(DataLoaderWrapper):
+    def __init__(self, dataloader: DataIteratorBase, gpu_id: int = -1) -> None:
+        """A dataloader that estimates the head pose in images using the SixDRepNet model
+
+        Args:
+            dataloader (DataIteratorBase): the wrapped dataloader.
+            gpu_id (int, optional): Enable the usage of GPUs. Defaults to -1 (CPU).
+
+        Raises:
+            GiskardImportError: Error to signal a missing package
+        """
+        try:
+            from sixdrepnet import SixDRepNet
+        except ImportError as e:
+            raise GiskardImportError("sixdrepnet") from e
+
+        super().__init__(dataloader)
+
+        self.pose_detection_model = SixDRepNet(gpu_id=gpu_id)
+
+    @property
+    def name(self):
+        return f"({self._wrapped_dataloader.name}) with head pose estimation'"
+
+    def get_meta(self, idx):
+        pitch, yaw, roll = self.pose_detection_model.predict(self.get_image(idx))
+        return {"headPose": {"pitch": pitch[0], "yaw": -yaw[0], "roll": roll[0]}}
