@@ -1,11 +1,13 @@
 from collections import defaultdict
 
 import numpy as np
+import pytest
 
 from loreal_poc.dataloaders.base import DataLoaderWrapper, SingleLandmarkData
 from loreal_poc.dataloaders.wrappers import (
     CachedDataLoader,
     CroppedDataLoader,
+    EthnicityDataLoader,
     FilteredDataLoader,
     HeadPoseDataLoader,
     ResizedDataLoader,
@@ -91,3 +93,23 @@ def test_headpose_dataloader(dataset_ffhq):
 
     assert len(head_pose_dl) == 4
     assert np.array_equal(head_pose_dl._reindex, [0, 2, 7, 10])
+
+
+def test_ethnicity_dataloader(dataset_ffhq):
+    ethnicity_dl = EthnicityDataLoader(dataset_ffhq, ethnicity_map={"indian": "asian"})
+    asians = FilteredDataLoader(ethnicity_dl, lambda elt: elt[2]["ethnicity"] == "asian")
+
+    assert len(asians) == 4
+    assert np.array_equal(asians._reindex, [0, 3, 4, 7])
+
+    with pytest.raises(ValueError) as exc_info:
+        EthnicityDataLoader(dataset_ffhq, ethnicity_map={"indian": "asian", "asian": "indian"})
+        assert "Only one-to-one mapping is allowed in ethnicity_map." in str(exc_info)
+
+    with pytest.raises(ValueError) as exc_info:
+        EthnicityDataLoader(dataset_ffhq, ethnicity_map={"indian": "unknown"})
+        assert "Only the following ethnicities" in str(exc_info)
+
+    with pytest.raises(ValueError) as exc_info:
+        EthnicityDataLoader(dataset_ffhq, ethnicity_map={"unknown": "white"})
+        assert "Only the following ethnicities" in str(exc_info)
