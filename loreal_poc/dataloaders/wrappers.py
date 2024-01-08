@@ -159,7 +159,16 @@ class FilteredDataLoader(DataLoaderWrapper):
 
 
 class HeadPoseDataLoader(DataLoaderWrapper):
-    def __init__(self, dataloader: DataIteratorBase) -> None:
+    def __init__(self, dataloader: DataIteratorBase, gpu_id: int = -1) -> None:
+        """A dataloader that estimates the head pose in images using the SixDRepNet model
+
+        Args:
+            dataloader (DataIteratorBase): the wrapped dataloader.
+            gpu_id (int, optional): Enable the usage of GPUs. Defaults to -1 (CPU).
+
+        Raises:
+            GiskardImportError: Error to signal a missing package
+        """
         try:
             from sixdrepnet import SixDRepNet
         except ImportError as e:
@@ -167,7 +176,7 @@ class HeadPoseDataLoader(DataLoaderWrapper):
 
         super().__init__(dataloader)
 
-        self.pose_detection_model = SixDRepNet(gpu_id=-1)
+        self.pose_detection_model = SixDRepNet(gpu_id=gpu_id)
 
     @property
     def name(self):
