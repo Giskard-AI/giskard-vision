@@ -36,6 +36,7 @@ dev = [
     "ruff",
     "isort",
     "sixdrepnet>=0.1.6",
+    "deepface>=0.0.80",
 ]
 
 [tool.ruff]
