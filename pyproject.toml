@@ -37,7 +37,8 @@ dev = [
     "isort",
     "tensorflow",
     "tensorflow_datasets",
-    "scipy"
+    "scipy",
+    "sixdrepnet>=0.1.6",
 ]
 
 [tool.ruff]

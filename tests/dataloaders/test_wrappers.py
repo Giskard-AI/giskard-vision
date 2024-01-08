@@ -6,7 +6,8 @@ from loreal_poc.dataloaders.base import DataLoaderWrapper, SingleLandmarkData
 from loreal_poc.dataloaders.wrappers import (
     CachedDataLoader,
     CroppedDataLoader,
-    FilteringDataLoader,
+    FilteredDataLoader,
+    HeadPoseDataLoader,
     ResizedDataLoader,
 )
 from loreal_poc.marks.facial_parts import FacialParts
@@ -59,7 +60,7 @@ def is_odd(elt: SingleLandmarkData) -> bool:
 def test_filtering_dataloader():
     dl = WithMetaDataLoader(DataloaderForTest("example", length=10))
 
-    filtered = FilteringDataLoader(dl, predicate=is_odd)
+    filtered = FilteredDataLoader(dl, predicate=is_odd)
 
     assert len(filtered) == 5
     assert "filtered using 'is_odd'" in filtered.name
@@ -83,3 +84,10 @@ def test_resized_dataloader():
     for resized_img, resized_marks, _ in resized:
         assert resized_img[0].shape[0] == 300
         assert resized_img[0].shape[1] == 500
+
+
+def test_headpose_dataloader(dataset_ffhq):
+    head_pose_dl = FilteredDataLoader(HeadPoseDataLoader(dataset_ffhq), lambda elt: elt[2]["headPose"]["roll"] > 0)
+
+    assert len(head_pose_dl) == 4
+    assert np.array_equal(head_pose_dl._reindex, [0, 2, 7, 10])
