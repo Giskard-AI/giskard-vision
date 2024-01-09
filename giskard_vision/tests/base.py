@@ -4,9 +4,9 @@ from typing import Any, List, Optional
 
 import numpy as np
 
-from loreal_poc.dataloaders.base import DataIteratorBase
-from loreal_poc.marks.facial_parts import FacialPart, FacialParts
-from loreal_poc.models.base import FaceLandmarksModelBase, PredictionResult
+from ..dataloaders.base import DataIteratorBase
+from ..marks.facial_parts import FacialPart, FacialParts
+from ..models.base import FaceLandmarksModelBase, PredictionResult
 
 
 @dataclass
