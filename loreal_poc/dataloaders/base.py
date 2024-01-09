@@ -494,26 +494,89 @@ class DataLoaderBase(DataIteratorBase):
 
 
 class DataLoaderWrapper(DataIteratorBase):
+    """Wrapper class for a DataIteratorBase, providing additional functionality.
+
+    Args:
+        DataIteratorBase (type): The base data iterator class to be wrapped.
+
+    Attributes:
+        _wrapped_dataloader (DataIteratorBase): The wrapped data loader instance.
+    """
+
     def __init__(self, dataloader: DataIteratorBase) -> None:
+        """
+        Initializes the DataLoaderWrapper with a given DataIteratorBase instance.
+
+        Args:
+            dataloader (DataIteratorBase): The data loader to be wrapped.
+        """
+
         self._wrapped_dataloader = dataloader
 
     @property
     def name(self):
+        """
+        Gets the name of the wrapped data loader.
+
+        Returns:
+            str: The name of the wrapped data loader.
+        """
         return f"{self.__class__.__name__}({self._wrapped_dataloader.name})"
 
     @property
     def idx_sampler(self) -> np.ndarray:
+        """
+        Gets the index sampler from the wrapped data loader.
+
+        Returns:
+            np.ndarray: Index sampler from the wrapped data loader.
+        """
         return self._wrapped_dataloader.idx_sampler
 
     def get_image(self, idx: int) -> np.ndarray:
+        """
+        Gets an image from the wrapped data loader.
+
+        Args:
+            idx (int): Index of the data.
+
+        Returns:
+            np.ndarray: Image data from the wrapped data loader.
+        """
         return self._wrapped_dataloader.get_image(idx)
 
     def get_marks(self, idx: int) -> Optional[np.ndarray]:
+        """
+        Gets marks from the wrapped data loader.
+
+        Args:
+            idx (int): Index of the data.
+
+        Returns:
+            Optional[np.ndarray]: Marks from the wrapped data loader.
+        """
         return self._wrapped_dataloader.get_marks(idx)
 
     def get_meta(self, idx: int) -> Optional[Dict]:
+        """
+        Gets meta information from the wrapped data loader.
+
+        Args:
+            idx (int): Index of the data.
+
+        Returns:
+            Optional[Dict]: Meta information from the wrapped data loader.
+        """
         return self._wrapped_dataloader.get_meta(idx)
 
     def __getattr__(self, attr):
-        # This will proxy any dataloader.a to dataloader._wrapped_dataloader.a
+        """
+        Proxy method to access attributes of the wrapped data loader. This will proxy any dataloader.a to dataloader._wrapped_dataloader.a.
+
+        Args:
+            attr: Attribute to be accessed.
+
+        Returns:
+            Any: Attribute value from the wrapped data loader.
+        """
         return getattr(self._wrapped_dataloader, attr)
