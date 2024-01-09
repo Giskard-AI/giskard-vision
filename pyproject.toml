@@ -2,6 +2,10 @@
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.packages.find]
+include = ["giskard_vision"]
+exclude = ["docs*", "tests*"]
+
 [project]
 name = "giskard-vision"
 version = "0.0.1-alpha"
