@@ -3,8 +3,8 @@ from collections import defaultdict
 import numpy as np
 import pytest
 
-from loreal_poc.dataloaders.base import DataLoaderWrapper, SingleLandmarkData
-from loreal_poc.dataloaders.wrappers import (
+from giskard_vision.dataloaders.base import DataLoaderWrapper, SingleLandmarkData
+from giskard_vision.dataloaders.wrappers import (
     CachedDataLoader,
     CroppedDataLoader,
     EthnicityDataLoader,
@@ -12,7 +12,7 @@ from loreal_poc.dataloaders.wrappers import (
     HeadPoseDataLoader,
     ResizedDataLoader,
 )
-from loreal_poc.marks.facial_parts import FacialParts
+from giskard_vision.marks.facial_parts import FacialParts
 
 from .test_base import DataloaderForTest
 

@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from loreal_poc.dataloaders.base import DataIteratorBase
+from giskard_vision.dataloaders.base import DataIteratorBase
 
 
 class DataloaderForTest(DataIteratorBase):

@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
 
-from loreal_poc.models.base import PredictionResult
-from loreal_poc.tests.performance import (
+from giskard_vision.models.base import PredictionResult
+from giskard_vision.tests.performance import (
     LEFT_EYE_LEFT_LANDMARK,
     RIGHT_EYE_RIGHT_LANDMARK,
     Es,

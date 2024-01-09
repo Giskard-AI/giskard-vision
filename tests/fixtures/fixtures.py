@@ -3,8 +3,8 @@ from pathlib import Path
 import pytest
 from face_alignment import FaceAlignment, LandmarksType
 
-from loreal_poc.dataloaders.loaders import DataLoader300W, DataLoaderFFHQ
-from loreal_poc.models.wrappers import FaceAlignmentWrapper, OpenCVWrapper
+from giskard_vision.dataloaders.loaders import DataLoader300W, DataLoaderFFHQ
+from giskard_vision.models.wrappers import FaceAlignmentWrapper, OpenCVWrapper
 
 
 @pytest.fixture()
