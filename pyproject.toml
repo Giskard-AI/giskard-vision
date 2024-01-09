@@ -1,3 +1,16 @@
+[project]
+name = "giskard-vision"
+version = "0.0.1"
+description = "The expansion of Giskard into testing computer vision models"
+authors = [{ name = "Giskard AI", email = "hello@giskard.ai" }]
+dependencies = [
+    "opencv-python",
+    "numpy",
+    "pandas",
+]
+requires-python = ">=3.10,<3.12"
+readme = "README.md"
+
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
@@ -30,19 +43,6 @@ dev = [
     "deepface>=0.0.80",
     "pillow>=10.2.0",
 ]
-
-[project]
-name = "giskard-vision"
-version = "0.0.1-alpha"
-description = "The expansion of Giskard into testing computer vision models"
-authors = [{ name = "Giskard AI", email = "hello@giskard.ai" }]
-dependencies = [
-    "opencv-python",
-    "numpy",
-    "pandas",
-]
-requires-python = ">=3.10,<3.12"
-readme = "README.md"
 
 [tool.ruff]
 line-length = 120
