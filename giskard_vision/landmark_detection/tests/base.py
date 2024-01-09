@@ -6,7 +6,10 @@ import numpy as np
 
 from giskard_vision.landmark_detection.dataloaders.base import DataIteratorBase
 from giskard_vision.landmark_detection.marks.facial_parts import FacialPart, FacialParts
-from giskard_vision.landmark_detection.models.base import FaceLandmarksModelBase, PredictionResult
+from giskard_vision.landmark_detection.models.base import (
+    FaceLandmarksModelBase,
+    PredictionResult,
+)
 
 
 @dataclass

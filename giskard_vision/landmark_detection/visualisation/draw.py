@@ -1,16 +1,17 @@
-from typing import List, Optional, Union
+from typing import List, Optional
 
 import cv2
 import numpy as np
 
 from giskard_vision.landmark_detection.utils import GiskardImportError
 
+
 def _add_marks(image_display, marks, color=None, with_text=False, square=None):
     try:
         from PIL import ImageDraw
     except ImportError as e:
         raise GiskardImportError("pillow") from e
-    
+
     marks = np.array(marks)
     if len(np.shape(marks)) == 2:
         marks = np.expand_dims(marks, axis=0)
@@ -42,7 +43,7 @@ def draw_marks(
         from PIL import Image
     except ImportError as e:
         raise GiskardImportError("pillow") from e
-    
+
     if isinstance(image, np.ndarray):
         _image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
     image_display = _image.copy()
