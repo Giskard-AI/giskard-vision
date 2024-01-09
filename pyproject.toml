@@ -6,9 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "loreal-poc"
 version = "2023.11.27"
 description = "Assessing the quality of L'Oreal's facial landmark models"
-authors = [
-    {name = "Rabah Abdul Khalek", email = "rabah@giskard.ai"},
-]
+authors = [{ name = "Rabah Abdul Khalek", email = "rabah@giskard.ai" }]
 dependencies = [
     "pillow>=10.1.0", # just for drawing
     "opencv-python",
@@ -23,12 +21,12 @@ notebook = "jupyter notebook --ip 0.0.0.0 --port 8888 --no-browser --notebook-di
 format.cmd = "bash -c 'ruff ./loreal_poc ./tests --fix && black ./loreal_poc ./examples ./tests  && isort ./loreal_poc ./tests'"
 check-format.cmd = "bash -c 'ruff ./loreal_poc ./tests && black --check ./loreal_poc ./examples ./tests && isort --check ./loreal_poc ./tests'"
 test.cmd = "pytest tests/ -c pyproject.toml --disable-warnings -vvv --durations=0"
-check-notebook="bash -c 'cd ./examples && pdm run jupyter nbconvert --to script -y *.ipynb && find . -type f  | grep -e \".py$\" | xargs -I {} echo \"pdm run python {} && echo \"Notebook {} OK\" || exit 1\" | sh'"
+check-notebook = "bash -c 'cd ./examples && pdm run jupyter nbconvert --to script -y *.ipynb && find . -type f  | grep -e \".py$\" | sort | xargs -I {} echo \"pdm run python {} && echo \"Notebook {} OK\" || exit 1\" | sh'"
 
 [tool.pdm.dev-dependencies]
 dev = [
     "face-alignment",
-    "opencv-contrib-python", # needed for lbfmodel
+    "opencv-contrib-python",  # needed for lbfmodel
     "notebook",
     "matplotlib",
     "black[jupyter]>=23.7.0",
@@ -36,7 +34,9 @@ dev = [
     "pip>=23.2.1",
     "pre-commit>=2.19.0",
     "ruff",
-    "isort"
+    "isort",
+    "sixdrepnet>=0.1.6",
+    "deepface>=0.0.80",
 ]
 
 [tool.ruff]
@@ -65,5 +65,6 @@ exclude = '''
     | dist
     | env
     | venv
+    | .history
 )/
 '''

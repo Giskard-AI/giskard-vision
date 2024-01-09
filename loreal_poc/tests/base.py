@@ -11,19 +11,44 @@ from loreal_poc.models.base import FaceLandmarksModelBase, PredictionResult
 
 @dataclass
 class TestResult:
+    """Class representing the result of a test.
+
+    Attributes:
+        test_name (str): Name of the test.
+        prediction_results (List[PredictionResult]): List of prediction results.
+        metric_value (float): Value of the metric for the test.
+        threshold (float): Threshold for the metric.
+        passed (bool): True if the test passed, False otherwise.
+        description (Optional[str]): Optional description of the test result.
+        prediction_time (Optional[float]): Time taken for predictions.
+        facial_part (Optional[FacialPart]): Facial part associated with the test.
+        metric_name (Optional[str]): Name of the metric.
+        model_name (Optional[str]): Name of the model used in the test.
+        dataloader_name (Optional[str]): Name of the dataloader used in the test.
+        dataloader_ref_name (Optional[str]): Name of the reference dataloader if applicable.
+    """
+
     test_name: str
     prediction_results: List[PredictionResult]
     metric_value: float
     threshold: float
     passed: bool
     description: Optional[str] = None
-    prediction_time: float = 0.0
+    prediction_time: Optional[float] = None
     facial_part: Optional[FacialPart] = None
     metric_name: Optional[str] = None
     model_name: Optional[str] = None
     dataloader_name: Optional[str] = None
+    dataloader_ref_name: Optional[str] = None
 
     def _repr_html_(self):
+        """
+        HTML representation of the test result.
+
+        Returns:
+            str: HTML representation of the test result.
+
+        """
         FR = max([round(pred.prediction_fail_rate, 2) for pred in self.prediction_results])
         return """
                <h4><span style="color:{0};">{1}</span> Test "{2}" {3}</h4>
@@ -44,6 +69,13 @@ class TestResult:
         )
 
     def __repr__(self):
+        """
+        String representation of the test result.
+
+        Returns:
+            str: String representation of the test result.
+
+        """
         FR = max([round(pred.prediction_fail_rate, 2) for pred in self.prediction_results])
         return """
                Test "{0}" {1}
@@ -62,41 +94,106 @@ class TestResult:
         )
 
     def to_dict(self):
-        return {
-            "test_name": self.test_name,
-            "metric_name": self.metric_name,
+        """
+        Convert the test result to a dictionary.
+
+        Returns:
+            dict: Dictionary representation of the test result.
+
+        """
+        output = {
+            "test": self.test_name,
+            "metric": self.metric_name,
             "metric_value": self.metric_value,
             "threshold": self.threshold,
             "passed": self.passed,
             "facial_part": self.facial_part.name,
-            "model_name": self.model_name,
-            "dataloader_name": self.dataloader_name,
+            "model": self.model_name,
+            "dataloader": self.dataloader_name,
         }
+        if self.dataloader_ref_name:
+            output.update({"dataloader_ref": self.dataloader_ref_name})
+        return output
 
 
 @dataclass
 class Metric(ABC):
+    """Abstract base class representing a metric for facial landmark predictions.
+
+    Attributes:
+        name (str): Name of the metric.
+        description (str): Description of the metric.
+
+    Methods:
+        definition(prediction_result: PredictionResult, marks: np.ndarray) -> Any:
+            Abstract method to define how the metric is calculated.
+
+        validation(prediction_result: PredictionResult, marks: np.ndarray) -> None:
+            Validate the input types for the metric calculation.
+
+        get(prediction_result: PredictionResult, marks: np.ndarray) -> Any:
+            Get the calculated value of the metric.
+
+    """
+
     name: str
     description: str
 
     @staticmethod
     @abstractmethod
     def definition(prediction_result: PredictionResult, marks: np.ndarray) -> Any:
+        """Abstract method to define how the metric is calculated.
+
+        Args:
+            prediction_result (PredictionResult): The prediction result to evaluate.
+            marks (np.ndarray): Ground truth facial landmarks.
+
+        Returns:
+            Any: Calculated value of the metric.
+
+        """
         ...
 
     @classmethod
     def validation(cls, prediction_result: PredictionResult, marks: np.ndarray) -> None:
+        """Validate the input types for the metric calculation.
+
+        Args:
+            prediction_result (PredictionResult): The prediction result to evaluate.
+            marks (np.ndarray): Ground truth facial landmarks.
+
+        Raises:
+            ValueError: If the input types are incorrect.
+
+        """
         if not isinstance(prediction_result, PredictionResult) or not isinstance(marks, np.ndarray):
             raise ValueError(f"{cls.__name__}: Arguments passed to metric are of the wrong types.")
 
     @classmethod
     def get(cls, prediction_result: PredictionResult, marks: np.ndarray) -> Any:
+        """Get the calculated value of the metric.
+
+        Args:
+            prediction_result (PredictionResult): The prediction result to evaluate.
+            marks (np.ndarray): Ground truth facial landmarks.
+
+        Returns:
+            Any: Calculated value of the metric.
+
+        """
         cls.validation(prediction_result, marks)
         return cls.definition(prediction_result, marks)
 
 
 @dataclass
 class Test:
+    """Data class representing a test for evaluating a model's performance on facial landmarks.
+
+    Attributes:
+        metric (Metric): Metric used for evaluation.
+        threshold (float): Threshold value for the test.
+    """
+
     metric: Metric
     threshold: float
 
@@ -106,6 +203,18 @@ class Test:
         dataloader: DataIteratorBase,
         facial_part: FacialPart = FacialParts.ENTIRE.value,
     ) -> TestResult:
+        """Run the test on the specified model and dataloader.
+        Passes if metric <= threhsold.
+
+        Args:
+            model (FaceLandmarksModelBase): Model to be evaluated.
+            dataloader (DataIteratorBase): Dataloader providing input data.
+            facial_part (FacialPart, optional): Facial part to consider during the evaluation. Defaults to entire face.
+
+        Returns:
+            TestResult: Result of the test.
+
+        """
         ground_truth = dataloader.all_marks
         prediction_result = model.predict(dataloader, facial_part=facial_part)
         metric_value = self.metric.get(prediction_result, ground_truth)
@@ -126,7 +235,13 @@ class Test:
 
 @dataclass
 class TestDiff:
-    """Difference (in absolute value) between the metric of the original and metric of the transformed images."""
+    """Data class representing a differential test for comparing model performance between two dataloaders.
+
+    Attributes:
+        metric (Metric): Metric used for evaluation.
+        threshold (float): Threshold value for the test.
+        relative (bool, optional): Whether to compute a relative difference. Defaults to True.
+    """
 
     metric: Metric
     threshold: float
@@ -139,15 +254,31 @@ class TestDiff:
         dataloader_ref: DataIteratorBase,
         facial_part: FacialPart = FacialParts.ENTIRE.value,
     ) -> TestResult:
-        ground_truth = dataloader.all_marks
+        """Run the differential test on the specified model and dataloaders.
+        Defined as metric_diff = (metric_ref-metric)/metric_ref.
+        Passes if abs(metric_diff) <= threhsold.
+
+        Args:
+            model (FaceLandmarksModelBase): Model to be evaluated.
+            dataloader (DataIteratorBase):  Main dataloader.
+            dataloader_ref (DataIteratorBase): Reference dataloader for comparison.
+            facial_part (FacialPart, optional): Facial part to consider during the evaluation. Defaults to entire face.
+
+        Returns:
+            TestResult: Result of the differential test.
+
+        """
         prediction_result = model.predict(dataloader, facial_part=facial_part)
         prediction_result_ref = model.predict(dataloader_ref, facial_part=facial_part)
 
+        ground_truth = dataloader.all_marks
         metric_value = self.metric.get(prediction_result, ground_truth)
-        metric_ref_value = self.metric.get(prediction_result_ref, ground_truth)
+
+        ground_truth_ref = dataloader_ref.all_marks
+        metric_ref_value = self.metric.get(prediction_result_ref, ground_truth_ref)
 
         norm = metric_ref_value if self.relative else 1.0
-        metric_value = abs((metric_ref_value - metric_value) / norm)
+        metric_value = (metric_ref_value - metric_value) / norm
 
         prediction_results = [prediction_result, prediction_result_ref]
         prediction_time = prediction_result.prediction_time + prediction_result_ref.prediction_time
@@ -157,10 +288,11 @@ class TestDiff:
             metric_value=metric_value,
             threshold=self.threshold,
             prediction_results=prediction_results,
-            passed=metric_value <= self.threshold,
+            passed=abs(metric_value) <= self.threshold,
             prediction_time=prediction_time,
             facial_part=facial_part,
             metric_name=self.metric.name,
             model_name=model.name,
             dataloader_name=dataloader.name,
+            dataloader_ref_name=dataloader_ref.name,
         )
