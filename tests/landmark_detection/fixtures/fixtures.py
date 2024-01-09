@@ -25,14 +25,14 @@ def opencv_model():
 
 @pytest.fixture()
 def dataset_300w():
-    return DataLoader300W(dir_path=Path(__file__).cwd() / "examples" / "300W" / "sample")
+    return DataLoader300W(dir_path=Path(__file__).cwd() / "examples" / "landmark_detection" / "300W" / "sample")
 
 
 @pytest.fixture()
 def dataset_300w_batched():
-    return DataLoader300W(dir_path=Path(__file__).cwd() / "examples" / "300W" / "sample", batch_size=5)
+    return DataLoader300W(dir_path=Path(__file__).cwd() / "examples" / "landmark_detection" / "300W" / "sample", batch_size=5)
 
 
 @pytest.fixture()
 def dataset_ffhq():
-    return DataLoaderFFHQ(dir_path=Path(__file__).cwd() / "examples" / "ffhq")
+    return DataLoaderFFHQ(dir_path=Path(__file__).cwd() / "examples" / "landmark_detection" / "ffhq")
