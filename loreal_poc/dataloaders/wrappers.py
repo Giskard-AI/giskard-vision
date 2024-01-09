@@ -156,6 +156,8 @@ class FilteredDataLoader(DataLoaderWrapper):
             for idx in self._wrapped_dataloader.idx_sampler
             if predicate(self._wrapped_dataloader.get_single_element(idx))
         ]
+        if not self._reindex:
+            raise ValueError(f"{self.name} is empty. Please pick a different predicate function.")
 
 
 class HeadPoseDataLoader(DataLoaderWrapper):
