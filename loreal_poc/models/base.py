@@ -48,19 +48,22 @@ class FaceLandmarksModelBase(ABC):
 
         ...
 
-    def predict_batch(self, images: List[np.ndarray]) -> np.ndarray:
+    def predict_batch(self, idx: int, images: List[np.ndarray]) -> np.ndarray:
         """method that should be implemented if the passed dataloader has batch_size != 1
 
         Args:
             images (List[np.ndarray]): input images
         """
         res = []
-        for img in images:
+        for i, img in enumerate(images):
             try:
                 res.append(self.predict_image(img))
-            except Exception as e:
+            except Exception:
                 res.append(None)
-                logger.warning(e)
+                logger.warning(
+                    f"{self.__class__.__name__}: Face not detected in processed image of batch {idx} and index {i}."
+                )
+                # logger.warning(e) # OpenCV's exception is very misleading
 
         return res
 
@@ -109,11 +112,11 @@ class FaceLandmarksModelBase(ABC):
         prediction_fail_rate = 0
 
         for images, _, _ in dataloader:
-            batch_prediction = self.predict_batch(images)
+            batch_prediction = self.predict_batch(dataloader.idx, images)
             batch_prediction = self._postprocessing(batch_prediction, len(images), facial_part)
             prediction_fail_rate += calculate_fail_rate(batch_prediction)
             predictions.append(batch_prediction)
-        prediction_fail_rate /= dataloader.flat_len()
+        prediction_fail_rate = prediction_fail_rate / dataloader.flat_len() if dataloader.flat_len() else 0
         te = time()
         predictions = np.concatenate(predictions)
         if len(predictions.shape) > 3:
