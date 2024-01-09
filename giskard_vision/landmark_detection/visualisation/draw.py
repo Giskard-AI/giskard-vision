@@ -32,7 +32,7 @@ def _add_marks(image_display, marks, color=None, with_text=False, square=None):
 
 
 def draw_marks(
-    image: Union["Image.Image", np.ndarray],
+    image: np.ndarray,
     list_of_marks: List,
     colors: Optional[List] = None,
     with_text: Optional[List] = None,
