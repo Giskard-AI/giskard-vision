@@ -6,19 +6,6 @@ build-backend = "setuptools.build_meta"
 include = ["giskard_vision"]
 exclude = ["docs*", "tests*"]
 
-[project]
-name = "giskard-vision"
-version = "0.0.1-alpha"
-description = "The expansion of Giskard into testing computer vision models"
-authors = [{ name = "Giskard AI", email = "hello@giskard.ai" }]
-dependencies = [
-    "pillow>=10.1.0", # just for drawing
-    "opencv-python",
-    "numpy",
-    "pandas",
-]
-requires-python = ">=3.10,<3.12"
-readme = "README.md"
 
 [tool.pdm.scripts]
 notebook = "jupyter notebook --ip 0.0.0.0 --port 8888 --no-browser --notebook-dir ./examples --NotebookApp.token=''"
@@ -41,7 +28,21 @@ dev = [
     "isort",
     "sixdrepnet>=0.1.6",
     "deepface>=0.0.80",
+    "pillow>=10.2.0",
 ]
+
+[project]
+name = "giskard-vision"
+version = "0.0.1-alpha"
+description = "The expansion of Giskard into testing computer vision models"
+authors = [{ name = "Giskard AI", email = "hello@giskard.ai" }]
+dependencies = [
+    "opencv-python",
+    "numpy",
+    "pandas",
+]
+requires-python = ">=3.10,<3.12"
+readme = "README.md"
 
 [tool.ruff]
 line-length = 120
