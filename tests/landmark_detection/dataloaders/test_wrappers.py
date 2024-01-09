@@ -3,8 +3,11 @@ from collections import defaultdict
 import numpy as np
 import pytest
 
-from giskard_vision.dataloaders.base import DataLoaderWrapper, SingleLandmarkData
-from giskard_vision.dataloaders.wrappers import (
+from giskard_vision.landmark_detection.dataloaders.base import (
+    DataLoaderWrapper,
+    SingleLandmarkData,
+)
+from giskard_vision.landmark_detection.dataloaders.wrappers import (
     CachedDataLoader,
     CroppedDataLoader,
     EthnicityDataLoader,
@@ -12,7 +15,7 @@ from giskard_vision.dataloaders.wrappers import (
     HeadPoseDataLoader,
     ResizedDataLoader,
 )
-from giskard_vision.marks.facial_parts import FacialParts
+from giskard_vision.landmark_detection.marks.facial_parts import FacialParts
 
 from .test_base import DataloaderForTest
 

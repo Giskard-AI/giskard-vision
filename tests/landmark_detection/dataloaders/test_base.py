@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from giskard_vision.dataloaders.base import DataIteratorBase
+from giskard_vision.landmark_detection.dataloaders.base import DataIteratorBase
 
 
 class DataloaderForTest(DataIteratorBase):

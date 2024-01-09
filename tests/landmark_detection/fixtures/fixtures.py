@@ -3,8 +3,14 @@ from pathlib import Path
 import pytest
 from face_alignment import FaceAlignment, LandmarksType
 
-from giskard_vision.dataloaders.loaders import DataLoader300W, DataLoaderFFHQ
-from giskard_vision.models.wrappers import FaceAlignmentWrapper, OpenCVWrapper
+from giskard_vision.landmark_detection.dataloaders.loaders import (
+    DataLoader300W,
+    DataLoaderFFHQ,
+)
+from giskard_vision.landmark_detection.models.wrappers import (
+    FaceAlignmentWrapper,
+    OpenCVWrapper,
+)
 
 
 @pytest.fixture()

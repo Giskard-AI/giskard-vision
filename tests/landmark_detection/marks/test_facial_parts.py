@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from giskard_vision.marks.facial_parts import FacialPart, FacialParts
+from giskard_vision.landmark_detection.marks.facial_parts import FacialPart, FacialParts
 
 
 def test_operator_or():
