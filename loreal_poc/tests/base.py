@@ -149,7 +149,7 @@ class TestDiff:
         metric_ref_value = self.metric.get(prediction_result_ref, ground_truth_ref)
 
         norm = metric_ref_value if self.relative else 1.0
-        metric_value = abs((metric_ref_value - metric_value) / norm)
+        metric_value = (metric_ref_value - metric_value) / norm
 
         prediction_results = [prediction_result, prediction_result_ref]
         prediction_time = prediction_result.prediction_time + prediction_result_ref.prediction_time
@@ -159,7 +159,7 @@ class TestDiff:
             metric_value=metric_value,
             threshold=self.threshold,
             prediction_results=prediction_results,
-            passed=metric_value <= self.threshold,
+            passed=abs(metric_value) <= self.threshold,
             prediction_time=prediction_time,
             facial_part=facial_part,
             metric_name=self.metric.name,
