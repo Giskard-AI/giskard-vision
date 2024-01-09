@@ -2,10 +2,15 @@ from typing import List, Optional, Union
 
 import cv2
 import numpy as np
-from PIL import Image, ImageDraw
 
+from giskard_vision.landmark_detection.utils import GiskardImportError
 
 def _add_marks(image_display, marks, color=None, with_text=False, square=None):
+    try:
+        from PIL import ImageDraw
+    except ImportError as e:
+        raise GiskardImportError("pillow") from e
+    
     marks = np.array(marks)
     if len(np.shape(marks)) == 2:
         marks = np.expand_dims(marks, axis=0)
@@ -27,12 +32,17 @@ def _add_marks(image_display, marks, color=None, with_text=False, square=None):
 
 
 def draw_marks(
-    image: Union[Image.Image, np.ndarray],
+    image: Union["Image.Image", np.ndarray],
     list_of_marks: List,
     colors: Optional[List] = None,
     with_text: Optional[List] = None,
     squares=None,
 ):
+    try:
+        from PIL import Image
+    except ImportError as e:
+        raise GiskardImportError("pillow") from e
+    
     if isinstance(image, np.ndarray):
         _image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
     image_display = _image.copy()

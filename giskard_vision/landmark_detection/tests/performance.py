@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from ..models.base import PredictionResult
+from giskard_vision.landmark_detection.models.base import PredictionResult
 from .base import Metric
 
 # See https://ibug.doc.ic.ac.uk/resources/300-W/ for definition

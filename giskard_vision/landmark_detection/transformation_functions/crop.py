@@ -2,7 +2,7 @@ from typing import Tuple
 
 import numpy as np
 
-from ..marks.facial_parts import FacialPart
+from giskard_vision.landmark_detection.marks.facial_parts import FacialPart
 
 
 def get_boundaries_from_marks(marks, margins) -> Tuple[int, int, int, int]:

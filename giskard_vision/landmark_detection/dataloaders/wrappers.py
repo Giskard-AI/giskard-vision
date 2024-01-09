@@ -4,14 +4,14 @@ from typing import Callable, Dict, Optional, Tuple, Union
 import cv2
 import numpy as np
 
-from ..marks.facial_parts import FacialPart
-from ..transformation_functions import (
+from giskard_vision.landmark_detection.marks.facial_parts import FacialPart
+from giskard_vision.landmark_detection.transformation_functions import (
     crop_image_from_mark,
     crop_mark,
     resize_image,
     resize_marks,
 )
-from ..utils.errors import GiskardImportError
+from giskard_vision.landmark_detection.utils.errors import GiskardImportError
 from .base import DataIteratorBase, DataLoaderWrapper, SingleLandmarkData
 
 

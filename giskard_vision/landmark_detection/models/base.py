@@ -6,8 +6,8 @@ from typing import List, Optional
 
 import numpy as np
 
-from ..dataloaders.base import DataIteratorBase
-from ..marks.facial_parts import FacialPart
+from giskard_vision.landmark_detection.dataloaders.base import DataIteratorBase
+from giskard_vision.landmark_detection.marks.facial_parts import FacialPart
 
 logger = getLogger(__name__)
 
