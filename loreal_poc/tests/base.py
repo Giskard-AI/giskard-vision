@@ -22,6 +22,7 @@ class TestResult:
     metric_name: Optional[str] = None
     model_name: Optional[str] = None
     dataloader_name: Optional[str] = None
+    dataloader_ref_name: Optional[str] = None
 
     def _repr_html_(self):
         FR = max([round(pred.prediction_fail_rate, 2) for pred in self.prediction_results])
@@ -62,16 +63,19 @@ class TestResult:
         )
 
     def to_dict(self):
-        return {
-            "test_name": self.test_name,
-            "metric_name": self.metric_name,
+        output = {
+            "test": self.test_name,
+            "metric": self.metric_name,
             "metric_value": self.metric_value,
             "threshold": self.threshold,
             "passed": self.passed,
             "facial_part": self.facial_part.name,
-            "model_name": self.model_name,
-            "dataloader_name": self.dataloader_name,
+            "model": self.model_name,
+            "dataloader": self.dataloader_name,
         }
+        if self.dataloader_ref_name:
+            output.update({"dataloader_ref": self.dataloader_ref_name})
+        return output
 
 
 @dataclass
@@ -165,4 +169,5 @@ class TestDiff:
             metric_name=self.metric.name,
             model_name=model.name,
             dataloader_name=dataloader.name,
+            dataloader_ref_name=dataloader_ref.name,
         )
