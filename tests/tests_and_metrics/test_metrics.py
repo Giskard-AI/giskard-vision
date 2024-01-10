@@ -71,18 +71,7 @@ def calculate_euclidean_distances_naive(prediction_result: PredictionResult, mar
 
 def compute_nes_naive(prediction_result: PredictionResult, marks):
     distances = calculate_normalisation_distances_naive(marks)
-    return (
-        np.asarray(
-            [
-                [
-                    np.sqrt((p_a[0] - p_b[0]) ** 2 + (p_a[1] - p_b[1]) ** 2)
-                    for p_a, p_b in zip(prediction_result.prediction[i], marks[i])
-                ]
-                for i in range(prediction_result.prediction.shape[0])
-            ]
-        )
-        / distances[:, None]
-    )
+    return calculate_euclidean_distances_naive(prediction_result, marks) / distances[:, None]
 
 
 def test_calculate_es_2d():
@@ -236,7 +225,7 @@ def test_calculate_nerf_images_mean(opencv_model, dataset_300w):
     nerfs = compute_nes_naive(prediction_result, marks) > radius_limit
     nerfs_mean = np.nanmean(nerfs.astype(float), axis=0)
 
-    calculated = NERFImagesMean.get(prediction_result, marks, radius_limit)
+    calculated = NERFImagesMean.get(prediction_result, marks, radius_limit=radius_limit)
 
     assert calculated.shape[0] == marks.shape[1]
 
@@ -259,7 +248,7 @@ def test_calculate_nerf_images_std(opencv_model, dataset_300w):
     nerfs = compute_nes_naive(prediction_result, marks) > radius_limit
     nerfs_std = np.nanstd(nerfs.astype(float), axis=0)
 
-    calculated = NERFImagesStd.get(prediction_result, marks, radius_limit)
+    calculated = NERFImagesStd.get(prediction_result, marks, radius_limit=radius_limit)
 
     assert calculated.shape[0] == marks.shape[1]
 
@@ -280,7 +269,7 @@ def test_calculate_nerf_marks_mean(opencv_model, dataset_300w):
     nerfs = compute_nes_naive(prediction_result, marks) > radius_limit
     nerfs_mean = np.nanmean(nerfs.astype(float), axis=1)
 
-    calculated = NERFMarksMean.get(prediction_result, marks, radius_limit)
+    calculated = NERFMarksMean.get(prediction_result, marks, radius_limit=radius_limit)
 
     assert calculated.shape[0] == marks.shape[0]
 
@@ -302,7 +291,7 @@ def test_calculate_nerf_marks_std(opencv_model, dataset_300w):
     nerfs = compute_nes_naive(prediction_result, marks) > radius_limit
     nerfs_std = np.nanstd(nerfs.astype(float), axis=1)
 
-    calculated = NERFMarksStd.get(prediction_result, marks, radius_limit)
+    calculated = NERFMarksStd.get(prediction_result, marks, radius_limit=radius_limit)
 
     assert calculated.shape[0] == marks.shape[0]
     assert np.all(np.isclose(nerfs_std, calculated))
@@ -324,7 +313,9 @@ def test_calculate_nerf_images(opencv_model, dataset_300w):
     nerfs_mean = np.nanmean(nerfs.astype(float), axis=1)
     nb_failed_images = np.nanmean((nerfs_mean > failed_mark_ratio).astype(float))
 
-    calculated = NERFImages.get(prediction_result, marks, radius_limit, failed_mark_ratio)
+    calculated = NERFImages.get(
+        prediction_result, marks, radius_limit=radius_limit, failed_mark_ratio=failed_mark_ratio
+    )
 
     assert np.all(np.isclose(calculated, nb_failed_images))
     assert calculated == 1.0
@@ -335,7 +326,9 @@ def test_calculate_nerf_images(opencv_model, dataset_300w):
     nerfs_mean = np.nanmean(nerfs.astype(float), axis=1)
     nb_failed_images = np.nanmean((nerfs_mean > failed_mark_ratio).astype(float))
 
-    calculated = NERFImages.get(prediction_result, marks, radius_limit, failed_mark_ratio)
+    calculated = NERFImages.get(
+        prediction_result, marks, radius_limit=radius_limit, failed_mark_ratio=failed_mark_ratio
+    )
 
     assert np.all(np.isclose(calculated, nb_failed_images))
     assert calculated == 0.2  # img 0 in dataset is poorly predicted by opencv model
