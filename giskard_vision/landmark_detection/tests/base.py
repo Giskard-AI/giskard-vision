@@ -144,7 +144,7 @@ class Metric(ABC):
 
     @staticmethod
     @abstractmethod
-    def definition(prediction_result: PredictionResult, marks: np.ndarray) -> Any:
+    def definition(prediction_result: PredictionResult, marks: np.ndarray, **kwargs) -> Any:
         """Abstract method to define how the metric is calculated.
 
         Args:
@@ -158,7 +158,7 @@ class Metric(ABC):
         ...
 
     @classmethod
-    def validation(cls, prediction_result: PredictionResult, marks: np.ndarray) -> None:
+    def validation(cls, prediction_result: PredictionResult, marks: np.ndarray, **kwargs) -> None:
         """Validate the input types for the metric calculation.
 
         Args:
@@ -173,7 +173,7 @@ class Metric(ABC):
             raise ValueError(f"{cls.__name__}: Arguments passed to metric are of the wrong types.")
 
     @classmethod
-    def get(cls, prediction_result: PredictionResult, marks: np.ndarray) -> Any:
+    def get(cls, prediction_result: PredictionResult, marks: np.ndarray, **kwargs) -> Any:
         """Get the calculated value of the metric.
 
         Args:
@@ -184,8 +184,8 @@ class Metric(ABC):
             Any: Calculated value of the metric.
 
         """
-        cls.validation(prediction_result, marks)
-        return cls.definition(prediction_result, marks)
+        cls.validation(prediction_result, marks, **kwargs)
+        return cls.definition(prediction_result, marks, **kwargs)
 
 
 @dataclass
