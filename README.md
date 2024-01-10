@@ -2,7 +2,7 @@
 
 Giskard's Computer Vision expansion.
 
-[![Full CI](https://github.com/Giskard-AI/giskard-vision/actions/workflows/build-python.yml/badge.svg?branch=main)](https://github.com/Giskard-AI/giskard-vision/actions/workflows/build-python.yml)
+[![Full CI](https://github.com/Giskard-AI/giskard-vision/actions/workflows/build-python.yml/badge.svg)](https://github.com/Giskard-AI/giskard-vision/actions/workflows/build-python.yml)
 
 ## Setup
 
