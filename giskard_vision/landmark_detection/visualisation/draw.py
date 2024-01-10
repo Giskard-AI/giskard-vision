@@ -3,7 +3,7 @@ from typing import List, Optional
 import cv2
 import numpy as np
 
-from giskard_vision.landmark_detection.utils import GiskardImportError
+from giskard_vision.landmark_detection.utils.errors import GiskardImportError
 
 
 def _add_marks(image_display, marks, color=None, with_text=False, square=None):
