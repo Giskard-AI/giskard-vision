@@ -1,27 +1,30 @@
-[build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
-name = "loreal-poc"
-version = "2023.11.27"
-description = "Assessing the quality of L'Oreal's facial landmark models"
-authors = [{ name = "Rabah Abdul Khalek", email = "rabah@giskard.ai" }]
+name = "giskard-vision"
+version = "0.0.1"
+description = "The expansion of Giskard into testing computer vision models"
+authors = [{ name = "Giskard AI", email = "hello@giskard.ai" }]
 dependencies = [
-    "pillow>=10.1.0", # just for drawing
     "opencv-python",
     "numpy",
-    "pandas",
 ]
 requires-python = ">=3.10,<3.12"
 readme = "README.md"
 
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["giskard_vision"]
+exclude = ["docs*", "tests*"]
+
+
 [tool.pdm.scripts]
 notebook = "jupyter notebook --ip 0.0.0.0 --port 8888 --no-browser --notebook-dir ./examples --NotebookApp.token=''"
-format.cmd = "bash -c 'ruff ./loreal_poc ./tests --fix && black ./loreal_poc ./examples ./tests  && isort ./loreal_poc ./tests'"
-check-format.cmd = "bash -c 'ruff ./loreal_poc ./tests && black --check ./loreal_poc ./examples ./tests && isort --check ./loreal_poc ./tests'"
+format.cmd = "bash -c 'ruff ./giskard_vision ./tests --fix && black ./giskard_vision ./examples ./tests  && isort ./giskard_vision ./tests'"
+check-format.cmd = "bash -c 'ruff ./giskard_vision ./tests && black --check ./giskard_vision ./examples ./tests && isort --check ./giskard_vision ./tests'"
 test.cmd = "pytest tests/ -c pyproject.toml --disable-warnings -vvv --durations=0"
-check-notebook = "bash -c 'cd ./examples && pdm run jupyter nbconvert --to script -y *.ipynb && find . -type f  | grep -e \".py$\" | sort | xargs -I {} echo \"pdm run python {} && echo \"Notebook {} OK\" || exit 1\" | sh'"
+check-notebook = "bash -c 'for dir in ./examples/*/; do cd $dir && pdm run jupyter nbconvert --to script -y *.ipynb && find . -type f  | grep -e \".py$\" | sort | xargs -I {} echo \"pdm run python {} && echo \"Notebook {} OK\" || exit 1\" | sh; done'"
 
 [tool.pdm.dev-dependencies]
 dev = [
@@ -37,6 +40,8 @@ dev = [
     "isort",
     "sixdrepnet>=0.1.6",
     "deepface>=0.0.80",
+    "pillow>=10.2.0",
+    "pandas>=2.1.4",
 ]
 
 [tool.ruff]
