@@ -1,6 +1,7 @@
 # giskard-vision
 
-Giskard's Computer Vision expansion.
+Giskard's Computer Vision Expansion with:
+- Landmark Detection Support
 
 [![Full CI](https://github.com/Giskard-AI/giskard-vision/actions/workflows/build-python.yml/badge.svg)](https://github.com/Giskard-AI/giskard-vision/actions/workflows/build-python.yml)
 
