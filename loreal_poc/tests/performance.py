@@ -112,7 +112,7 @@ class NERFMarks(Metric):
         super().validation(prediction_result, marks)
         if not isinstance(radius_limit, float) or radius_limit < 0 or radius_limit > 1:
             raise ValueError(
-                f"{cls.__name__}: radius_limit is defined as a fraction of the outer canthal distance (e.g. distance between left and right eyes). It must be a float between 0 and 1."
+                f"{cls.__name__}: radius_limit is defined as a fraction of the outer canthal distance (i.e. distance between left and right eyes). It must be a float between 0 and 1."
             )
 
 
