@@ -12,9 +12,8 @@ __pycache__/
 *.yaml
 
 # examples
-300W
-examples/haarcascade_frontalface_alt2.xml
-examples/lbfmodel.yaml
+examples/landmark_detection/haarcascade_frontalface_alt2.xml
+examples/landmark_detection/lbfmodel.yaml
 
 # C extensions
 *.so
