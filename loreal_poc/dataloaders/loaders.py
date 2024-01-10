@@ -128,20 +128,20 @@ class DataLoader300WLP(DataIteratorBase):
             raise ImportError("Loading 300w_lp dataset requires tensorflow, tensorflow dataset and scipy.") from e
 
         self.splits, self.info = tfds.load("the300w_lp", data_dir=data_dir, with_info=True)
-        self.ds = self.splits[DataLoader300WLP.DATASET_SPLIT]
+        self.ds = self.splits[self.DATASET_SPLIT]
 
     def __len__(self) -> int:
-        return self.info.splits[DataLoader300WLP.DATASET_SPLIT].num_examples
+        return self.info.splits[self.DATASET_SPLIT].num_examples
 
     def get_image(self, idx: int) -> np.ndarray:
         datarows = self.ds.skip(idx)
         for row in datarows:
-            return row[DataLoader300WLP.IMAGE_KEY].numpy()
+            return row[self.IMAGE_KEY].numpy()
 
     def get_marks(self, idx: int) -> Optional[np.ndarray]:
         datarows = self.ds.skip(idx)
         for row in datarows:
-            return row[DataLoader300WLP.LANDMARKS_2D_KEY].numpy()
+            return row[self.LANDMARKS_2D_KEY].numpy()
 
     def get_meta(self, idx: int) -> Optional[Dict]:
         return None
