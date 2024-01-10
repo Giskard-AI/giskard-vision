@@ -5,21 +5,18 @@ Giskard's Computer Vision Expansion with:
 
 [![Full CI](https://github.com/Giskard-AI/giskard-vision/actions/workflows/build-python.yml/badge.svg)](https://github.com/Giskard-AI/giskard-vision/actions/workflows/build-python.yml)
 
-## Setup
+## Install
 
-prod-env
-
-```shell
-pdm install --prod
-source .venv/bin/activate
+```
+pip install giskard-vision==0.0.1b1
 ```
 
-dev-env
-
+To install the repo in dev mode
 ```shell
+git clone https://github.com/Giskard-AI/giskard-vision.git
+cd giskard-vision
 pdm install -G :all
 source .venv/bin/activate
-pre-commit install
 ```
 
 ## Examples
