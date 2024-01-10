@@ -1,14 +1,11 @@
 import numpy as np
 import pytest
 
+from giskard_vision.landmark_detection.marks.utils import compute_d_outers
 from giskard_vision.landmark_detection.models.base import PredictionResult
 from giskard_vision.landmark_detection.tests.performance import (
     LEFT_EYE_LEFT_LANDMARK,
     RIGHT_EYE_RIGHT_LANDMARK,
-    compute_d_outers,
-)
-from giskard_vision.landmark_detection.models.base import PredictionResult
-from giskard_vision.landmark_detection.tests.performance import (
     Es,
     MEMean,
     MEStd,
