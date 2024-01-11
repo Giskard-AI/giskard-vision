@@ -38,13 +38,13 @@ dev = [
     "pre-commit>=2.19.0",
     "ruff",
     "isort",
-    "tensorflow",
-    "tensorflow_datasets",
-    "scipy",
     "sixdrepnet>=0.1.6",
     "deepface>=0.0.80",
     "pillow>=10.2.0",
     "pandas>=2.1.4",
+    "tensorflow>=2.15.0",
+    "tensorflow-datasets>=4.9.4",
+    "scipy>=1.11.4",
 ]
 
 [tool.ruff]
