@@ -202,6 +202,7 @@ class DataLoader300WLP(DataIteratorBase):
 
         self.splits, self.info = tfds.load("the300w_lp", data_dir=data_dir, with_info=True)
         self.ds = self.splits[self.DATASET_SPLIT]
+        self._idx_sampler = list(range(len(self)))
 
     def __len__(self) -> int:
         return self.info.splits[self.DATASET_SPLIT].num_examples
@@ -218,3 +219,14 @@ class DataLoader300WLP(DataIteratorBase):
 
     def get_meta(self, idx: int) -> Optional[Dict]:
         return None
+
+    @property
+    def idx_sampler(self):
+        """
+        Gets the index sampler for the data loader.
+
+        Returns:
+            List: List of image indices for data loading.
+        """
+        return self._idx_sampler
+    
