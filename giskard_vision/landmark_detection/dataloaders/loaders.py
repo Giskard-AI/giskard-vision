@@ -208,14 +208,16 @@ class DataLoader300WLP(DataIteratorBase):
         return self.info.splits[self.DATASET_SPLIT].num_examples
 
     def get_image(self, idx: int) -> np.ndarray:
-        datarows = self.ds.skip(idx)
-        for row in datarows:
-            return row[self.IMAGE_KEY].numpy()
+        return self.ds.skip(idx).as_numpy_iterator().next()[self.IMAGE_KEY]
 
     def get_marks(self, idx: int) -> Optional[np.ndarray]:
-        datarows = self.ds.skip(idx)
-        for row in datarows:
-            return row[self.LANDMARKS_2D_KEY].numpy()
+        row = self.ds.skip(idx).as_numpy_iterator().next()
+
+        # Marks are normalized to [0, 1]
+        normalized_marks = row[self.LANDMARKS_2D_KEY]
+
+        # Compute the marks
+        return normalized_marks * row[self.IMAGE_KEY].shape[:2]
 
     def get_meta(self, idx: int) -> Optional[Dict]:
         return None
@@ -229,4 +231,3 @@ class DataLoader300WLP(DataIteratorBase):
             List: List of image indices for data loading.
         """
         return self._idx_sampler
-    
