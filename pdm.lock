@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:a669244a92fdde6cd538b8c7183722e2622ee6c59b9fe09cde994a98eb352766"
+content_hash = "sha256:7c8b86bd2f1bf7b07794460134102ca1988bf2e289f2fe9d12c0021eaa912020"
 
 [[package]]
 name = "absl-py"
@@ -3211,17 +3211,19 @@ files = [
 
 [[package]]
 name = "tensorflow-io-gcs-filesystem"
-version = "0.35.0"
+version = "0.34.0"
 requires_python = ">=3.7, <3.12"
 summary = "TensorFlow IO"
 groups = ["dev"]
 files = [
-    {file = "tensorflow_io_gcs_filesystem-0.35.0-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:5521721b38105496d4b43a4ffb0af5b04cc4873d464f26fbceddf8d63815ce98"},
-    {file = "tensorflow_io_gcs_filesystem-0.35.0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:dd8f30908bf8b7b2a017d6b145720d105aff7f998422671b71729708ec7b2fe4"},
-    {file = "tensorflow_io_gcs_filesystem-0.35.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ac8f1de60fdf9c734aea967b98555e366ac8743f77bca15c49eff023f587076b"},
-    {file = "tensorflow_io_gcs_filesystem-0.35.0-cp311-cp311-macosx_10_14_x86_64.whl", hash = "sha256:35b6eca7225c815d962254327195f191d88c3c9c2278a5ab23e0ac834acbadbb"},
-    {file = "tensorflow_io_gcs_filesystem-0.35.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:6e997389bfe008210cbd97c0c738d64282a2f03ad4d0536013bb0a9efde0c283"},
-    {file = "tensorflow_io_gcs_filesystem-0.35.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b8fb3402fb1457482c386ea19371bc76383412ae9ea4396edb1e8adb4ba76f21"},
+    {file = "tensorflow_io_gcs_filesystem-0.34.0-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:d831702fbb270996b27cda7fde06e0825b2ea81fd8dd3ead35242f4f8b3889b8"},
+    {file = "tensorflow_io_gcs_filesystem-0.34.0-cp310-cp310-macosx_12_0_arm64.whl", hash = "sha256:b9a93fcb01db269bc845a1ced431f3c61201755ce5f9ec4885760f30122276ef"},
+    {file = "tensorflow_io_gcs_filesystem-0.34.0-cp310-cp310-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:5813c336b4f7cb0a01ff4cc6cbd3edf11ef67305baf0e3cf634911b702f493f8"},
+    {file = "tensorflow_io_gcs_filesystem-0.34.0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:2b035f4c92639657b6d376929d550ac3dee9e6c0523eb434eefe0a27bae3d05b"},
+    {file = "tensorflow_io_gcs_filesystem-0.34.0-cp311-cp311-macosx_10_14_x86_64.whl", hash = "sha256:a17a616d2c7fae83de4424404815843507d40d4eb0d507c636a5493a20c3d958"},
+    {file = "tensorflow_io_gcs_filesystem-0.34.0-cp311-cp311-macosx_12_0_arm64.whl", hash = "sha256:ec4604c99cbb5b708f4516dee27aa655abae222b876c98b740f4c2f89dd5c001"},
+    {file = "tensorflow_io_gcs_filesystem-0.34.0-cp311-cp311-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:cbe26c4a3332589c7b724f147df453b5c226993aa8d346a15536358d77b364c4"},
+    {file = "tensorflow_io_gcs_filesystem-0.34.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:6e6353123a5b51397950138a118876af833a7db66b531123bb86f82e80ab0e72"},
 ]
 
 [[package]]
