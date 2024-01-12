@@ -5,8 +5,9 @@ from typing import Dict, List, Optional, Union
 import cv2
 import numpy as np
 
-from .base import DataIteratorBase, DataLoaderBase
 from giskard_vision.landmark_detection.utils.errors import GiskardImportError
+
+from .base import DataIteratorBase, DataLoaderBase
 
 
 class DataLoader300W(DataLoaderBase):
@@ -202,7 +203,7 @@ class DataLoader300WLP(DataIteratorBase):
     Raises:
         GiskardImportError: If there are missing dependencies such as TensorFlow, TensorFlow-Datasets, or SciPy.
     """
-    
+
     landmarks_key = "landmarks_2d"
     image_key = "image"
     dataset_split = "train"
