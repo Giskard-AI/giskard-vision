@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 
 from .base import DataIteratorBase, DataLoaderBase
+from giskard_vision.landmark_detection.utils.errors import GiskardImportError
 
 
 class DataLoader300W(DataLoaderBase):
@@ -186,11 +187,37 @@ class DataLoaderFFHQ(DataLoaderBase):
 
 
 class DataLoader300WLP(DataIteratorBase):
-    LANDMARKS_2D_KEY = "landmarks_2d"
-    IMAGE_KEY = "image"
-    DATASET_SPLIT = "train"
+    """
+    A data loader for the 300W-LP dataset, extending the DataIteratorBase class.
 
-    def __init__(self, name: str | None = None, data_dir=None) -> None:
+    Attributes:
+        landmarks_key (str): Key for accessing 2D landmarks in the dataset.
+        image_key (str): Key for accessing images in the dataset.
+        dataset_split (str): Specifies the dataset split, defaulting to "train".
+
+    Args:
+        name (Optional[str]): Name of the data loader instance.
+        data_dir (Optional[str]): Directory path for loading the dataset.
+
+    Raises:
+        GiskardImportError: If there are missing dependencies such as TensorFlow, TensorFlow-Datasets, or SciPy.
+    """
+    
+    landmarks_key = "landmarks_2d"
+    image_key = "image"
+    dataset_split = "train"
+
+    def __init__(self, name: Optional[str] = None, data_dir: Optional[str] = None) -> None:
+        """
+        Initializes the DataLoader300WLP instance.
+
+        Args:
+            name (Optional[str]): Name of the data loader instance.
+            data_dir (Optional[str]): Directory path for loading the dataset.
+
+        Raises:
+            GiskardImportError: If there are missing dependencies such as TensorFlow, TensorFlow-Datasets, or SciPy.
+        """
         super().__init__(name)
 
         try:
@@ -198,28 +225,61 @@ class DataLoader300WLP(DataIteratorBase):
             import tensorflow  # noqa
             import tensorflow_datasets as tfds
         except ImportError as e:
-            raise ImportError("Loading 300w_lp dataset requires tensorflow, tensorflow dataset and scipy.") from e
+            raise GiskardImportError(["tensorflow", "tensorflow-datasets", "scipy"]) from e
 
         self.splits, self.info = tfds.load("the300w_lp", data_dir=data_dir, with_info=True)
-        self.ds = self.splits[self.DATASET_SPLIT]
+        self.ds = self.splits[self.dataset_split]
         self._idx_sampler = list(range(len(self)))
 
     def __len__(self) -> int:
-        return self.info.splits[self.DATASET_SPLIT].num_examples
+        """
+        Returns the total number of examples in the specified dataset split.
+
+        Returns:
+            int: Total number of examples in the dataset split.
+        """
+        return self.info.splits[self.dataset_split].num_examples
 
     def get_image(self, idx: int) -> np.ndarray:
-        return self.ds.skip(idx).as_numpy_iterator().next()[self.IMAGE_KEY]
+        """
+        Retrieves the image at the specified index in the dataset.
+
+        Args:
+            idx (int): Index of the image to retrieve.
+
+        Returns:
+            np.ndarray: The image data.
+        """
+        return self.ds.skip(idx).as_numpy_iterator().next()[self.image_key]
 
     def get_marks(self, idx: int) -> Optional[np.ndarray]:
+        """
+        Retrieves normalized 2D landmarks corresponding to the image at the specified index.
+
+        Args:
+            idx (int): Index of the image.
+
+        Returns:
+            Optional[np.ndarray]: Normalized 2D landmarks, or None if not available.
+        """
         row = self.ds.skip(idx).as_numpy_iterator().next()
 
         # Marks are normalized to [0, 1]
-        normalized_marks = row[self.LANDMARKS_2D_KEY]
+        normalized_marks = row[self.landmarks_key]
 
         # Compute the marks
-        return normalized_marks * row[self.IMAGE_KEY].shape[:2]
+        return normalized_marks * row[self.image_key].shape[:2]
 
     def get_meta(self, idx: int) -> Optional[Dict]:
+        """
+        Returns metadata associated with the image at the specified index.
+
+        Args:
+            idx (int): Index of the image.
+
+        Returns:
+            Optional[Dict]: Metadata associated with the image, currently None.
+        """
         return None
 
     @property
