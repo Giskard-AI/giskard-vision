@@ -1,0 +1,17 @@
+version: 2
+
+build:
+  os: ubuntu-22.04
+  tools:
+    python: "3.10"
+  jobs:
+    post_create_environment:
+      - pip install pdm
+      - pdm export --without-hashes -G doc,hub -o requirements-sphinx.txt
+
+sphinx:
+  configuration: docs/conf.py
+
+python:
+  install:
+    - requirements: requirements-sphinx.txt
