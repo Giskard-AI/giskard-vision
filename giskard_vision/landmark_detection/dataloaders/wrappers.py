@@ -55,7 +55,7 @@ class CroppedDataLoader(DataLoaderWrapper):
             str: The name of the cropped data loader.
         """
         return f"{self._wrapped_dataloader.name} cropped on {self._part.name}"
-    
+
     @property
     def facial_part(self) -> FacialPart:
         """
