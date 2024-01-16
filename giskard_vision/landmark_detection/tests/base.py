@@ -38,6 +38,7 @@ class TestResult:
     passed: bool
     description: Optional[str] = None
     prediction_time: Optional[float] = None
+    prediction_fail_rate: Optional[float] = None
     facial_part: Optional[FacialPart] = None
     metric_name: Optional[str] = None
     model_name: Optional[str] = None
@@ -113,6 +114,8 @@ class TestResult:
             "facial_part": self.facial_part.name,
             "model": self.model_name,
             "dataloader": self.dataloader_name,
+            "prediction_time": self.prediction_time,
+            "prediction_fail_rate": self.prediction_fail_rate
         }
         if self.dataloader_ref_name:
             output.update({"dataloader_ref": self.dataloader_ref_name})
@@ -229,6 +232,7 @@ class Test:
             prediction_results=[prediction_result],
             passed=metric_value <= self.threshold,
             prediction_time=prediction_result.prediction_time,
+            prediction_fail_rate=prediction_result.prediction_fail_rate,
             facial_part=facial_part,
             metric_name=self.metric.name,
             model_name=model.name,
@@ -285,6 +289,7 @@ class TestDiff:
 
         prediction_results = [prediction_result, prediction_result_ref]
         prediction_time = prediction_result.prediction_time + prediction_result_ref.prediction_time
+        prediction_fail_rate = np.mean([prediction_result.prediction_fail_rate, prediction_result_ref.prediction_fail_rate])
         return TestResult(
             test_name=self.__class__.__name__,
             description=self.metric.description,
@@ -293,6 +298,7 @@ class TestDiff:
             prediction_results=prediction_results,
             passed=abs(metric_value) <= self.threshold,
             prediction_time=prediction_time,
+            prediction_fail_rate=prediction_fail_rate,
             facial_part=facial_part,
             metric_name=self.metric.name,
             model_name=model.name,
