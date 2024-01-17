@@ -36,10 +36,10 @@ class TestResult:
     test_name: str
     prediction_results: List[PredictionResult]
     metric_value: float
-    metric_value_test: float
-    metric_value_ref: float
     threshold: float
     passed: bool
+    metric_value_test: Optional[float] = None
+    metric_value_ref: Optional[float] = None
     description: Optional[str] = None
     prediction_time: Optional[float] = None
     prediction_fail_rate: Optional[float] = None

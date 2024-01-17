@@ -1,7 +1,5 @@
 from typing import Any, Sequence
 
-from giskard.scanner.issues import Issue, IssueGroup, IssueLevel
-
 from ..landmark_detection.dataloaders.wrappers import CroppedDataLoader
 from ..landmark_detection.marks.facial_parts import FacialParts
 from ..landmark_detection.tests.base import TestDiff
@@ -10,10 +8,10 @@ from .base import DetectorVisionBase
 
 
 class FacialPartsDetector(DetectorVisionBase):
-    def run(self, model: Any, dataset: Any) -> Sequence[Issue]:
+    def compute_results(self, model: Any, dataset: Any) -> Sequence[dict]:
         facial_parts = [FacialParts.LEFT_HALF.value, FacialParts.RIGHT_HALF.value]
 
-        issues = []
+        results = []
 
         for fp in facial_parts:
             dl = CroppedDataLoader(dataset, part=fp)
@@ -25,22 +23,12 @@ class FacialPartsDetector(DetectorVisionBase):
             )
             result = result.to_dict()
 
-            level = IssueLevel.MAJOR if result["metric_value"] > 0 else IssueLevel.MEDIUM
-            relative_delta = (result["metric_value_test"] - result["metric_value_ref"]) / result["metric_value_ref"]
-            issues.append(
-                Issue(
-                    model,
-                    dataset,
-                    level=level,
-                    slicing_fn=f"Facial part == {fp.name}",
-                    group=IssueGroup("Robustness to cropping", "Warning"),
-                    meta={
-                        "metric": result["metric"],
-                        "metric_value": result["metric_value_test"],
-                        "metric_reference_value": result["metric_value_ref"],
-                        "deviation": f"{relative_delta*100:+.2f}% than global",
-                    },
-                )
-            )
+            result["name"] = f"Facial part == {fp.name}"
+            result["group"] = "Robustness"
+            result["issue_level"] = "major" if result["metric_value"] < 0 else "minor"
+            result["metric_reference_value"] = result["metric_value_ref"]
+            result["metric_value"] = result["metric_value_test"]
 
-        return issues
+            results.append(result)
+
+        return results

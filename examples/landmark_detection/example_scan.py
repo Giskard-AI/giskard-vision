@@ -27,7 +27,11 @@ results = scan.analyze(
         EthnicityDetector(),
     ],
 )
+
+# %%
+results
+
 # %%
 
-results.to_html(filename="example_vision.html")
+# results.to_html(filename="example_vision.html")
 # %%

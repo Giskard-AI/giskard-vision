@@ -1,7 +1,5 @@
 from typing import Any, Sequence
 
-from giskard.scanner.issues import Issue, IssueGroup, IssueLevel
-
 from ..landmark_detection.dataloaders.wrappers import (
     BlurredDataLoader,
     ColoredDataLoader,
@@ -19,7 +17,7 @@ class TransformationsDetector(DetectorVisionBase):
         self.kernel_size = kernel_size
         self.sigma = sigma
 
-    def run(self, model: Any, dataset: Any) -> Sequence[Issue]:
+    def compute_results(self, model: Any, dataset: Any) -> Sequence[dict]:
         if self.transformation == "scaling":
             dl = ResizedDataLoader(dataset, scales=self.scales)
             slicing_fn = f"scaling = {self.scales}"
@@ -36,23 +34,14 @@ class TransformationsDetector(DetectorVisionBase):
             dataloader_ref=dataset,
         )
         result = result.to_dict()
-        level = IssueLevel.MAJOR if result["metric_value"] > 0 else IssueLevel.MEDIUM
-        relative_delta = (result["metric_value_test"] - result["metric_value_ref"]) / result["metric_value_ref"]
-        issues = []
+        results = []
 
-        issues.append(
-            Issue(
-                model,
-                dataset,
-                level=level,
-                slicing_fn=slicing_fn,
-                group=IssueGroup("Robustness to transformations", "Warning"),
-                meta={
-                    "metric": result["metric"],
-                    "metric_value": result["metric_value_test"],
-                    "metric_reference_value": result["metric_value_ref"],
-                    "deviation": f"{relative_delta*100:+.2f}% than global",
-                },
-            )
-        )
-        return issues
+        result["name"] = slicing_fn
+        result["group"] = "Robustness"
+        result["issue_level"] = "major" if result["metric_value"] < 0 else "minor"
+        result["metric_reference_value"] = result["metric_value_ref"]
+        result["metric_value"] = result["metric_value_test"]
+
+        results.append(result)
+
+        return results
