@@ -224,7 +224,7 @@ dl_ref = DataLoader300W(dir_path=str(Path(__file__).parent / "300W/sample"))
 
 
 scan = Scanner()
-scan.analyze(
+results = scan.analyze(
     model,
     dl_ref,
     detectors=[
@@ -236,4 +236,7 @@ scan.analyze(
         EthnicityDetector(),
     ],
 )
+# %%
+
+results.to_html(filename="example_vision.html")
 # %%
