@@ -47,7 +47,7 @@ class CroppedDataLoader(DataLoaderWrapper):
         self._margins = margins
 
     @property
-    def name(self):
+    def name(self) -> str:
         """
         Gets the name of the cropped data loader.
 
@@ -55,6 +55,16 @@ class CroppedDataLoader(DataLoaderWrapper):
             str: The name of the cropped data loader.
         """
         return f"{self._wrapped_dataloader.name} cropped on {self._part.name}"
+
+    @property
+    def facial_part(self) -> FacialPart:
+        """
+        Gets the facial_part used for the copping.
+
+        Returns:
+            FacialPart: The name of the cropped data loader.
+        """
+        return self._part
 
     def get_image(self, idx: int) -> np.ndarray:
         """
