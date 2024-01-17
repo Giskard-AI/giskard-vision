@@ -9,7 +9,7 @@ from .base import DetectorVisionBase
 
 class FacialPartsDetector(DetectorVisionBase):
     def compute_results(self, model: Any, dataset: Any) -> Sequence[dict]:
-        facial_parts = [FacialParts.LEFT_HALF.value, FacialParts.RIGHT_HALF.value]
+        facial_parts = [elt.value for elt in FacialParts]
 
         results = []
 
