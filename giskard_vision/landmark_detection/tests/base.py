@@ -42,6 +42,7 @@ class TestResult:
     passed: bool
     description: Optional[str] = None
     prediction_time: Optional[float] = None
+    prediction_fail_rate: Optional[float] = None
     facial_part: Optional[FacialPart] = None
     metric_name: Optional[str] = None
     model_name: Optional[str] = None
@@ -119,6 +120,8 @@ class TestResult:
             "facial_part": self.facial_part.name,
             "model": self.model_name,
             "dataloader": self.dataloader_name,
+            "prediction_time": self.prediction_time,
+            "prediction_fail_rate": self.prediction_fail_rate,
         }
         if self.dataloader_ref_name:
             output.update({"dataloader_ref": self.dataloader_ref_name})
@@ -210,7 +213,7 @@ class Test:
         self,
         model: FaceLandmarksModelBase,
         dataloader: DataIteratorBase,
-        facial_part: FacialPart = FacialParts.ENTIRE.value,
+        facial_part: FacialPart = None,
     ) -> TestResult:
         """Run the test on the specified model and dataloader.
         Passes if metric <= threhsold.
@@ -218,12 +221,15 @@ class Test:
         Args:
             model (FaceLandmarksModelBase): Model to be evaluated.
             dataloader (DataIteratorBase): Dataloader providing input data.
-            facial_part (FacialPart, optional): Facial part to consider during the evaluation. Defaults to entire face.
+            facial_part (FacialPart, optional): Facial part to consider during the evaluation. Defaults to entire face if dataloader doesn't have facial_part as property.
 
         Returns:
             TestResult: Result of the test.
 
         """
+        facial_part = (
+            getattr(dataloader, "facial_part", FacialParts.ENTIRE.value) if facial_part is None else facial_part
+        )
         ground_truth = dataloader.all_marks
         prediction_result = model.predict(dataloader, facial_part=facial_part)
         metric_value = self.metric.get(prediction_result, ground_truth)
@@ -235,6 +241,7 @@ class Test:
             prediction_results=[prediction_result],
             passed=metric_value <= self.threshold,
             prediction_time=prediction_result.prediction_time,
+            prediction_fail_rate=prediction_result.prediction_fail_rate,
             facial_part=facial_part,
             metric_name=self.metric.name,
             model_name=model.name,
@@ -261,7 +268,7 @@ class TestDiff:
         model: FaceLandmarksModelBase,
         dataloader: DataIteratorBase,
         dataloader_ref: DataIteratorBase,
-        facial_part: FacialPart = FacialParts.ENTIRE.value,
+        facial_part: Optional[FacialPart] = None,  # FacialParts.ENTIRE.value,
     ) -> TestResult:
         """Run the differential test on the specified model and dataloaders.
         Defined as metric_diff = (metric_ref-metric)/metric_ref.
@@ -271,12 +278,16 @@ class TestDiff:
             model (FaceLandmarksModelBase): Model to be evaluated.
             dataloader (DataIteratorBase):  Main dataloader.
             dataloader_ref (DataIteratorBase): Reference dataloader for comparison.
-            facial_part (FacialPart, optional): Facial part to consider during the evaluation. Defaults to entire face.
+            facial_part (FacialPart, optional): Facial part to consider during the evaluation. Defaults to entire face if dataloader doesn't have facial_part as property.
 
         Returns:
             TestResult: Result of the differential test.
 
         """
+        facial_part = (
+            getattr(dataloader, "facial_part", FacialParts.ENTIRE.value) if facial_part is None else facial_part
+        )
+
         prediction_result = model.predict(dataloader, facial_part=facial_part)
         prediction_result_ref = model.predict(dataloader_ref, facial_part=facial_part)
 
@@ -292,6 +303,9 @@ class TestDiff:
 
         prediction_results = [prediction_result, prediction_result_ref]
         prediction_time = prediction_result.prediction_time + prediction_result_ref.prediction_time
+        prediction_fail_rate = np.mean(
+            [prediction_result.prediction_fail_rate, prediction_result_ref.prediction_fail_rate]
+        )
         return TestResult(
             test_name=self.__class__.__name__,
             description=self.metric.description,
@@ -302,6 +316,7 @@ class TestDiff:
             prediction_results=prediction_results,
             passed=abs(metric_value) <= self.threshold,
             prediction_time=prediction_time,
+            prediction_fail_rate=prediction_fail_rate,
             facial_part=facial_part,
             metric_name=self.metric.name,
             model_name=model.name,
