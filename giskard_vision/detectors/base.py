@@ -1,45 +1,60 @@
-from abc import abstractmethod
-from typing import Any, Sequence
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import Any, Sequence, List, Tuple, Optional
 
-from giskard.scanner.issues import Issue, IssueGroup, IssueLevel
+try:
+    from giskard.scanner.issues import Issue, IssueGroup, IssueLevel
+except:
+    pass
 
+@dataclass
+class ScanResult:
+    # Since there're minimum requirement from the original scan API, let's define a class
+    name: str
+    group: IssueGroup
+    metric_value: float
+    metric_reference_value: float
+    issue_level: IssueLevel
+    slice_size: float
+    deviation: str
+    
+    def get_meta_required(self):
+        # Get the meta required by the original scan API
+        return {
+        "metric_value": self.metric_value,
+        "metric_reference_value": self.metric_value_ref,
+        "deviation": self.deviation
+        }
 
-class DetectorVisionBase:
-    def run(self, model: Any, dataset: Any) -> Sequence[Issue]:
-        results = self.compute_results(model, dataset)
+class DetectorVisionBase(ABC):
+    group: str
+    
+    def run(self, model: Any, dataset: Any, issue_levels: Tuple[IssueLevel] = (IssueLevel.MINOR, IssueLevel.MAJOR)) -> Sequence[Issue]:
+        results = self.get_results(model, dataset)
+        issues = self.get_issues(model, dataset, issue_levels=issue_levels)
+        return issues
 
+    def get_issues(self, model: Any, dataset: Any, results: List[ScanResult], issue_levels: Tuple[IssueLevel]):
+        # it's annoying that Issue needs model and dataset
         issues = []
         for result in results:
-            if result["issue_level"] != "ok":
-                level = IssueLevel.MAJOR if result["issue_level"] == "major" else IssueLevel.MINOR
-                relative_delta = (result["metric_value_test"] - result["metric_value_ref"]) / result["metric_value_ref"]
-
-                meta = {
-                    "metric": result["metric"],
-                    "metric_value": result["metric_value_test"],
-                    "metric_reference_value": result["metric_value_ref"],
-                    "deviation": f"{relative_delta*100:+.2f}% than global",
-                }
-
-                if "slice_size" in result:
-                    meta["slice_size"] = result["slice_size"]
-
+            if result.issue_level in issue_levels:
                 issues.append(
                     Issue(
                         model,
                         dataset,
-                        level=level,
-                        slicing_fn=result["name"],
-                        group=IssueGroup(result["group"], "Warning"),
-                        meta=meta,
-                    )
-                )
+                        level=result.issue_level,
+                        slicing_fn=result.name,
+                        group=result.group,
+                        meta=result.get_meta_required(),
+                    ))
 
         return issues
+    
 
     @abstractmethod
-    def compute_results(self, model: Any, dataset: Any) -> Sequence[dict]:
-        """Returns evaluation returns as a list of dictionaries built as follows
+    def get_results(self, model: Any, dataset: Any) -> List[ScanResult]:
+        """Returns a list of ScanResult        
         {
             'name': Details of the transformation or slice
             'group': Name of the group
