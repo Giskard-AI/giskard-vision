@@ -239,7 +239,7 @@ class Test:
             metric_value=metric_value,
             threshold=self.threshold,
             prediction_results=[prediction_result],
-            passed=metric_value <= self.threshold,
+            passed=bool(metric_value <= self.threshold),  # casting is important for json dumping
             prediction_time=prediction_result.prediction_time,
             prediction_fail_rate=prediction_result.prediction_fail_rate,
             facial_part=facial_part,
@@ -314,7 +314,7 @@ class TestDiff:
             metric_value_ref=metric_ref_value,
             threshold=self.threshold,
             prediction_results=prediction_results,
-            passed=abs(metric_value) <= self.threshold,
+            passed=bool(metric_value <= self.threshold),  # casting is important for json dumping
             prediction_time=prediction_time,
             prediction_fail_rate=prediction_fail_rate,
             facial_part=facial_part,
