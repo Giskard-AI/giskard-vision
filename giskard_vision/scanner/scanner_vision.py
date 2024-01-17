@@ -1,13 +1,9 @@
-from typing import Optional, Sequence
-
 import datetime
+import logging
 import uuid
 import warnings
-from collections import Counter
 from time import perf_counter
-
-import pandas as pd
-import logging
+from typing import Optional
 
 from giskard.scanner.report import ScanReport
 

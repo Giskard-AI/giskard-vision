@@ -25,20 +25,18 @@ from giskard_vision.landmark_detection.dataloaders.wrappers import (
 from giskard_vision.landmark_detection.tests.performance import NMEMean
 from giskard_vision.landmark_detection.tests.base import Test, TestDiff
 from giskard_vision.landmark_detection.marks.facial_parts import FacialParts
+from giskard_vision.scanner.scanner_vision import Scanner
 
 from giskard.scanner.issues import Issue, IssueLevel, IssueGroup
-from giskard-vision.scanner.scanner import Scanner
 
 # %%
 
 
 class FacialPartsDetector:
-
     def __init__(self):
         pass
 
     def run(self, model, dataset):
-
         facial_parts = [FacialParts.LEFT_HALF.value, FacialParts.RIGHT_HALF.value]
 
         issues = []
@@ -72,16 +70,13 @@ class FacialPartsDetector:
 
 
 class ResizedImagesDetector:
-
-    def __init__(self, transformation="scaling", scales=0.5, kernel_size=(11,11), sigma=(3,3)):
-
+    def __init__(self, transformation="scaling", scales=0.5, kernel_size=(11, 11), sigma=(3, 3)):
         self.transformation = transformation
         self.scales = scales
         self.kernel_size = kernel_size
         self.sigma = sigma
 
     def run(self, model, dataset):
-
         if self.transformation == "scaling":
             dl = ResizedDataLoader(dataset, scales=self.scales)
             slicing_fn = f"scaling = {self.scales}"
@@ -111,39 +106,33 @@ class ResizedImagesDetector:
                 meta={
                     "metric": result["metric"],
                     "metric_value": result["metric_value"],
-                }
+                },
             )
         )
         return issues
 
 
 class HeadPoseDetector:
-
     def __init__(self):
         pass
 
     def run(self, model, dataset):
+        cached_dl = CachedDataLoader(HeadPoseDataLoader(dataset), cache_size=None, cache_img=False, cache_marks=False)
 
-        cached_dl = CachedDataLoader(
-            HeadPoseDataLoader(dataset),
-            cache_size=None,
-            cache_img=False,
-            cache_marks=False
-        )
-
-        head_poses = [
-            ("positive roll", self._positive_roll),
-            ("negative roll", self._negative_roll)
-        ]
+        head_poses = [("positive roll", self._positive_roll), ("negative roll", self._negative_roll)]
         issues = []
 
         for hp in head_poses:
             dl = FilteredDataLoader(cached_dl, hp[1])
-            result = TestDiff(metric=NMEMean, threshold=1).run(
-                model=model,
-                dataloader=dl,
-                dataloader_ref=dl_ref,
-            ).to_dict()
+            result = (
+                TestDiff(metric=NMEMean, threshold=1)
+                .run(
+                    model=model,
+                    dataloader=dl,
+                    dataloader_ref=dl_ref,
+                )
+                .to_dict()
+            )
 
             level = IssueLevel.MAJOR if result["metric_value"] > 0 else IssueLevel.MEDIUM
             issues.append(
@@ -153,11 +142,7 @@ class HeadPoseDetector:
                     level=level,
                     slicing_fn=f"Head Pose = {hp[0]}",
                     group=IssueGroup("Robustness to Head Pose", "Warning"),
-                    meta={
-                        "metric": result["metric"],
-                        "metric_value": result["metric_value"],
-                        "slice_size": len(dl)
-                    }
+                    meta={"metric": result["metric"], "metric_value": result["metric_value"], "slice_size": len(dl)},
                 )
             )
 
@@ -171,28 +156,28 @@ class HeadPoseDetector:
 
 
 class EthnicityDetector:
-
     def __init__(self):
         pass
 
     def run(self, model, dataset):
-
         ethnicity_dl = EthnicityDataLoader(dataset, ethnicity_map={"indian": "asian"})
         cached_dl = CachedDataLoader(ethnicity_dl, cache_size=None, cache_img=False, cache_marks=False)
 
-        ethnicities = [
-            ("white ethnicity", self._white_ethnicity)
-        ]
+        ethnicities = [("white ethnicity", self._white_ethnicity)]
 
         issues = []
 
         for e in ethnicities:
             dl = FilteredDataLoader(cached_dl, e[1])
-            result = TestDiff(metric=NMEMean, threshold=1).run(
-                model=model,
-                dataloader=dl,
-                dataloader_ref=dl_ref,
-            ).to_dict()
+            result = (
+                TestDiff(metric=NMEMean, threshold=1)
+                .run(
+                    model=model,
+                    dataloader=dl,
+                    dataloader_ref=dl_ref,
+                )
+                .to_dict()
+            )
 
             level = IssueLevel.MAJOR if result["metric_value"] > 0 else IssueLevel.MEDIUM
             issues.append(
@@ -202,11 +187,7 @@ class EthnicityDetector:
                     level=level,
                     slicing_fn=f"Ethnicity == {e[0]}",
                     group=IssueGroup("Ethical", "Warning"),
-                    meta={
-                        "metric": result["metric"],
-                        "metric_value": result["metric_value"],
-                        "slice_size": len(dl)
-                    }
+                    meta={"metric": result["metric"], "metric_value": result["metric_value"], "slice_size": len(dl)},
                 )
             )
 
@@ -221,8 +202,7 @@ model = OpenCVWrapper()
 dl_ref = DataLoader300W(dir_path=str(Path(__file__).parent / "300W/sample"))
 
 
-
-scan = ScannerPlugin()
+scan = Scanner()
 scan.analyze(
     model,
     dl_ref,
@@ -232,7 +212,7 @@ scan.analyze(
         ResizedImagesDetector(transformation="color"),
         ResizedImagesDetector(transformation="blurr"),
         HeadPoseDetector(),
-        EthnicityDetector()
-    ]
+        EthnicityDetector(),
+    ],
 )
 # %%
