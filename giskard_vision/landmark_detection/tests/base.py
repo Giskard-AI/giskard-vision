@@ -20,6 +20,8 @@ class TestResult:
         test_name (str): Name of the test.
         prediction_results (List[PredictionResult]): List of prediction results.
         metric_value (float): Value of the metric for the test.
+        metric_value_test (float): Value of the metric on the slice for the test.
+        metric_value_ref (float): Value of the metric on the reference dataset for the test.
         threshold (float): Threshold for the metric.
         passed (bool): True if the test passed, False otherwise.
         description (Optional[str]): Optional description of the test result.
@@ -34,6 +36,8 @@ class TestResult:
     test_name: str
     prediction_results: List[PredictionResult]
     metric_value: float
+    metric_value_test: float
+    metric_value_ref: float
     threshold: float
     passed: bool
     description: Optional[str] = None
@@ -108,6 +112,8 @@ class TestResult:
             "test": self.test_name,
             "metric": self.metric_name,
             "metric_value": self.metric_value,
+            "metric_value_test": self.metric_value_test,
+            "metric_value_ref": self.metric_value_ref,
             "threshold": self.threshold,
             "passed": self.passed,
             "facial_part": self.facial_part.name,
@@ -281,6 +287,7 @@ class TestDiff:
         metric_ref_value = self.metric.get(prediction_result_ref, ground_truth_ref)
 
         norm = metric_ref_value if self.relative else 1.0
+        metric_value_test = metric_value
         metric_value = (metric_ref_value - metric_value) / norm
 
         prediction_results = [prediction_result, prediction_result_ref]
@@ -289,6 +296,8 @@ class TestDiff:
             test_name=self.__class__.__name__,
             description=self.metric.description,
             metric_value=metric_value,
+            metric_value_test=metric_value_test,
+            metric_value_ref=metric_ref_value,
             threshold=self.threshold,
             prediction_results=prediction_results,
             passed=abs(metric_value) <= self.threshold,

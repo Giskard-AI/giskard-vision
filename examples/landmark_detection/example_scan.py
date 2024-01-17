@@ -52,6 +52,7 @@ class FacialPartsDetector:
             result = result.to_dict()
 
             level = IssueLevel.MAJOR if result["metric_value"] > 0 else IssueLevel.MEDIUM
+            relative_delta = (result["metric_value_test"] - result["metric_value_ref"]) / result["metric_value_ref"]
             issues.append(
                 Issue(
                     model,
@@ -61,7 +62,9 @@ class FacialPartsDetector:
                     group=IssueGroup("Robustness to cropping", "Warning"),
                     meta={
                         "metric": result["metric"],
-                        "metric_value": result["metric_value"],
+                        "metric_value": result["metric_value_test"],
+                        "metric_reference_value": result["metric_value_ref"],
+                        "deviation": f"{relative_delta*100:+.2f}% than global"
                     },
                 )
             )
@@ -94,6 +97,7 @@ class ResizedImagesDetector:
         )
         result = result.to_dict()
         level = IssueLevel.MAJOR if result["metric_value"] > 0 else IssueLevel.MEDIUM
+        relative_delta = (result["metric_value_test"] - result["metric_value_ref"]) / result["metric_value_ref"]
         issues = []
 
         issues.append(
@@ -105,7 +109,9 @@ class ResizedImagesDetector:
                 group=IssueGroup("Robustness to transformations", "Warning"),
                 meta={
                     "metric": result["metric"],
-                    "metric_value": result["metric_value"],
+                    "metric_value": result["metric_value_test"],
+                    "metric_reference_value": result["metric_value_ref"],
+                    "deviation": f"{relative_delta*100:+.2f}% than global"
                 },
             )
         )
@@ -135,6 +141,8 @@ class HeadPoseDetector:
             )
 
             level = IssueLevel.MAJOR if result["metric_value"] > 0 else IssueLevel.MEDIUM
+            relative_delta = (result["metric_value_test"] - result["metric_value_ref"]) / result["metric_value_ref"]
+
             issues.append(
                 Issue(
                     model,
@@ -142,7 +150,13 @@ class HeadPoseDetector:
                     level=level,
                     slicing_fn=f"Head Pose = {hp[0]}",
                     group=IssueGroup("Robustness to Head Pose", "Warning"),
-                    meta={"metric": result["metric"], "metric_value": result["metric_value"], "slice_size": len(dl)},
+                    meta={
+                        "metric": result["metric"],
+                        "metric_value": result["metric_value_test"],
+                        "metric_reference_value": result["metric_value_ref"],
+                        "deviation": f"{relative_delta*100:+.2f}% than global",
+                        "slice_size": len(dl)
+                    },
                 )
             )
 
@@ -180,6 +194,8 @@ class EthnicityDetector:
             )
 
             level = IssueLevel.MAJOR if result["metric_value"] > 0 else IssueLevel.MEDIUM
+            relative_delta = (result["metric_value_test"] - result["metric_value_ref"]) / result["metric_value_ref"]
+
             issues.append(
                 Issue(
                     model,
@@ -187,7 +203,13 @@ class EthnicityDetector:
                     level=level,
                     slicing_fn=f"Ethnicity == {e[0]}",
                     group=IssueGroup("Ethical", "Warning"),
-                    meta={"metric": result["metric"], "metric_value": result["metric_value"], "slice_size": len(dl)},
+                    meta={
+                        "metric": result["metric"],
+                        "metric_value": result["metric_value_test"],
+                        "metric_reference_value": result["metric_value_ref"],
+                        "deviation": f"{relative_delta*100:+.2f}% than global",
+                        "slice_size": len(dl)
+                    },
                 )
             )
 
@@ -197,7 +219,6 @@ class EthnicityDetector:
         return elt[2]["ethnicity"] == "white"
 
 
-# %%
 model = OpenCVWrapper()
 dl_ref = DataLoader300W(dir_path=str(Path(__file__).parent / "300W/sample"))
 
