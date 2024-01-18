@@ -5,9 +5,14 @@ from giskard_vision.scanner.scanner_vision import Scanner
 from giskard_vision.landmark_detection.models.wrappers import OpenCVWrapper
 from giskard_vision.landmark_detection.dataloaders.loaders import DataLoader300W
 
-from face_alignment import FaceAlignment, LandmarksType
-
-from giskard_vision.detectors import FacialPartsDetector, TransformationsDetector, HeadPoseDetector, EthnicityDetector
+from giskard_vision.landmark_detection.detectors import (
+    EthnicityDetectorLandmark,
+    HeadPoseDetectorLandmark,
+    TransformationBlurringDetectorLandmark,
+    TransformationColorDetectorLandmark,
+    TransformationResizeDetectorLandmark,
+    CroppingDetectorLandmark,
+)
 
 # %%
 model = OpenCVWrapper()
@@ -19,12 +24,12 @@ results = scan.analyze(
     model,
     dl_ref,
     detectors=[
-        FacialPartsDetector(),
-        TransformationsDetector(transformation="scaling"),
-        TransformationsDetector(transformation="color"),
-        TransformationsDetector(transformation="blurr"),
-        HeadPoseDetector(),
-        EthnicityDetector(),
+        CroppingDetectorLandmark(),
+        TransformationResizeDetectorLandmark(),
+        TransformationColorDetectorLandmark(),
+        TransformationBlurringDetectorLandmark(),
+        HeadPoseDetectorLandmark(),
+        EthnicityDetectorLandmark(),
     ],
 )
 

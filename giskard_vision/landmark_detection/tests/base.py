@@ -48,6 +48,8 @@ class TestResult:
     model_name: Optional[str] = None
     dataloader_name: Optional[str] = None
     dataloader_ref_name: Optional[str] = None
+    size_data: Optional[int] = None
+    issue_name: Optional[str] = None
 
     def _repr_html_(self):
         """
@@ -246,6 +248,8 @@ class Test:
             metric_name=self.metric.name,
             model_name=model.name,
             dataloader_name=dataloader.name,
+            size_data=len(dataloader),
+            issue_name=(dataloader.split_name if hasattr(dataloader, "split_name") else "NA"),
         )
 
 
@@ -322,4 +326,6 @@ class TestDiff:
             model_name=model.name,
             dataloader_name=dataloader.name,
             dataloader_ref_name=dataloader_ref.name,
+            size_data=len(dataloader),
+            issue_name=(dataloader.split_name if hasattr(dataloader, "split_name") else "NA"),
         )

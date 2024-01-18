@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Sequence, List, Tuple, Optional
+from typing import Any, List, Sequence, Tuple
 
 try:
     from giskard.scanner.issues import Issue, IssueGroup, IssueLevel
-except:
-    pass
+except ModuleNotFoundError:
+    print("Please install giskard to use custom detectors")
+
 
 @dataclass
 class ScanResult:
@@ -15,23 +16,28 @@ class ScanResult:
     metric_value: float
     metric_reference_value: float
     issue_level: IssueLevel
-    slice_size: float
-    deviation: str
-    
+    slice_size: int
+
     def get_meta_required(self):
         # Get the meta required by the original scan API
+        relative_delta = (self.metric_value - self.metric_reference_value) / self.metric_reference_value
+        deviation = f"{relative_delta*100:+.2f}% than global"
         return {
-        "metric_value": self.metric_value,
-        "metric_reference_value": self.metric_value_ref,
-        "deviation": self.deviation
+            "metric_value": self.metric_value,
+            "metric_reference_value": self.metric_reference_value,
+            "deviation": deviation,
+            "slice_size": self.slice_size,
         }
+
 
 class DetectorVisionBase(ABC):
     group: str
-    
-    def run(self, model: Any, dataset: Any, issue_levels: Tuple[IssueLevel] = (IssueLevel.MINOR, IssueLevel.MAJOR)) -> Sequence[Issue]:
+
+    def run(
+        self, model: Any, dataset: Any, issue_levels: Tuple[IssueLevel] = (IssueLevel.MINOR, IssueLevel.MAJOR)
+    ) -> Sequence[Issue]:
         results = self.get_results(model, dataset)
-        issues = self.get_issues(model, dataset, issue_levels=issue_levels)
+        issues = self.get_issues(model, dataset, results=results, issue_levels=issue_levels)
         return issues
 
     def get_issues(self, model: Any, dataset: Any, results: List[ScanResult], issue_levels: Tuple[IssueLevel]):
@@ -45,16 +51,16 @@ class DetectorVisionBase(ABC):
                         dataset,
                         level=result.issue_level,
                         slicing_fn=result.name,
-                        group=result.group,
+                        group=IssueGroup(result.group, "Warning"),
                         meta=result.get_meta_required(),
-                    ))
+                    )
+                )
 
         return issues
-    
 
     @abstractmethod
     def get_results(self, model: Any, dataset: Any) -> List[ScanResult]:
-        """Returns a list of ScanResult        
+        """Returns a list of ScanResult
         {
             'name': Details of the transformation or slice
             'group': Name of the group
