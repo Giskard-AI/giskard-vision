@@ -4,9 +4,11 @@ from giskard_vision.landmark_detection.dataloaders.wrappers import (
     FilteredDataLoader,
 )
 
+from ...detectors.decorator import detector
 from .base import LandmarkDetectionBaseDetector
 
 
+@detector("ethnicity_landmark", tags=["landmark"])
 class EthnicityDetectorLandmark(LandmarkDetectionBaseDetector):
     group: str = "Ethical"
 

@@ -4,9 +4,11 @@ from giskard_vision.landmark_detection.dataloaders.wrappers import (
     HeadPoseDataLoader,
 )
 
+from ...detectors.decorator import detector
 from .base import LandmarkDetectionBaseDetector
 
 
+@detector("headpose_landmark", tags=["landmark"])
 class HeadPoseDetectorLandmark(LandmarkDetectionBaseDetector):
     group: str = "Head Pose"
 

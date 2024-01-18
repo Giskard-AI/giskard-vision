@@ -1,8 +1,10 @@
 from giskard_vision.landmark_detection.dataloaders.wrappers import BlurredDataLoader
 
+from ...detectors.decorator import detector
 from .base import LandmarkDetectionBaseDetector
 
 
+@detector("blurring_landmark", tags=["landmark"])
 class TransformationBlurringDetectorLandmark(LandmarkDetectionBaseDetector):
     group: str = "Robustness"
 

@@ -3,9 +3,11 @@ import logging
 import uuid
 import warnings
 from time import perf_counter
-from typing import Optional
+from typing import Any, Optional, Sequence
 
 from giskard.scanner.report import ScanReport
+
+from ..detectors.decorator import DetectorRegistry
 
 
 def warning(content: str):
@@ -45,7 +47,7 @@ class Scanner:
         self,
         model,
         dataset,
-        detectors,
+        detectors: Optional[Any] = None,
         verbose=True,
         raise_exceptions=False,
     ) -> ScanReport:
@@ -82,8 +84,8 @@ class Scanner:
         time_start = perf_counter()
 
         # # Collect the detectors
-        # if detectors is None:
-        #     detectors = self.get_detectors(tags=[model.meta.model_type.value])
+        if detectors is None:
+            detectors = self.get_detectors(tags=[model.model_type])
 
         # @TODO: this should be selective to specific warnings
         with warnings.catch_warnings():
@@ -141,23 +143,23 @@ class Scanner:
 
     #     return issues
 
-    # def get_detectors(self, tags: Optional[Sequence[str]] = None) -> Sequence:
-    #     """Returns the detector instances."""
-    #     detectors = []
-    #     classes = DetectorRegistry.get_detector_classes(tags=tags)
+    def get_detectors(self, tags: Optional[Sequence[str]] = None) -> Sequence:
+        """Returns the detector instances."""
+        detectors = []
+        classes = DetectorRegistry.get_detector_classes(tags=tags)
 
-    #     # Filter detector classes
-    #     if self.only:
-    #         only_classes = DetectorRegistry.get_detector_classes(tags=self.only)
-    #         keys_to_keep = set(only_classes.keys()).intersection(classes.keys())
-    #         classes = {k: classes[k] for k in keys_to_keep}
+        # Filter detector classes
+        if self.only:
+            only_classes = DetectorRegistry.get_detector_classes(tags=self.only)
+            keys_to_keep = set(only_classes.keys()).intersection(classes.keys())
+            classes = {k: classes[k] for k in keys_to_keep}
 
-    #     # Configure instances
-    #     for name, detector_cls in classes.items():
-    #         kwargs = self.params.get(name) or dict()
-    #         detectors.append(detector_cls(**kwargs))
+        # Configure instances
+        for name, detector_cls in classes.items():
+            kwargs = self.params.get(name) or dict()
+            detectors.append(detector_cls(**kwargs))
 
-    #     return detectors
+        return detectors
 
     def _print_execution_summary(self, model, issues, errors, elapsed):
         print(

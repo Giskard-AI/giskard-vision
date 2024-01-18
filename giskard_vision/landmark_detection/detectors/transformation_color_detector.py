@@ -1,8 +1,10 @@
 from giskard_vision.landmark_detection.dataloaders.wrappers import ColoredDataLoader
 
+from ...detectors.decorator import detector
 from .base import LandmarkDetectionBaseDetector
 
 
+@detector("color_landmark", tags=["landmark"])
 class TransformationColorDetectorLandmark(LandmarkDetectionBaseDetector):
     group: str = "Robustness"
 

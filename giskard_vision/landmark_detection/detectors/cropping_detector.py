@@ -1,8 +1,10 @@
+from ...detectors.decorator import detector
 from ..dataloaders.wrappers import CroppedDataLoader
 from ..marks.facial_parts import FacialParts
 from .base import LandmarkDetectionBaseDetector
 
 
+@detector("cropping_landmark", tags=["landmark"])
 class CroppingDetectorLandmark(LandmarkDetectionBaseDetector):
     group: str = "Cropping"
 

@@ -18,19 +18,20 @@ from giskard_vision.landmark_detection.detectors import (
 model = OpenCVWrapper()
 dl_ref = DataLoader300W(dir_path=str(Path(__file__).parent / "300W/sample"))
 
+model.model_type = "landmark"
 
 scan = Scanner()
 results = scan.analyze(
     model,
     dl_ref,
-    detectors=[
-        CroppingDetectorLandmark(),
-        TransformationResizeDetectorLandmark(),
-        TransformationColorDetectorLandmark(),
-        TransformationBlurringDetectorLandmark(),
-        HeadPoseDetectorLandmark(),
-        EthnicityDetectorLandmark(),
-    ],
+    # detectors=[
+    #     CroppingDetectorLandmark(),
+    #     TransformationResizeDetectorLandmark(),
+    #     TransformationColorDetectorLandmark(),
+    #     TransformationBlurringDetectorLandmark(),
+    #     HeadPoseDetectorLandmark(),
+    #     EthnicityDetectorLandmark(),
+    # ],
 )
 
 # %%
