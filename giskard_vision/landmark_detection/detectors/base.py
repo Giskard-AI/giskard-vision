@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Any, List
+from typing import Any, Sequence
 
 from giskard_vision.detectors.base import DetectorVisionBase, ScanResult
 from giskard_vision.landmark_detection.tests.base import TestDiff
@@ -7,11 +7,26 @@ from giskard_vision.landmark_detection.tests.performance import NMEMean
 
 
 class LandmarkDetectionBaseDetector(DetectorVisionBase):
+    """
+    Abstract class for Landmark Detection Detectors
+
+    Methods:
+        get_dataloaders(dataset: Any) -> Sequence[Any]:
+            Abstract method that returns a list of dataloaders corresponding to
+            slices or transformations
+
+        get_results(model: Any, dataset: Any) -> Sequence[ScanResult]:
+            Returns a list of ScanResult containing the evaluation results
+
+        get_scan_result(self, test_result) -> ScanResult:
+            Convert TestResult to ScanResult
+    """
+
     @abstractmethod
-    def get_dataloaders(self, dataset):
+    def get_dataloaders(self, dataset: Any) -> Sequence[Any]:
         ...
 
-    def get_results(self, model: Any, dataset: Any) -> List[ScanResult]:
+    def get_results(self, model: Any, dataset: Any) -> Sequence[ScanResult]:
         dataloaders = self.get_dataloaders(dataset)
 
         results = []
@@ -26,7 +41,11 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
         return results
 
     def get_scan_result(self, test_result) -> ScanResult:
-        from giskard.scanner.issues import IssueLevel
+        try:
+            from giskard.scanner.issues import IssueLevel
+        except (ImportError, ModuleNotFoundError) as e:
+            e.msg = "Please install giskard to use custom detectors"
+            raise e
 
         if test_result.metric_value < -0.1:
             issue_level = IssueLevel.MAJOR

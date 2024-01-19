@@ -20,8 +20,8 @@ class TestResult:
         test_name (str): Name of the test.
         prediction_results (List[PredictionResult]): List of prediction results.
         metric_value (float): Value of the metric for the test.
-        metric_value_test (float): Value of the metric on the slice for the test.
-        metric_value_ref (float): Value of the metric on the reference dataset for the test.
+        metric_value_test (Optional[float]): Value of the metric on the slice for the test.
+        metric_value_ref (Optional[float]): Value of the metric on the reference dataset for the test.
         threshold (float): Threshold for the metric.
         passed (bool): True if the test passed, False otherwise.
         description (Optional[str]): Optional description of the test result.
@@ -31,6 +31,8 @@ class TestResult:
         model_name (Optional[str]): Name of the model used in the test.
         dataloader_name (Optional[str]): Name of the dataloader used in the test.
         dataloader_ref_name (Optional[str]): Name of the reference dataloader if applicable.
+        size_data (Optional[int]): Number of samples in the data
+        issues_name (Optional[str]): Name of slicing or transformation to be displayed
     """
 
     test_name: str

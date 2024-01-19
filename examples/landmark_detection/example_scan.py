@@ -5,6 +5,7 @@ from giskard_vision.landmark_detection.models.wrappers import OpenCVWrapper
 from giskard_vision.landmark_detection.dataloaders.loaders import DataLoader300W
 from giskard_vision.landmark_detection import detectors
 
+# %%
 import giskard
 
 # %%
@@ -21,5 +22,5 @@ results
 
 # %%
 
-# results.to_html(filename="example_vision.html")
+results.to_html(filename="example_vision.html")
 # %%

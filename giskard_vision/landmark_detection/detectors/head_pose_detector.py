@@ -1,5 +1,3 @@
-from giskard.scanner.decorators import detector
-
 from giskard_vision.landmark_detection.dataloaders.wrappers import (
     CachedDataLoader,
     FilteredDataLoader,
@@ -8,9 +6,19 @@ from giskard_vision.landmark_detection.dataloaders.wrappers import (
 
 from .base import LandmarkDetectionBaseDetector
 
+try:
+    from giskard.scanner.decorators import detector
+except (ImportError, ModuleNotFoundError) as e:
+    e.msg = "Please install giskard to use custom detectors"
+    raise e
+
 
 @detector("headpose_landmark", tags=["landmark"])
 class HeadPoseDetectorLandmark(LandmarkDetectionBaseDetector):
+    """
+    Detector that evaluates models performance depending on the head position
+    """
+
     group: str = "Head Pose"
 
     def get_dataloaders(self, dataset):
