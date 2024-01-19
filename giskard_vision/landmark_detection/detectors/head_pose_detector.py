@@ -5,15 +5,10 @@ from giskard_vision.landmark_detection.dataloaders.wrappers import (
 )
 
 from .base import LandmarkDetectionBaseDetector
-
-try:
-    from giskard.scanner.decorators import detector
-except (ImportError, ModuleNotFoundError) as e:
-    e.msg = "Please install giskard to use custom detectors"
-    raise e
+from .decorator import maybe_detector
 
 
-@detector("headpose_landmark", tags=["landmark"])
+@maybe_detector("headpose_landmark", tags=["landmark"])
 class HeadPoseDetectorLandmark(LandmarkDetectionBaseDetector):
     """
     Detector that evaluates models performance depending on the head position
