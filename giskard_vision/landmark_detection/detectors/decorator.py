@@ -4,7 +4,6 @@ def maybe_detector(name, tags):
 
         return detector(name, tags)
     except (ImportError, ModuleNotFoundError):
-        print("Please install giskard to use custom detectors")
 
         def inner(cls):
             return cls
