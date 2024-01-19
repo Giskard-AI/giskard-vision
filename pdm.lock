@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:00c75ea027cb0b3d222697f7ea49d35f776489713e2090c9b0ae45c784188229"
+content_hash = "sha256:d44a7bc359c9d1d5c21ded4a71dc87e83d583eca34d9f6c64755ecafff4f9de0"
 
 [[package]]
 name = "absl-py"
@@ -965,8 +965,11 @@ files = [
 
 [[package]]
 name = "giskard"
-version = "2.4.0"
-requires_python = "<3.12,>=3.9"
+version = "2.5.0"
+requires_python = ">=3.9, <3.12"
+git = "https://github.com/Giskard-AI/giskard.git"
+ref = "GSK-2569-scan-refac"
+revision = "88d350081accc533fa17e076c3a19ebe968326b2"
 summary = "The testing framework dedicated to ML models, from tabular to LLMs"
 groups = ["dev"]
 dependencies = [
@@ -992,10 +995,6 @@ dependencies = [
     "typing-extensions",
     "xxhash>=3.2.0",
     "zstandard>=0.10.0",
-]
-files = [
-    {file = "giskard-2.4.0-py3-none-any.whl", hash = "sha256:927610078c0b0d9899a51cf53c82a52282d572e6255efb1900815711746aa875"},
-    {file = "giskard-2.4.0.tar.gz", hash = "sha256:5b1d30f693f9859e91b63b53aabd6df679f8991a269b82d255d05d3260d82b36"},
 ]
 
 [[package]]
