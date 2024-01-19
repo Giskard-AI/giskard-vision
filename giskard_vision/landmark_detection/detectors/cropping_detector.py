@@ -1,4 +1,5 @@
-from ...detectors.decorator import detector
+from giskard.scanner.decorators import detector
+
 from ..dataloaders.wrappers import CroppedDataLoader
 from ..marks.facial_parts import FacialParts
 from .base import LandmarkDetectionBaseDetector

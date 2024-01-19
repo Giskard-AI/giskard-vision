@@ -1,10 +1,11 @@
+from giskard.scanner.decorators import detector
+
 from giskard_vision.landmark_detection.dataloaders.wrappers import (
     CachedDataLoader,
     FilteredDataLoader,
     HeadPoseDataLoader,
 )
 
-from ...detectors.decorator import detector
 from .base import LandmarkDetectionBaseDetector
 
 

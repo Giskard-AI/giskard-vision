@@ -1,9 +1,10 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from dataclasses import dataclass
-from typing import Any, List, Sequence, Tuple
+from typing import Any, List, Optional, Sequence, Tuple
 
 try:
     from giskard.scanner.issues import Issue, IssueGroup, IssueLevel
+    from giskard.scanner.registry import Detector
 except ModuleNotFoundError:
     print("Please install giskard to use custom detectors")
 
@@ -30,11 +31,15 @@ class ScanResult:
         }
 
 
-class DetectorVisionBase(ABC):
+class DetectorVisionBase(Detector):
     group: str
 
     def run(
-        self, model: Any, dataset: Any, issue_levels: Tuple[IssueLevel] = (IssueLevel.MINOR, IssueLevel.MAJOR)
+        self,
+        model: Any,
+        dataset: Any,
+        features: Optional[Any] = None,
+        issue_levels: Tuple[IssueLevel] = (IssueLevel.MINOR, IssueLevel.MAJOR),
     ) -> Sequence[Issue]:
         results = self.get_results(model, dataset)
         issues = self.get_issues(model, dataset, results=results, issue_levels=issue_levels)

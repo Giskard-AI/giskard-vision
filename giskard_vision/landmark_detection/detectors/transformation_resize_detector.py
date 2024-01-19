@@ -1,6 +1,7 @@
+from giskard.scanner.decorators import detector
+
 from giskard_vision.landmark_detection.dataloaders.wrappers import ResizedDataLoader
 
-from ...detectors.decorator import detector
 from .base import LandmarkDetectionBaseDetector
 
 
