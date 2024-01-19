@@ -14,6 +14,7 @@ class ScanResult:
     # Since there're minimum requirement from the original scan API, let's define a class
     name: str
     group: IssueGroup
+    metric_name: str
     metric_value: float
     metric_reference_value: float
     issue_level: IssueLevel
@@ -24,6 +25,7 @@ class ScanResult:
         relative_delta = (self.metric_value - self.metric_reference_value) / self.metric_reference_value
         deviation = f"{relative_delta*100:+.2f}% than global"
         return {
+            "metric": self.metric_name,
             "metric_value": self.metric_value,
             "metric_reference_value": self.metric_reference_value,
             "deviation": deviation,
@@ -39,7 +41,7 @@ class DetectorVisionBase(Detector):
         model: Any,
         dataset: Any,
         features: Optional[Any] = None,
-        issue_levels: Tuple[IssueLevel] = (IssueLevel.MINOR, IssueLevel.MAJOR),
+        issue_levels: Tuple[IssueLevel] = (IssueLevel.MEDIUM, IssueLevel.MAJOR),
     ) -> Sequence[Issue]:
         results = self.get_results(model, dataset)
         issues = self.get_issues(model, dataset, results=results, issue_levels=issue_levels)

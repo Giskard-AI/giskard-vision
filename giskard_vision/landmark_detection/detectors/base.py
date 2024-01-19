@@ -28,11 +28,19 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
     def get_scan_result(self, test_result) -> ScanResult:
         from giskard.scanner.issues import IssueLevel
 
+        if test_result.metric_value < -0.1:
+            issue_level = IssueLevel.MAJOR
+        elif test_result.metric_value < 0:
+            issue_level = IssueLevel.MEDIUM
+        else:
+            issue_level = IssueLevel.MINOR
+
         return ScanResult(
             name=test_result.issue_name,  # something to add as optional to TestResult
             group=self.group,
+            metric_name=test_result.metric_name,
             metric_value=test_result.metric_value_test,
             metric_reference_value=test_result.metric_value_ref,
-            issue_level=(IssueLevel.MAJOR if test_result.metric_value < -0.1 else IssueLevel.MINOR),
+            issue_level=issue_level,
             slice_size=test_result.size_data,
         )

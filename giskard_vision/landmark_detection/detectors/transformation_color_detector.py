@@ -11,7 +11,6 @@ class TransformationColorDetectorLandmark(LandmarkDetectionBaseDetector):
 
     def get_dataloaders(self, dataset):
         dl = ColoredDataLoader(dataset)
-        dl.set_split_name("color = grayscale")
 
         dls = [dl]
 

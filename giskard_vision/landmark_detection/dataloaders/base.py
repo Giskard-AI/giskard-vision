@@ -503,8 +503,6 @@ class DataLoaderWrapper(DataIteratorBase):
         _wrapped_dataloader (DataIteratorBase): The wrapped data loader instance.
     """
 
-    split_name: Optional[str]
-
     def __init__(self, dataloader: DataIteratorBase) -> None:
         """
         Initializes the DataLoaderWrapper with a given DataIteratorBase instance.
@@ -534,17 +532,6 @@ class DataLoaderWrapper(DataIteratorBase):
             np.ndarray: Index sampler from the wrapped data loader.
         """
         return self._wrapped_dataloader.idx_sampler
-
-    def set_split_name(self, split_name) -> None:
-        """
-        Sets split name
-
-        Parameters
-        ----------
-        split_name : str
-            New split name
-        """
-        self.split_name = split_name
 
     def get_image(self, idx: int) -> np.ndarray:
         """

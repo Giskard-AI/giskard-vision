@@ -21,7 +21,6 @@ class HeadPoseDetectorLandmark(LandmarkDetectionBaseDetector):
 
         for hp in head_poses:
             current_dl = FilteredDataLoader(cached_dl, hp[1])
-            current_dl.set_split_name(f"Head Pose = {hp[0]}")
             dls.append(current_dl)
 
         return dls

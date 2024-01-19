@@ -15,7 +15,6 @@ class TransformationBlurringDetectorLandmark(LandmarkDetectionBaseDetector):
 
     def get_dataloaders(self, dataset):
         dl = BlurredDataLoader(dataset, self.kernel_size, self.sigma)
-        dl.set_split_name(f"blurr = kernel {self.kernel_size}, sigma {self.sigma}")
 
         dls = [dl]
 

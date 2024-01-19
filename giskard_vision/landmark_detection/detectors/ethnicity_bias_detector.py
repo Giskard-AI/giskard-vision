@@ -23,7 +23,6 @@ class EthnicityDetectorLandmark(LandmarkDetectionBaseDetector):
 
         for e in ethnicities:
             current_dl = FilteredDataLoader(cached_dl, e[1])
-            current_dl.set_split_name(f"Ethnicity == {e[0]}")
             dls.append(current_dl)
 
         return dls

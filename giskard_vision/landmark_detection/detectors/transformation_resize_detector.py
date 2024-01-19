@@ -14,7 +14,6 @@ class TransformationResizeDetectorLandmark(LandmarkDetectionBaseDetector):
 
     def get_dataloaders(self, dataset):
         dl = ResizedDataLoader(dataset, scales=self.scales)
-        dl.set_split_name(f"scaling = {self.scales}")
 
         dls = [dl]
 

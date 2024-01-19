@@ -15,7 +15,6 @@ class CroppingDetectorLandmark(LandmarkDetectionBaseDetector):
 
         for fp in facial_parts:
             current_dl = CroppedDataLoader(dataset, part=fp)
-            current_dl.set_split_name(f"Facial part == {fp.name}")
             dls.append(current_dl)
 
         return dls

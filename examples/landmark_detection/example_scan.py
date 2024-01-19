@@ -11,10 +11,13 @@ import giskard
 model = OpenCVWrapper()
 dl_ref = DataLoader300W(dir_path=str(Path(__file__).parent / "300W/sample"))
 
-giskard.scan(
+results = giskard.scan(
     model,
     dl_ref,
 )
+
+# %%
+results
 
 # %%
 

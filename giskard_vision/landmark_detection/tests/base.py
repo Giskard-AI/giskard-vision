@@ -327,5 +327,5 @@ class TestDiff:
             dataloader_name=dataloader.name,
             dataloader_ref_name=dataloader_ref.name,
             size_data=len(dataloader),
-            issue_name=(dataloader.split_name if hasattr(dataloader, "split_name") else "NA"),
+            issue_name=dataloader.name,
         )
