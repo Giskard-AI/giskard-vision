@@ -8,7 +8,7 @@ from .base import LandmarkDetectionBaseDetector
 from .decorator import maybe_detector
 
 
-@maybe_detector("ethnicity_landmark", tags=["landmark"])
+@maybe_detector("ethnicity_landmark", tags=["vision", "face", "landmark", "filtered", "ethnicity"])
 class EthnicityDetectorLandmark(LandmarkDetectionBaseDetector):
     """
     Detector that evaluates models performance depending on ethnicity
