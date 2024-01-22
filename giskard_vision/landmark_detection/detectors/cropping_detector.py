@@ -4,7 +4,7 @@ from .base import LandmarkDetectionBaseDetector
 from .decorator import maybe_detector
 
 
-@maybe_detector("cropping_landmark", tags=["landmark"])
+@maybe_detector("cropping_landmark", tags=["vision", "face", "landmark", "transformed", "cropped"])
 class CroppingDetectorLandmark(LandmarkDetectionBaseDetector):
     """
     Detector that evaluates models performance relative to a facial part
