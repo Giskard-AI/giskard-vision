@@ -4,7 +4,7 @@ from .base import LandmarkDetectionBaseDetector
 from .decorator import maybe_detector
 
 
-@maybe_detector("color_landmark", tags=["landmark"])
+@maybe_detector("color_landmark", tags=["vision", "face", "landmark", "filtered", "colored"])
 class TransformationColorDetectorLandmark(LandmarkDetectionBaseDetector):
     """
     Detector that evaluates models performance depending on images in grayscale
