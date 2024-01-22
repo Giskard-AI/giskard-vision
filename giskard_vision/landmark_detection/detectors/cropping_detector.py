@@ -7,7 +7,7 @@ from .decorator import maybe_detector
 @maybe_detector("cropping_landmark", tags=["landmark"])
 class CroppingDetectorLandmark(LandmarkDetectionBaseDetector):
     """
-    Detector that evaluates models performance depending on face part
+    Detector that evaluates models performance relative to a facial part
     """
 
     group: str = "Cropping"
