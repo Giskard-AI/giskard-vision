@@ -4,7 +4,7 @@ from .base import LandmarkDetectionBaseDetector
 from .decorator import maybe_detector
 
 
-@maybe_detector("blurring_landmark", tags=["landmark"])
+@maybe_detector("blurring_landmark", tags=["vision", "face", "landmark", "transformed", "blurred"])
 class TransformationBlurringDetectorLandmark(LandmarkDetectionBaseDetector):
     """
     Detector that evaluates models performance on blurred images
