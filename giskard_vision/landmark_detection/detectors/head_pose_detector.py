@@ -8,7 +8,7 @@ from .base import LandmarkDetectionBaseDetector
 from .decorator import maybe_detector
 
 
-@maybe_detector("headpose_landmark", tags=["landmark"])
+@maybe_detector("headpose_landmark", tags=["vision", "face", "landmark", "filtered", "headpose"])
 class HeadPoseDetectorLandmark(LandmarkDetectionBaseDetector):
     """
     Detector that evaluates models performance depending on the head position
