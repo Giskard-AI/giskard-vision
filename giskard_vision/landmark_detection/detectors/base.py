@@ -4,6 +4,7 @@ from typing import Any, Sequence
 from giskard_vision.detectors.base import DetectorVisionBase, ScanResult
 from giskard_vision.landmark_detection.tests.base import TestDiff
 from giskard_vision.landmark_detection.tests.performance import NMEMean
+from giskard_vision.utils.errors import GiskardImportError
 
 
 class LandmarkDetectionBaseDetector(DetectorVisionBase):
@@ -44,12 +45,11 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
         try:
             from giskard.scanner.issues import IssueLevel
         except (ImportError, ModuleNotFoundError) as e:
-            e.msg = "Please install giskard to use custom detectors"
-            raise e
+            raise GiskardImportError(["giskard"]) from e
 
-        if test_result.metric_value < -0.1:
+        if test_result.metric_value > 0.1:
             issue_level = IssueLevel.MAJOR
-        elif test_result.metric_value < 0:
+        elif test_result.metric_value > 0:
             issue_level = IssueLevel.MEDIUM
         else:
             issue_level = IssueLevel.MINOR

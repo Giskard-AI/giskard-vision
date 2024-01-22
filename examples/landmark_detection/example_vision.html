@@ -36,7 +36,7 @@
                     clip-rule="evenodd" />
             </svg>
         </div>
-        <span class="uppercase text-sm ml-2 py-2 leading-4 w-min">6&nbsp;issues detected</span>
+        <span class="uppercase text-sm ml-2 py-2 leading-4 w-min">7&nbsp;issues detected</span>
     </div>
 
     
@@ -50,6 +50,19 @@
             <span
                 class="ml-1 rounded-full text-xs min-w-4 min-h-4 px-1 py-0.5 inline-block text-center bg-red-400">
                 3
+            </span>
+        </div>
+    </div>
+    
+    <div data-tab-target="Ethical"
+        class="tab-header cursor-pointer group">
+        <div
+            class="overflow-hidden text-ellipsis group-[.active]:bg-zinc-800 group-[.active]:border-b-zinc-800 group-[.active]:border-gray-500 border-l px-3 py-2 border-r border-t border-b border-gray-600 border-b-gray-500 h-11 whitespace-nowrap">
+            Ethical
+
+            <span
+                class="ml-1 rounded-full text-xs min-w-4 min-h-4 px-1 py-0.5 inline-block text-center bg-red-400">
+                1
             </span>
         </div>
     </div>
@@ -271,6 +284,100 @@
         <span class="text-gray-400">
             5 samples affected<br>
             (100.0% of dataset)
+        </span>
+        
+    <td class="p-3 text-xs text-right space-x-1">
+        <a href="#"
+            class="gsk-issue-detail-btn inline-block group-[.open]:hidden border border-zinc-100/50 text-zinc-100/90 hover:bg-zinc-500 hover:border-zinc-500 hover:text-white px-2 py-0.5 rounded-sm">Show details</a>
+        <a href="#"
+            class="hidden group-[.open]:inline-block gsk-issue-detail-btn border border-zinc-500 text-zinc-100/90 bg-zinc-500 hover:bg-zinc-400 hover:text-white px-2 py-0.5 rounded-sm">Hide details</a>
+    </td>
+</tr>
+<tr class="gsk-issue-detail text-left hidden  peer-[.open]:table-row border-b border-zinc-500 bg-zinc-700">
+    <td colspan="1000" class="p-3">
+        
+
+        
+
+        
+
+        
+    </td>
+</tr>
+        </tbody>
+        
+    </table>
+</div>
+    
+</div>
+
+<div id="Ethical" role="tabpanel" class="m-4 mb-4 hidden">
+    <div class="p-3 bg-amber-100/40 rounded-sm w-full flex align-middle">
+        <div class="text-amber-100 mt-1.5">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+        </div>
+        <div class="ml-2 text-amber-100 text-sm">
+            <div class="prose">
+                <p>Warning</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex items-center space-x-1">
+        <h2 class="uppercase my-4 mr-2 font-medium">Issues</h2>
+        
+        <span class="text-xs border rounded px-1 uppercase text-red-400 border-red-400">1
+            major</span>
+        
+        
+        
+    </div>
+
+    
+        <div class="overflow-x-auto overflow-y-clip h-max">
+    <table class="table-auto w-full text-white">
+        
+        <tbody class="first:border-t border-b border-zinc-500">
+            <tr class="gsk-issue text-sm group peer text-left cursor-pointer hover:bg-zinc-700">
+    
+    <td class="p-3">
+        
+        
+        <code class="mono text-blue-300">
+        (Cached (300W) with ethnicity) filtered using &#39;ethnicity_latino hispanic&#39;
+        </code>
+        
+    </td>
+    
+
+    
+
+    
+    <td class="p-3">
+        <span>NME_mean = 0.074</span>
+        
+        <span class="text-gray-400">
+            (Global = 0.041)
+        </span>
+        
+    </td>
+    
+    
+    <td class="p-3">        
+        <span class="text-red-400">
+            +78.45% than global
+        </span>
+    </td>
+    
+    
+    <td class="p-3">
+        <span class="text-gray-400">
+            1 samples affected<br>
+            (20.0% of dataset)
         </span>
         
     <td class="p-3 text-xs text-right space-x-1">

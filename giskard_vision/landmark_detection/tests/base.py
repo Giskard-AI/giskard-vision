@@ -305,7 +305,7 @@ class TestDiff:
 
         norm = metric_ref_value if self.relative else 1.0
         metric_value_test = metric_value
-        metric_value = (metric_ref_value - metric_value) / norm
+        metric_value = (metric_value - metric_ref_value) / norm
 
         prediction_results = [prediction_result, prediction_result_ref]
         prediction_time = prediction_result.prediction_time + prediction_result_ref.prediction_time

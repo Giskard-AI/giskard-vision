@@ -3,7 +3,6 @@ from pathlib import Path
 
 from giskard_vision.landmark_detection.models.wrappers import OpenCVWrapper
 from giskard_vision.landmark_detection.dataloaders.loaders import DataLoader300W
-from giskard_vision.landmark_detection import detectors
 
 # %%
 import giskard

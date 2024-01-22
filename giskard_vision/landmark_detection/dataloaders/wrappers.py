@@ -11,7 +11,7 @@ from giskard_vision.landmark_detection.transformation_functions import (
     resize_image,
     resize_marks,
 )
-from giskard_vision.landmark_detection.utils.errors import GiskardImportError
+from giskard_vision.utils.errors import GiskardImportError
 
 from .base import DataIteratorBase, DataLoaderWrapper, SingleLandmarkData
 

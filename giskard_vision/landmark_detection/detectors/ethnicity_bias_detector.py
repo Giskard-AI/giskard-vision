@@ -16,19 +16,32 @@ class EthnicityDetectorLandmark(LandmarkDetectionBaseDetector):
 
     group: str = "Ethical"
 
+    supported_ethnicities = [
+        "indian",
+        "asian",
+        "latino hispanic",
+        "middle eastern",
+        "white",
+    ]
+
     def get_dataloaders(self, dataset):
         ethnicity_dl = EthnicityDataLoader(dataset, ethnicity_map={"indian": "asian"})
         cached_dl = CachedDataLoader(ethnicity_dl, cache_size=None, cache_img=False, cache_marks=False)
 
-        ethnicities = [("white ethnicity", self._white_ethnicity)]
-
         dls = []
 
-        for e in ethnicities:
-            current_dl = FilteredDataLoader(cached_dl, e[1])
-            dls.append(current_dl)
+        for e in self.supported_ethnicities:
+            try:
+                current_dl = FilteredDataLoader(cached_dl, self._map_ethnicity(e))
+                dls.append(current_dl)
+            except ValueError:
+                pass
 
         return dls
 
-    def _white_ethnicity(self, elt):
-        return elt[2]["ethnicity"] == "white"
+    def _map_ethnicity(self, ethn_str):
+        def current_map(elt):
+            return elt[2]["ethnicity"] == ethn_str
+
+        current_map.__name__ = f"ethnicity: {ethn_str}"
+        return current_map
