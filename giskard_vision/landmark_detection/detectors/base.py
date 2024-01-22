@@ -55,7 +55,7 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
             issue_level = IssueLevel.MINOR
 
         return ScanResult(
-            name=test_result.issue_name,  # something to add as optional to TestResult
+            name=test_result.issue_name,
             group=self.group,
             metric_name=test_result.metric_name,
             metric_value=test_result.metric_value_test,
