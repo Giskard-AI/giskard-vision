@@ -4,7 +4,7 @@ from .base import LandmarkDetectionBaseDetector
 from .decorator import maybe_detector
 
 
-@maybe_detector("resize_landmark", tags=["landmark"])
+@maybe_detector("resize_landmark", tags=["vision", "face", "landmark", "transformed", "resized"])
 class TransformationResizeDetectorLandmark(LandmarkDetectionBaseDetector):
     """
     Detector that evaluates models performance on resized images
