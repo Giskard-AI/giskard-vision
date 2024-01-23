@@ -45,12 +45,14 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
             os.makedirs("examples_images", exist_ok=True)
             filename_examples = []
 
-            filename_example_dataloader_ref = f"examples_images/{dataset.name}.png"
-            cv2.imwrite(
-                filename_example_dataloader_ref,
-                cv2.resize(dataset[0][0][0], (0, 0), fx=0.3, fy=0.3)
-            )
-            filename_examples.append(filename_example_dataloader_ref)
+            if dl.dataloader_type != "filter":
+
+                filename_example_dataloader_ref = f"examples_images/{dataset.name}.png"
+                cv2.imwrite(
+                    filename_example_dataloader_ref,
+                    cv2.resize(dataset[0][0][0], (0, 0), fx=0.3, fy=0.3)
+                )
+                filename_examples.append(filename_example_dataloader_ref)
 
             filename_example_dataloader = f"examples_images/{dl.name}.png"
             cv2.imwrite(
