@@ -111,7 +111,7 @@ class DetectorVisionBase:
                         group=IssueGroup(result.group, "Warning"),
                         meta=result.get_meta_required(),
                         example_manager=ExamplesImages,
-                        display_warnings=False
+                        display_warnings=False,
                     )
                     current_issue.add_examples(result.filename_examples)
                     issues.append(current_issue)

@@ -1,15 +1,15 @@
+import os
 from abc import abstractmethod
 from typing import Any, Sequence
+
+import cv2
 
 from giskard_vision.detectors.base import DetectorVisionBase, ScanResult
 from giskard_vision.landmark_detection.tests.base import TestDiff
 from giskard_vision.landmark_detection.tests.performance import NMEMean
 from giskard_vision.utils.errors import GiskardImportError
 
-import os
-import cv2
 
-            
 class LandmarkDetectionBaseDetector(DetectorVisionBase):
     """
     Abstract class for Landmark Detection Detectors
@@ -46,19 +46,12 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
             filename_examples = []
 
             if dl.dataloader_type != "filter":
-
                 filename_example_dataloader_ref = f"examples_images/{dataset.name}.png"
-                cv2.imwrite(
-                    filename_example_dataloader_ref,
-                    cv2.resize(dataset[0][0][0], (0, 0), fx=0.3, fy=0.3)
-                )
+                cv2.imwrite(filename_example_dataloader_ref, cv2.resize(dataset[0][0][0], (0, 0), fx=0.3, fy=0.3))
                 filename_examples.append(filename_example_dataloader_ref)
 
             filename_example_dataloader = f"examples_images/{dl.name}.png"
-            cv2.imwrite(
-                filename_example_dataloader,
-                cv2.resize(dl[0][0][0], (0, 0), fx=0.3, fy=0.3)
-            )
+            cv2.imwrite(filename_example_dataloader, cv2.resize(dl[0][0][0], (0, 0), fx=0.3, fy=0.3))
             filename_examples.append(filename_example_dataloader)
 
             results.append(self.get_scan_result(test_result, filename_examples))
