@@ -6,7 +6,7 @@ import cv2
 
 from giskard_vision.detectors.base import DetectorVisionBase, ScanResult
 from giskard_vision.landmark_detection.tests.base import TestDiff
-from giskard_vision.landmark_detection.tests.performance import NMEMean
+from giskard_vision.landmark_detection.tests.performance import NMEMean, NMEs
 from giskard_vision.utils.errors import GiskardImportError
 
 
@@ -35,7 +35,7 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
 
         results = []
         for dl in dataloaders:
-            test_result = TestDiff(metric=NMEMean, threshold=1).run(
+            test_result = TestDiff(metric=NMEMean, threshold=1, metric_for_examples=NMEs).run(
                 model=model,
                 dataloader=dl,
                 dataloader_ref=dataset,
@@ -44,6 +44,11 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
             # Save example images from dataloader and dataset
             os.makedirs("examples_images", exist_ok=True)
             filename_examples = []
+
+            # if test_result is not None:
+            #     index_worst = test_result.indexes_examples[0]
+            # else:
+            #     index_worst = 0
 
             if dl.dataloader_type != "filter":
                 filename_example_dataloader_ref = f"examples_images/{dataset.name}.png"
