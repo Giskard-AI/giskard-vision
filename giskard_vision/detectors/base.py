@@ -95,6 +95,7 @@ class DetectorVisionBase:
 
         try:
             from giskard.scanner.issues import Issue, IssueGroup, IssueLevel
+
             from .example_manager import ExamplesImages
 
             if issue_levels is None:
@@ -109,7 +110,7 @@ class DetectorVisionBase:
                         slicing_fn=result.name,
                         group=IssueGroup(result.group, "Warning"),
                         meta=result.get_meta_required(),
-                        example_manager=ExamplesImages
+                        example_manager=ExamplesImages,
                     )
                     current_issue.add_examples(result.filename_examples)
                     issues.append(current_issue)

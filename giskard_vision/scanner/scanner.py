@@ -1,15 +1,13 @@
-from typing import Any, Optional, Sequence
-
 import datetime
+import logging
 import uuid
 import warnings
 from time import perf_counter
+from typing import Any, Optional, Sequence
 
-import logging
-
-from giskard.scanner.report import ScanReport
-from giskard.scanner.registry import DetectorRegistry
 from giskard.scanner.issues import DataLeakage, Issue, Stochasticity
+from giskard.scanner.registry import DetectorRegistry
+from giskard.scanner.report import ScanReport
 
 
 def warning(content: str):

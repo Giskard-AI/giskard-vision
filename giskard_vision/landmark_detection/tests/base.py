@@ -315,6 +315,7 @@ class TestDiff:
         )
 
         import os
+
         import matplotlib.pyplot as plt
 
         os.makedirs("examples_images", exist_ok=True)
@@ -346,5 +347,5 @@ class TestDiff:
             dataloader_ref_name=dataloader_ref.name,
             size_data=len(dataloader),
             issue_name=dataloader.name,
-            filename_examples=filename_examples
+            filename_examples=filename_examples,
         )

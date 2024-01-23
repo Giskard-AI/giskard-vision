@@ -1,7 +1,6 @@
 import math
-
-from typing import Any
 from abc import abstractmethod
+from typing import Any
 
 
 class ExampleManager:
@@ -54,13 +53,11 @@ class ExampleManager:
 
 
 class ExamplesImages(ExampleManager):
-
     def to_html(self, **kwargs):
-
         html = '<div style="display:flex;justify-content:space-around">'
         for i, elt in enumerate(self._examples):
             if i >= self._max_num:
                 break
             html += f'<img src="{elt}" style="width:30%"></img>'
-        html += '</div>'
+        html += "</div>"
         return html
