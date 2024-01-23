@@ -52,7 +52,6 @@ class TestResult:
     dataloader_ref_name: Optional[str] = None
     size_data: Optional[int] = None
     issue_name: Optional[str] = None
-    filename_examples: Optional[str] = None
 
     def _repr_html_(self):
         """
@@ -314,21 +313,6 @@ class TestDiff:
             [prediction_result.prediction_fail_rate, prediction_result_ref.prediction_fail_rate]
         )
 
-        import os
-
-        import matplotlib.pyplot as plt
-
-        os.makedirs("examples_images", exist_ok=True)
-        filename_examples = []
-
-        filename_example_dataloader_ref = f"examples_images/{dataloader_ref.name}.png"
-        plt.imsave(filename_example_dataloader_ref, dataloader_ref[0][0][0])
-        filename_examples.append(filename_example_dataloader_ref)
-
-        filename_example_dataloader = f"examples_images/{dataloader.name}.png"
-        plt.imsave(filename_example_dataloader, dataloader[0][0][0])
-        filename_examples.append(filename_example_dataloader)
-
         return TestResult(
             test_name=self.__class__.__name__,
             description=self.metric.description,
@@ -347,5 +331,4 @@ class TestDiff:
             dataloader_ref_name=dataloader_ref.name,
             size_data=len(dataloader),
             issue_name=dataloader.name,
-            filename_examples=filename_examples,
         )

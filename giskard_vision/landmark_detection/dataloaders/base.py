@@ -503,6 +503,8 @@ class DataLoaderWrapper(DataIteratorBase):
         _wrapped_dataloader (DataIteratorBase): The wrapped data loader instance.
     """
 
+    dataloader_type: str = "standard"
+
     def __init__(self, dataloader: DataIteratorBase) -> None:
         """
         Initializes the DataLoaderWrapper with a given DataIteratorBase instance.

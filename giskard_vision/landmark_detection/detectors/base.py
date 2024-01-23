@@ -6,7 +6,10 @@ from giskard_vision.landmark_detection.tests.base import TestDiff
 from giskard_vision.landmark_detection.tests.performance import NMEMean
 from giskard_vision.utils.errors import GiskardImportError
 
+import os
+import cv2
 
+            
 class LandmarkDetectionBaseDetector(DetectorVisionBase):
     """
     Abstract class for Landmark Detection Detectors
@@ -38,11 +41,29 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
                 dataloader_ref=dataset,
             )
 
-            results.append(self.get_scan_result(test_result))
+            # Save example images from dataloader and dataset
+            os.makedirs("examples_images", exist_ok=True)
+            filename_examples = []
+
+            filename_example_dataloader_ref = f"examples_images/{dataset.name}.png"
+            cv2.imwrite(
+                filename_example_dataloader_ref,
+                cv2.resize(dataset[0][0][0], (0, 0), fx=0.3, fy=0.3)
+            )
+            filename_examples.append(filename_example_dataloader_ref)
+
+            filename_example_dataloader = f"examples_images/{dl.name}.png"
+            cv2.imwrite(
+                filename_example_dataloader,
+                cv2.resize(dl[0][0][0], (0, 0), fx=0.3, fy=0.3)
+            )
+            filename_examples.append(filename_example_dataloader)
+
+            results.append(self.get_scan_result(test_result, filename_examples))
 
         return results
 
-    def get_scan_result(self, test_result) -> ScanResult:
+    def get_scan_result(self, test_result, filename_examples) -> ScanResult:
         try:
             from giskard.scanner.issues import IssueLevel
         except (ImportError, ModuleNotFoundError) as e:
@@ -63,5 +84,5 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
             metric_reference_value=test_result.metric_value_ref,
             issue_level=issue_level,
             slice_size=test_result.size_data,
-            filename_examples=test_result.filename_examples,
+            filename_examples=filename_examples,
         )
