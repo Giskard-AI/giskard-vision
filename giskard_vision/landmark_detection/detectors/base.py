@@ -37,6 +37,7 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
                 dataloader=dl,
                 dataloader_ref=dataset,
             )
+
             results.append(self.get_scan_result(test_result))
 
         return results
@@ -62,4 +63,5 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
             metric_reference_value=test_result.metric_value_ref,
             issue_level=issue_level,
             slice_size=test_result.size_data,
+            filename_examples=test_result.filename_examples
         )
