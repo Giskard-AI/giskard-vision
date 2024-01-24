@@ -16,13 +16,7 @@ class EthnicityDetectorLandmark(LandmarkDetectionBaseDetector):
 
     group: str = "Ethical"
 
-    supported_ethnicities = [
-        "indian",
-        "asian",
-        "latino hispanic",
-        "middle eastern",
-        "white",
-    ]
+    supported_ethnicities = EthnicityDataLoader.supported_ethnicities
 
     def get_dataloaders(self, dataset):
         ethnicity_dl = EthnicityDataLoader(dataset, ethnicity_map={"indian": "asian"})
@@ -32,16 +26,16 @@ class EthnicityDetectorLandmark(LandmarkDetectionBaseDetector):
 
         for e in self.supported_ethnicities:
             try:
-                current_dl = FilteredDataLoader(cached_dl, self._map_ethnicity(e))
+                current_dl = FilteredDataLoader(cached_dl, self._get_predicate_function(e))
                 dls.append(current_dl)
             except ValueError:
                 pass
 
         return dls
 
-    def _map_ethnicity(self, ethn_str):
-        def current_map(elt):
+    def _get_predicate_function(self, ethn_str):
+        def predicate_function(elt):
             return elt[2]["ethnicity"] == ethn_str
 
-        current_map.__name__ = f"ethnicity: {ethn_str}"
-        return current_map
+        predicate_function.__name__ = f"ethnicity: {ethn_str}"
+        return predicate_function

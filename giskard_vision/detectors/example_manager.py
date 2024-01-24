@@ -1,63 +1,58 @@
-import math
-from abc import abstractmethod
+from abc import ABC, abstractmethod
+from copy import deepcopy
 from typing import Any
 
 
-class ExampleManager:
+class ExampleManager(ABC):
     """
-    Abstract class to manage examples, in order to deal with other data types than pandas dataframes
-    and render them in html
+    Abstract class to manage examples from different data types.
     """
 
-    def __init__(self):
-        self._examples = []
-        self._max_num = math.inf
-
+    @abstractmethod
     def add_examples(self, example: Any):
-        """
-        Add examples to the example manager
+        ...
 
-        Args:
-            example (Any): new example to be added
-        """
-        if isinstance(example, list):
-            self._examples += example
-        else:
-            self._examples.append(example)
-
-    def head(self, n):
-        """
-        Change the max nmuber of elements to display
-
-        Args:
-            n (int): number of elements to display
-
-        Returns:
-            ExampleManager: current object with max number of elements set to n
-        """
-        self._max_num = n
-        return self
-
-    def __len__(self):
-        return len(self._examples)
-
-    def len(self):
-        return self.__len__()
+    @abstractmethod
+    def head(self, n: int):
+        ...
 
     @abstractmethod
     def to_html(self):
-        """
-        Renders html
-        """
         ...
 
 
-class ExamplesImages(ExampleManager):
+class ImagesExampleManager:
+    """
+    Class to manage images examples
+    """
+
+    def __init__(self, examples: list = []):
+        self.examples = examples
+
+    def add_examples(self, example):
+        if isinstance(example, list):
+            self.examples += example
+        else:
+            self.examples.append(example)
+
+    def head(self, n):
+        """
+        Returns a new example manager keeping only n first examples
+
+        Args:
+            n (int): number of elements to keep
+
+        Returns:
+            ExampleManager: new example manager with n first examples
+        """
+        return type(self)(deepcopy(self.examples[:n]))
+
+    def __len__(self):
+        return len(self.examples)
+
     def to_html(self, **kwargs):
         html = '<div style="display:flex;justify-content:space-around">'
-        for i, elt in enumerate(self._examples):
-            if i >= self._max_num:
-                break
+        for elt in self.examples:
             html += f'<img src="{elt}" style="width:30%"></img>'
         html += "</div>"
         return html

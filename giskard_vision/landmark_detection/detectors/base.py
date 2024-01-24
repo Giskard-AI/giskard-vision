@@ -71,9 +71,11 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
         except (ImportError, ModuleNotFoundError) as e:
             raise GiskardImportError(["giskard"]) from e
 
-        if test_result.metric_value > 0.1:
+        relative_delta = (test_result.metric_value_test - test_result.metric_value_ref) / test_result.metric_value_ref
+
+        if relative_delta > self.threshold:
             issue_level = IssueLevel.MAJOR
-        elif test_result.metric_value > 0:
+        elif relative_delta > 0:
             issue_level = IssueLevel.MEDIUM
         else:
             issue_level = IssueLevel.MINOR
@@ -87,4 +89,5 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
             issue_level=issue_level,
             slice_size=test_result.size_data,
             filename_examples=filename_examples,
+            relative_delta=relative_delta,
         )
