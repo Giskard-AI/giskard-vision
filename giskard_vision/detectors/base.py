@@ -112,7 +112,7 @@ class DetectorVisionBase:
                             slicing_fn=result.name,
                             group=IssueGroup(result.group, ""),
                             meta=result.get_meta_required(),
-                            example_manager=ImagesExampleManager(result.filename_examples),
+                            scan_examples=ImagesExampleManager(result.filename_examples),
                             display_footer_info=False,
                         )
                     )
