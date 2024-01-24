@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:a1eeb08b23d317e2098a540b024d0ed276654d3138ff347b2b3a255d444022c0"
+content_hash = "sha256:c18aef92bd6a608a7dd5771df8bddc60ea9708e9227b9efeb94903a79cfbc238"
 
 [[package]]
 name = "absl-py"
@@ -965,11 +965,11 @@ files = [
 
 [[package]]
 name = "giskard"
-version = "2.5.3"
+version = "2.6.0"
 requires_python = ">=3.9, <3.12"
-git = "https://github.com/Giskard-AI/giskard.git"
+git = "https://github.com/Giskard-AI/giskard"
 ref = "GSK-2658-custom-scanner"
-revision = "96ea558bd432311d52f02ec2ab86d1bbd26e72a5"
+revision = "9a2be439a9afcdfd8c1a83d6d6a69369d24fd789"
 summary = "The testing framework dedicated to ML models, from tabular to LLMs"
 groups = ["dev"]
 dependencies = [
