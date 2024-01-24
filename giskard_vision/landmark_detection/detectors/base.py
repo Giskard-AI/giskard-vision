@@ -45,18 +45,20 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
             os.makedirs("examples_images", exist_ok=True)
             filename_examples = []
 
-            # if test_result is not None:
-            #     index_worst = test_result.indexes_examples[0]
-            # else:
-            #     index_worst = 0
+            if hasattr(test_result, "indexes_examples") and test_result.indexes_examples is not None:
+                index_worst = test_result.indexes_examples[0]
+            else:
+                index_worst = 0
 
             if dl.dataloader_type != "filter":
-                filename_example_dataloader_ref = f"examples_images/{dataset.name}.png"
-                cv2.imwrite(filename_example_dataloader_ref, cv2.resize(dataset[0][0][0], (0, 0), fx=0.3, fy=0.3))
+                filename_example_dataloader_ref = f"examples_images/{dataset.name}_{index_worst}.png"
+                cv2.imwrite(
+                    filename_example_dataloader_ref, cv2.resize(dataset[index_worst][0][0], (0, 0), fx=0.3, fy=0.3)
+                )
                 filename_examples.append(filename_example_dataloader_ref)
 
-            filename_example_dataloader = f"examples_images/{dl.name}.png"
-            cv2.imwrite(filename_example_dataloader, cv2.resize(dl[0][0][0], (0, 0), fx=0.3, fy=0.3))
+            filename_example_dataloader = f"examples_images/{dl.name}_{index_worst}.png"
+            cv2.imwrite(filename_example_dataloader, cv2.resize(dl[index_worst][0][0], (0, 0), fx=0.3, fy=0.3))
             filename_examples.append(filename_example_dataloader)
 
             results.append(self.get_scan_result(test_result, filename_examples))
