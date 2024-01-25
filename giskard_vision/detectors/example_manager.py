@@ -53,6 +53,6 @@ class ImagesExampleManager:
     def to_html(self, **kwargs):
         html = '<div style="display:flex;justify-content:space-around">'
         for elt in self.examples:
-            html += f'<img src="{elt}" style="width:30%"></img>'
+            html += f'<img src="{elt}" style="width:30%">'
         html += "</div>"
         return html

@@ -9,6 +9,8 @@ from giskard_vision.landmark_detection.tests.base import TestDiff
 from giskard_vision.landmark_detection.tests.performance import NMEMean, NMEs
 from giskard_vision.utils.errors import GiskardImportError
 
+from pathlib import Path
+
 
 class LandmarkDetectionBaseDetector(DetectorVisionBase):
     """
@@ -49,7 +51,8 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
             )
 
             # Save example images from dataloader and dataset
-            os.makedirs("examples_images", exist_ok=True)
+            current_path = str(Path())
+            os.makedirs(f"{current_path}/examples_images", exist_ok=True)
             filename_examples = []
 
             if hasattr(test_result, "indexes_examples") and test_result.indexes_examples is not None:
@@ -58,21 +61,20 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
                 index_worst = 0
 
             if dl.dataloader_type != "filter":
-                filename_example_dataloader_ref = f"examples_images/{dataset.name}_{index_worst}.png"
+                filename_example_dataloader_ref = f"{current_path}/examples_images/{dataset.name}_{index_worst}.png"
                 cv2.imwrite(
                     filename_example_dataloader_ref, cv2.resize(dataset[index_worst][0][0], (0, 0), fx=0.3, fy=0.3)
                 )
                 filename_examples.append(filename_example_dataloader_ref)
 
-            filename_example_dataloader = f"examples_images/{dl.name}_{index_worst}.png"
+            filename_example_dataloader = f"{current_path}/examples_images/{dl.name}_{index_worst}.png"
             cv2.imwrite(filename_example_dataloader, cv2.resize(dl[index_worst][0][0], (0, 0), fx=0.3, fy=0.3))
             filename_examples.append(filename_example_dataloader)
-
-            results.append(self.get_scan_result(test_result, filename_examples))
+            results.append(self.get_scan_result(test_result, filename_examples, dl.name, len(dl)))
 
         return results
 
-    def get_scan_result(self, test_result, filename_examples) -> ScanResult:
+    def get_scan_result(self, test_result, filename_examples, name, size_data) -> ScanResult:
         try:
             from giskard.scanner.issues import IssueLevel
         except (ImportError, ModuleNotFoundError) as e:
@@ -88,13 +90,13 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
             issue_level = IssueLevel.MINOR
 
         return ScanResult(
-            name=test_result.issue_name,
+            name=name,
             group=self.group,
             metric_name=test_result.metric_name,
             metric_value=test_result.metric_value_test,
             metric_reference_value=test_result.metric_value_ref,
             issue_level=issue_level,
-            slice_size=test_result.size_data,
+            slice_size=size_data,
             filename_examples=filename_examples,
             relative_delta=relative_delta,
         )

@@ -50,8 +50,6 @@ class TestResult:
     model_name: Optional[str] = None
     dataloader_name: Optional[str] = None
     dataloader_ref_name: Optional[str] = None
-    size_data: Optional[int] = None
-    issue_name: Optional[str] = None
     indexes_examples: Optional[list] = None
 
     def _repr_html_(self):
@@ -337,7 +335,5 @@ class TestDiff:
             model_name=model.name,
             dataloader_name=dataloader.name,
             dataloader_ref_name=dataloader_ref.name,
-            size_data=len(dataloader),
-            issue_name=dataloader.name,
             indexes_examples=indexes,
         )
