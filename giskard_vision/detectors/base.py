@@ -31,11 +31,12 @@ class ScanResult:
     metric_reference_value: float
     issue_level: str
     slice_size: int
+    filename_examples: Optional[Sequence[str]]
+    relative_delta: float
 
     def get_meta_required(self) -> dict:
         # Get the meta required by the original scan API
-        relative_delta = (self.metric_value - self.metric_reference_value) / self.metric_reference_value
-        deviation = f"{relative_delta*100:+.2f}% than global"
+        deviation = f"{self.relative_delta * 100:+.2f}% than global"
         return {
             "metric": self.metric_name,
             "metric_value": self.metric_value,
@@ -62,6 +63,8 @@ class DetectorVisionBase:
     """
 
     group: str
+    warning_messages: dict = {}
+    threshold: Optional[float] = 0.1
 
     def run(
         self,
@@ -95,6 +98,8 @@ class DetectorVisionBase:
         try:
             from giskard.scanner.issues import Issue, IssueGroup, IssueLevel
 
+            from .example_manager import ImagesExampleManager
+
             if issue_levels is None:
                 issue_levels = (IssueLevel.MAJOR, IssueLevel.MEDIUM)
 
@@ -106,8 +111,13 @@ class DetectorVisionBase:
                             dataset,
                             level=result.issue_level,
                             slicing_fn=result.name,
-                            group=IssueGroup(result.group, "Warning"),
+                            group=IssueGroup(
+                                result.group,
+                                self.warning_messages[result.group] if result.group in self.warning_messages else "",
+                            ),
                             meta=result.get_meta_required(),
+                            scan_examples=ImagesExampleManager(result.filename_examples),
+                            display_footer_info=False,
                         )
                     )
 

@@ -1,9 +1,12 @@
+import os
 from abc import abstractmethod
 from typing import Any, Sequence
 
+import cv2
+
 from giskard_vision.detectors.base import DetectorVisionBase, ScanResult
 from giskard_vision.landmark_detection.tests.base import TestDiff
-from giskard_vision.landmark_detection.tests.performance import NMEMean
+from giskard_vision.landmark_detection.tests.performance import NMEMean, NMEs
 from giskard_vision.utils.errors import GiskardImportError
 
 
@@ -23,6 +26,13 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
             Convert TestResult to ScanResult
     """
 
+    warning_messages: dict = {
+        "Cropping": "Cropping involves evaluating the landmark detection model on specific face areas.",
+        "Ethical": "The data are filtered by ethnicity to detect ethical biases in the landmark detection model.",
+        "Head Pose": "The data are filtered by head pose to detect biases in the landmark detection model.",
+        "Robustness": "Images from the dataset are blurred, recolored and resized to test the robustness of the model to transformations.",
+    }
+
     @abstractmethod
     def get_dataloaders(self, dataset: Any) -> Sequence[Any]:
         ...
@@ -32,24 +42,47 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
 
         results = []
         for dl in dataloaders:
-            test_result = TestDiff(metric=NMEMean, threshold=1).run(
+            test_result = TestDiff(metric=NMEMean, threshold=1, metric_for_examples=NMEs).run(
                 model=model,
                 dataloader=dl,
                 dataloader_ref=dataset,
             )
-            results.append(self.get_scan_result(test_result))
+
+            # Save example images from dataloader and dataset
+            os.makedirs("examples_images", exist_ok=True)
+            filename_examples = []
+
+            if hasattr(test_result, "indexes_examples") and test_result.indexes_examples is not None:
+                index_worst = test_result.indexes_examples[0]
+            else:
+                index_worst = 0
+
+            if dl.dataloader_type != "filter":
+                filename_example_dataloader_ref = f"examples_images/{dataset.name}_{index_worst}.png"
+                cv2.imwrite(
+                    filename_example_dataloader_ref, cv2.resize(dataset[index_worst][0][0], (0, 0), fx=0.3, fy=0.3)
+                )
+                filename_examples.append(filename_example_dataloader_ref)
+
+            filename_example_dataloader = f"examples_images/{dl.name}_{index_worst}.png"
+            cv2.imwrite(filename_example_dataloader, cv2.resize(dl[index_worst][0][0], (0, 0), fx=0.3, fy=0.3))
+            filename_examples.append(filename_example_dataloader)
+
+            results.append(self.get_scan_result(test_result, filename_examples))
 
         return results
 
-    def get_scan_result(self, test_result) -> ScanResult:
+    def get_scan_result(self, test_result, filename_examples) -> ScanResult:
         try:
             from giskard.scanner.issues import IssueLevel
         except (ImportError, ModuleNotFoundError) as e:
             raise GiskardImportError(["giskard"]) from e
 
-        if test_result.metric_value > 0.1:
+        relative_delta = (test_result.metric_value_test - test_result.metric_value_ref) / test_result.metric_value_ref
+
+        if relative_delta > self.threshold:
             issue_level = IssueLevel.MAJOR
-        elif test_result.metric_value > 0:
+        elif relative_delta > 0:
             issue_level = IssueLevel.MEDIUM
         else:
             issue_level = IssueLevel.MINOR
@@ -62,4 +95,6 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
             metric_reference_value=test_result.metric_value_ref,
             issue_level=issue_level,
             slice_size=test_result.size_data,
+            filename_examples=filename_examples,
+            relative_delta=relative_delta,
         )

@@ -362,6 +362,8 @@ class FilteredDataLoader(DataLoaderWrapper):
         FilteredDataLoader: Filtered data loader instance.
     """
 
+    dataloader_type = "filter"
+
     @property
     def name(self):
         """

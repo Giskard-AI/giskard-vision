@@ -48,9 +48,3 @@ class HeadPoseDetectorLandmark(LandmarkDetectionBaseDetector):
 
         current_map.__name__ = f"head pose: {lower} < {key} < {upper}"
         return current_map
-
-    def _positive_roll(self, elt):
-        return elt[2]["headPose"]["roll"] > 0
-
-    def _negative_roll(self, elt):
-        return elt[2]["headPose"]["roll"] < 0

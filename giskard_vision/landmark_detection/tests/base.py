@@ -52,6 +52,7 @@ class TestResult:
     dataloader_ref_name: Optional[str] = None
     size_data: Optional[int] = None
     issue_name: Optional[str] = None
+    indexes_examples: Optional[list] = None
 
     def _repr_html_(self):
         """
@@ -268,6 +269,7 @@ class TestDiff:
     metric: Metric
     threshold: float
     relative: bool = True
+    metric_for_examples: Optional[Metric] = None
 
     def run(
         self,
@@ -303,6 +305,12 @@ class TestDiff:
         ground_truth_ref = dataloader_ref.all_marks
         metric_ref_value = self.metric.get(prediction_result_ref, ground_truth_ref)
 
+        if self.metric_for_examples is not None:
+            metrics_examples = self.metric_for_examples.get(prediction_result, ground_truth)
+            indexes = sorted(range(len(metrics_examples)), key=metrics_examples.__getitem__)[::-1]
+        else:
+            indexes = None
+
         norm = metric_ref_value if self.relative else 1.0
         metric_value_test = metric_value
         metric_value = (metric_value - metric_ref_value) / norm
@@ -312,6 +320,7 @@ class TestDiff:
         prediction_fail_rate = np.mean(
             [prediction_result.prediction_fail_rate, prediction_result_ref.prediction_fail_rate]
         )
+
         return TestResult(
             test_name=self.__class__.__name__,
             description=self.metric.description,
@@ -330,4 +339,5 @@ class TestDiff:
             dataloader_ref_name=dataloader_ref.name,
             size_data=len(dataloader),
             issue_name=dataloader.name,
+            indexes_examples=indexes,
         )
