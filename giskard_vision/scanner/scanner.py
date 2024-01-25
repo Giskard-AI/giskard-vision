@@ -42,12 +42,7 @@ class Scanner:
         self.uuid = uuid.uuid4()
 
     def analyze(
-        self,
-        model,
-        dataset,
-        detectors: Sequence[Any] = None,
-        verbose=True,
-        raise_exceptions=False,
+        self, model, dataset, detectors: Sequence[Any] = None, verbose=True, raise_exceptions=False, embed=True
     ) -> ScanReport:
         """Runs the analysis of a model and dataset, detecting issues.
         Parameters
@@ -63,6 +58,8 @@ class Scanner:
         raise_exceptions : bool
             Whether to raise an exception if detection errors are encountered. By default, errors are logged and
             handled gracefully, without interrupting the scan.
+        embed : bool
+            Whether to embed images into html
         Returns
         -------
         ScanReport
@@ -81,7 +78,7 @@ class Scanner:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             issues, errors = self._run_detectors(
-                detectors, model, dataset, verbose=verbose, raise_exceptions=raise_exceptions
+                detectors, model, dataset, verbose=verbose, raise_exceptions=raise_exceptions, embed=embed
             )
 
         # Scan completed
@@ -92,7 +89,7 @@ class Scanner:
 
         return ScanReport(issues, model=model, dataset=dataset)
 
-    def _run_detectors(self, detectors, model, dataset, verbose=True, raise_exceptions=False):
+    def _run_detectors(self, detectors, model, dataset, verbose=True, raise_exceptions=False, embed=True):
         if not detectors:
             raise RuntimeError("No issue detectors available. Scan will not be performed.")
 
@@ -104,7 +101,7 @@ class Scanner:
             maybe_print(f"Running detector {detector.__class__.__name__}…", verbose=verbose)
             detector_start = perf_counter()
             try:
-                detected_issues = detector.run(model, dataset)
+                detected_issues = detector.run(model, dataset, embed=embed)
             except Exception as err:
                 logger.error(f"Detector {detector.__class__.__name__} failed with error: {err}")
                 errors.append((detector, err))

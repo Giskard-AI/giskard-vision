@@ -48,7 +48,7 @@ class ScanResult:
 
 class DetectorVisionBase:
     """
-    Abstract class for Vision Detectors, that inherits from giskard Detector
+    Abstract class for Vision Detectors
 
     Methods:
         run(model: Any, dataset: Any, features: Optional[Any], issue_levels: Tuple[IssueLevel]) -> Sequence[Issues]:
@@ -72,13 +72,14 @@ class DetectorVisionBase:
         dataset: Any,
         features: Optional[Any] = None,
         issue_levels: Tuple[Any] = None,
+        embed: bool = True,
     ) -> Sequence[Any]:
         results = self.get_results(model, dataset)
-        issues = self.get_issues(model, dataset, results=results, issue_levels=issue_levels)
+        issues = self.get_issues(model, dataset, results=results, issue_levels=issue_levels, embed=embed)
         return issues
 
     def get_issues(
-        self, model: Any, dataset: Any, results: List[ScanResult], issue_levels: Tuple[Any]
+        self, model: Any, dataset: Any, results: List[ScanResult], issue_levels: Tuple[Any], embed: bool = True
     ) -> Sequence[Any]:
         """
         Returns a list of giskard Issue from results output by get_results
@@ -116,7 +117,7 @@ class DetectorVisionBase:
                                 self.warning_messages[result.group] if result.group in self.warning_messages else "",
                             ),
                             meta=result.get_meta_required(),
-                            scan_examples=ImagesExampleManager(result.filename_examples),
+                            scan_examples=ImagesExampleManager(result.filename_examples, embed=embed),
                             display_footer_info=False,
                         )
                     )
