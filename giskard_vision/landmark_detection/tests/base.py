@@ -249,8 +249,6 @@ class Test:
             metric_name=self.metric.name,
             model_name=model.name,
             dataloader_name=dataloader.name,
-            size_data=len(dataloader),
-            issue_name=(dataloader.split_name if hasattr(dataloader, "split_name") else "NA"),
         )
 
 

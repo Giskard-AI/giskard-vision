@@ -1,5 +1,6 @@
 import os
 from abc import abstractmethod
+from pathlib import Path
 from typing import Any, Sequence
 
 import cv2
@@ -8,8 +9,6 @@ from giskard_vision.detectors.base import DetectorVisionBase, ScanResult
 from giskard_vision.landmark_detection.tests.base import TestDiff
 from giskard_vision.landmark_detection.tests.performance import NMEMean, NMEs
 from giskard_vision.utils.errors import GiskardImportError
-
-from pathlib import Path
 
 
 class LandmarkDetectionBaseDetector(DetectorVisionBase):
