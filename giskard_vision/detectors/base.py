@@ -63,6 +63,7 @@ class DetectorVisionBase:
     """
 
     group: str
+    warning_messages: dict = {}
     threshold: Optional[float] = 0.1
 
     def run(
@@ -110,7 +111,10 @@ class DetectorVisionBase:
                             dataset,
                             level=result.issue_level,
                             slicing_fn=result.name,
-                            group=IssueGroup(result.group, ""),
+                            group=IssueGroup(
+                                result.group,
+                                self.warning_messages[result.group] if result.group in self.warning_messages else "",
+                            ),
                             meta=result.get_meta_required(),
                             scan_examples=ImagesExampleManager(result.filename_examples),
                             display_footer_info=False,

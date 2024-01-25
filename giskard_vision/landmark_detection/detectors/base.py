@@ -26,6 +26,13 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
             Convert TestResult to ScanResult
     """
 
+    warning_messages: dict = {
+        "Cropping": "Cropping involves evaluating the landmark detection model on specific face areas.",
+        "Ethical": "The data are filtered by ethnicity to detect ethical biases in the landmark detection model.",
+        "Head Pose": "The data are filtered by head pose to detect biases in the landmark detection model.",
+        "Robustness": "Images from the dataset are blurred, recolored and resized to test the robustness of the model to transformations.",
+    }
+
     @abstractmethod
     def get_dataloaders(self, dataset: Any) -> Sequence[Any]:
         ...
