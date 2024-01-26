@@ -23,3 +23,11 @@ source .venv/bin/activate
 
 setup dev-env and check out `examples`.
 
+## FAQ
+
+#### I am getting `attributeerror: module 'cv2.face' has no attribute 'createlbphfacerecognizer'` when running some examples in dev mode
+This is most likely due to the order in which `opencv-contrib-python` module is installed. The following trick should resolve the issue:
+```bash
+pip uninstall opencv-contrib-python
+pip install opencv-contrib-python
+```
