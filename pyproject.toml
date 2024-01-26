@@ -24,7 +24,7 @@ notebook = "jupyter notebook --ip 0.0.0.0 --port 8888 --no-browser --notebook-di
 format.cmd = "bash -c 'ruff ./giskard_vision ./tests --fix && black ./giskard_vision ./examples ./tests  && isort ./giskard_vision ./tests'"
 check-format.cmd = "bash -c 'ruff ./giskard_vision ./tests && black --check ./giskard_vision ./examples ./tests && isort --check ./giskard_vision ./tests'"
 test.cmd = "pytest tests/ -c pyproject.toml --disable-warnings -vvv --durations=0"
-check-notebook = "bash -c 'for dir in $(find ~+/examples -type d); do cd $dir && pdm run jupyter nbconvert --to script -y *.ipynb && find . -type f  | grep -e \".py$\" | sort | xargs -I {} echo \"pdm run python {} && echo \"Notebook {} OK\" || exit 1\" | sh; done'"
+check-notebook = "bash -c 'for dir in $(find ~+/examples -type d); do cd $dir && pdm run jupyter nbconvert --to script -y *.ipynb && find . -name '*.ipynb'  | grep -e \".py$\" | sort | xargs -I {} echo \"pdm run python {} && echo \"Notebook {} OK\" || exit 1\" | sh; done'"
 
 [tool.pdm.dev-dependencies]
 dev = [
