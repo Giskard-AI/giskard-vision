@@ -296,10 +296,10 @@ class TestDiff:
         prediction_result_ref = model.predict(dataloader_ref, facial_part=facial_part)
 
         ground_truth = dataloader.all_marks
-        metric_value = self.metric.get(prediction_result, ground_truth)
+        metric_value_test = self.metric.get(prediction_result, ground_truth)
 
         ground_truth_ref = dataloader_ref.all_marks
-        metric_ref_value = self.metric.get(prediction_result_ref, ground_truth_ref)
+        metric_value_ref = self.metric.get(prediction_result_ref, ground_truth_ref)
 
         if self.metric_for_examples is not None:
             metrics_examples = self.metric_for_examples.get(prediction_result, ground_truth)
@@ -308,8 +308,7 @@ class TestDiff:
             indexes = None
 
         norm = metric_ref_value if self.relative else 1.0
-        metric_value_test = metric_value
-        metric_value = (metric_value - metric_ref_value) / norm
+        metric_value = (metric_value_test - metric_value_ref) / norm
 
         prediction_results = [prediction_result, prediction_result_ref]
         prediction_time = prediction_result.prediction_time + prediction_result_ref.prediction_time
@@ -322,7 +321,7 @@ class TestDiff:
             description=self.metric.description,
             metric_value=metric_value,
             metric_value_test=metric_value_test,
-            metric_value_ref=metric_ref_value,
+            metric_value_ref=metric_value_ref,
             threshold=self.threshold,
             prediction_results=prediction_results,
             passed=bool(metric_value <= self.threshold),  # casting is important for json dumping
