@@ -95,6 +95,7 @@ class DataLoaderFFHQ(DataLoaderBase):
     """
 
     image_suffix: str = ".png"
+    marks_suffix: str = ".pts"
     n_landmarks: int = 68
     n_dimensions: int = 2
 
@@ -128,8 +129,8 @@ class DataLoaderFFHQ(DataLoaderBase):
                 int(k): v["image"]["face_landmarks"] for k, v in json.load(fp).items()
             }
 
-        images_dir_path = self._get_absolute_local_path(dir_path)
-        self.image_paths = self._get_all_paths_based_on_suffix(images_dir_path, self.image_suffix)
+        self.images_dir_path = self._get_absolute_local_path(dir_path)
+        self.image_paths = self._get_all_paths_based_on_suffix(self.images_dir_path, self.image_suffix)
 
     def get_marks(self, idx: int) -> Optional[np.ndarray]:
         """
@@ -153,7 +154,7 @@ class DataLoaderFFHQ(DataLoaderBase):
         Returns:
             Optional[Dict]: Metadata for the given index.
         """
-        with Path(f"ffhq/{idx:05d}.json").open(encoding="utf-8") as fp:
+        with Path(self.images_dir_path / f"{idx:05d}.json").open(encoding="utf-8") as fp:
             meta = json.load(fp)
         return meta[0]
 
