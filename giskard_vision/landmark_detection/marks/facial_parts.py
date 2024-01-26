@@ -170,7 +170,7 @@ class FacialParts(Enum):
     LEFT_EYE = FacialPart.from_indices("left eye", 36, 42)
     RIGHT_EYE = FacialPart.from_indices("right eye", 42, 48)
 
-    MOUTH = FacialPart.from_indices("nose", 48, 68)
+    MOUTH = FacialPart.from_indices("mouth", 48, 68)
 
     BOTTOM_HALF = FacialPart("bottom half", _BOTTOM_HALF)
     UPPER_HALF = FacialPart("upper half", ~_BOTTOM_HALF)
