@@ -95,7 +95,6 @@ class DataLoaderFFHQ(DataLoaderBase):
     """
 
     image_suffix: str = ".png"
-    marks_suffix: str = ".pts"
     n_landmarks: int = 68
     n_dimensions: int = 2
 
