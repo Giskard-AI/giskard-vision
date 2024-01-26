@@ -307,7 +307,7 @@ class TestDiff:
         else:
             indexes = None
 
-        norm = metric_ref_value if self.relative else 1.0
+        norm = metric_value_ref if self.relative else 1.0
         metric_value = (metric_value_test - metric_value_ref) / norm
 
         prediction_results = [prediction_result, prediction_result_ref]
