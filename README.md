@@ -31,7 +31,7 @@
 ## Install
 
 ```
-pip install giskard-vision==0.0.1
+pip install giskard-vision
 ```
 
 To install the repo in dev mode
