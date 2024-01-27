@@ -21,7 +21,7 @@ source .venv/bin/activate
 
 ## Examples
 
-In order to explore the notebooks, all you need is to install the repo in dev mode and check out `examples` directory.
+In order to explore the jupyter notebook tutorials, all you need is to install the repo in dev mode and check out `examples` directory.
 
 ## FAQ
 
