@@ -1,9 +1,8 @@
 from typing import Any, List, Optional
 
-from .scanner import Scanner
-
-from ..landmark_detection.models.base import FaceLandmarksModelBase
 from ..landmark_detection.dataloaders.base import DataIteratorBase
+from ..landmark_detection.models.base import FaceLandmarksModelBase
+from .scanner import Scanner
 
 
 def scan(
