@@ -7,8 +7,15 @@ import cv2
 
 from giskard_vision.detectors.base import DetectorVisionBase, ScanResult
 from giskard_vision.landmark_detection.tests.base import TestDiff
-from giskard_vision.landmark_detection.tests.performance import NMEMean, NMEs
+from giskard_vision.landmark_detection.tests.performance import NMEMean
 from giskard_vision.utils.errors import GiskardImportError
+
+WARNING_MESSAGES: dict = {
+    "Cropping": "Cropping involves evaluating the landmark detection model on specific face areas.",
+    "Ethical": "The data are filtered by ethnicity to detect ethical biases in the landmark detection model.",
+    "Head Pose": "The data are filtered by head pose to detect biases in the landmark detection model.",
+    "Robustness": "Images from the dataset are blurred, recolored and resized to test the robustness of the model to transformations.",
+}
 
 
 class LandmarkDetectionBaseDetector(DetectorVisionBase):
@@ -27,12 +34,7 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
             Convert TestResult to ScanResult
     """
 
-    warning_messages: dict = {
-        "Cropping": "Cropping involves evaluating the landmark detection model on specific face areas.",
-        "Ethical": "The data are filtered by ethnicity to detect ethical biases in the landmark detection model.",
-        "Head Pose": "The data are filtered by head pose to detect biases in the landmark detection model.",
-        "Robustness": "Images from the dataset are blurred, recolored and resized to test the robustness of the model to transformations.",
-    }
+    warning_messages: dict = WARNING_MESSAGES
 
     @abstractmethod
     def get_dataloaders(self, dataset: Any) -> Sequence[Any]:
@@ -43,7 +45,7 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
 
         results = []
         for dl in dataloaders:
-            test_result = TestDiff(metric=NMEMean, threshold=1, metric_for_examples=NMEs).run(
+            test_result = TestDiff(metric=NMEMean, threshold=1).run(
                 model=model,
                 dataloader=dl,
                 dataloader_ref=dataset,
@@ -81,9 +83,9 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
 
         relative_delta = (test_result.metric_value_test - test_result.metric_value_ref) / test_result.metric_value_ref
 
-        if relative_delta > self.threshold:
+        if relative_delta > self.issue_level_threshold:
             issue_level = IssueLevel.MAJOR
-        elif relative_delta > 0:
+        elif relative_delta > self.deviation_threshold:
             issue_level = IssueLevel.MEDIUM
         else:
             issue_level = IssueLevel.MINOR

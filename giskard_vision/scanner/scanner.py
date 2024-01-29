@@ -5,8 +5,13 @@ import warnings
 from time import perf_counter
 from typing import Any, Optional, Sequence
 
-from giskard.scanner.registry import DetectorRegistry
-from giskard.scanner.report import ScanReport
+from ..utils.errors import GiskardImportError
+
+try:
+    from giskard.scanner.registry import DetectorRegistry
+    from giskard.scanner.report import ScanReport
+except (ImportError, ModuleNotFoundError) as e:
+    raise GiskardImportError(["giskard"]) from e
 
 
 def warning(content: str):

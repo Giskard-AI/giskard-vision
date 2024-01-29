@@ -169,6 +169,20 @@ class Metric(ABC):
         """
         ...
 
+    @staticmethod
+    @abstractmethod
+    def rank_data(prediction_result: PredictionResult, marks: np.ndarray, **kwargs) -> List[int]:
+        """Abstract method to define how the mtric ranks data samples from worse to best
+
+        Args:
+            prediction_result (PredictionResult): The prediction result to evaluate.
+            marks (np.ndarray): Ground truth facial landmarks.
+
+        Returns:
+            List[int]: Indexes of data samples from worse to best
+        """
+        ...
+
     @classmethod
     def validation(cls, prediction_result: PredictionResult, marks: np.ndarray, **kwargs) -> None:
         """Validate the input types for the metric calculation.
@@ -265,7 +279,6 @@ class TestDiff:
     metric: Metric
     threshold: float
     relative: bool = True
-    metric_for_examples: Optional[Metric] = None
 
     def run(
         self,
@@ -301,9 +314,8 @@ class TestDiff:
         ground_truth_ref = dataloader_ref.all_marks
         metric_value_ref = self.metric.get(prediction_result_ref, ground_truth_ref)
 
-        if self.metric_for_examples is not None:
-            metrics_examples = self.metric_for_examples.get(prediction_result, ground_truth)
-            indexes = sorted(range(len(metrics_examples)), key=metrics_examples.__getitem__)[::-1]
+        if hasattr(self.metric, "rank_data"):
+            indexes = self.metric.rank_data(prediction_result, ground_truth)
         else:
             indexes = None
 

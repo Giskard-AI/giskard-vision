@@ -74,6 +74,12 @@ class NMEMean(Metric):
     def definition(prediction_result: PredictionResult, marks: np.ndarray):
         return np.nanmean(NMEs.get(prediction_result, marks))
 
+    @staticmethod
+    def rank_data(prediction_result: PredictionResult, marks: np.ndarray):
+        predictions = NMEs.get(prediction_result, marks)
+        indexes = sorted(range(len(predictions)), key=predictions.__getitem__)[::-1]
+        return indexes
+
 
 @dataclass
 class NMEStd(Metric):

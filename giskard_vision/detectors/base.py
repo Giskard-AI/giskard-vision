@@ -63,8 +63,9 @@ class DetectorVisionBase:
     """
 
     group: str
-    warning_messages: dict = {}
-    threshold: Optional[float] = 0.1
+    warning_messages: dict
+    issue_level_threshold: float = 0.2
+    deviation_threshold: float = 0.05
 
     def run(
         self,
@@ -101,29 +102,29 @@ class DetectorVisionBase:
 
             from .example_manager import ImagesExampleManager
 
-            if issue_levels is None:
-                issue_levels = (IssueLevel.MAJOR, IssueLevel.MEDIUM)
-
-            for result in results:
-                if result.issue_level in issue_levels:
-                    issues.append(
-                        Issue(
-                            model,
-                            dataset,
-                            level=result.issue_level,
-                            slicing_fn=result.name,
-                            group=IssueGroup(
-                                result.group,
-                                self.warning_messages[result.group] if result.group in self.warning_messages else "",
-                            ),
-                            meta=result.get_meta_required(),
-                            scan_examples=ImagesExampleManager(result.filename_examples, embed=embed),
-                            display_footer_info=False,
-                        )
-                    )
-
         except (ImportError, ModuleNotFoundError) as e:
             raise GiskardImportError(["giskard"]) from e
+
+        if issue_levels is None:
+            issue_levels = (IssueLevel.MAJOR, IssueLevel.MEDIUM)
+
+        for result in results:
+            if result.issue_level in issue_levels:
+                issues.append(
+                    Issue(
+                        model,
+                        dataset,
+                        level=result.issue_level,
+                        slicing_fn=result.name,
+                        group=IssueGroup(
+                            result.group,
+                            self.warning_messages[result.group] if result.group in self.warning_messages else "",
+                        ),
+                        meta=result.get_meta_required(),
+                        scan_examples=ImagesExampleManager(result.filename_examples, embed=embed),
+                        display_footer_info=False,
+                    )
+                )
 
         return issues
 
