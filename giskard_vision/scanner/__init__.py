@@ -2,10 +2,13 @@ from typing import Any, List, Optional
 
 from .scanner import Scanner
 
+from ..landmark_detection.models.base import FaceLandmarksModelBase
+from ..landmark_detection.dataloaders.base import DataIteratorBase
+
 
 def scan(
-    model,
-    dataset,
+    model: FaceLandmarksModelBase,
+    dataloader: DataIteratorBase,
     detectors: Optional[List[Any]] = None,
     params=None,
     only=None,
@@ -18,10 +21,10 @@ def scan(
 
     Parameters
     ----------
-    model : Any
+    model : FaceLandmarksModelBase
         A model object.
-    dataset : Any
-        A dataset object.
+    dataloader : DataIteratorBase
+        A dataloader object.
     detectors : List[Any]
         A list of detectors to use for the scan. If not specified, all detectors that correspond to the model type will be used.
     params : dict
@@ -42,7 +45,7 @@ def scan(
     """
     scanner = Scanner(params, only=only)
     return scanner.analyze(
-        model, dataset=dataset, detectors=detectors, verbose=verbose, raise_exceptions=raise_exceptions
+        model, dataset=dataloader, detectors=detectors, verbose=verbose, raise_exceptions=raise_exceptions
     )
 
 
