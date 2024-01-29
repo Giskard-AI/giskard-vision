@@ -1,6 +1,6 @@
 from giskard_vision.landmark_detection.dataloaders.wrappers import ColoredDataLoader
 
-from .base import LandmarkDetectionBaseDetector
+from .base import LandmarkDetectionBaseDetector, Robustness
 from .decorator import maybe_detector
 
 
@@ -10,7 +10,7 @@ class TransformationColorDetectorLandmark(LandmarkDetectionBaseDetector):
     Detector that evaluates models performance depending on images in grayscale
     """
 
-    group: str = "Robustness"
+    issue_group = Robustness
 
     def get_dataloaders(self, dataset):
         dl = ColoredDataLoader(dataset)

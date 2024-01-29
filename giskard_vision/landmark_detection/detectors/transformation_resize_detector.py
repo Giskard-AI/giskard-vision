@@ -1,6 +1,6 @@
 from giskard_vision.landmark_detection.dataloaders.wrappers import ResizedDataLoader
 
-from .base import LandmarkDetectionBaseDetector
+from .base import LandmarkDetectionBaseDetector, Robustness
 from .decorator import maybe_detector
 
 
@@ -10,7 +10,7 @@ class TransformationResizeDetectorLandmark(LandmarkDetectionBaseDetector):
     Detector that evaluates models performance on resized images
     """
 
-    group: str = "Robustness"
+    issue_group = Robustness
 
     def __init__(self, scales=0.5):
         self.scales = scales

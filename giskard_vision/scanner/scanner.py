@@ -7,12 +7,6 @@ from typing import Any, Optional, Sequence
 
 from ..utils.errors import GiskardImportError
 
-try:
-    from giskard.scanner.registry import DetectorRegistry
-    from giskard.scanner.report import ScanReport
-except (ImportError, ModuleNotFoundError) as e:
-    raise GiskardImportError(["giskard"]) from e
-
 
 def warning(content: str):
     warnings.warn(content, stacklevel=2)
@@ -48,7 +42,7 @@ class Scanner:
 
     def analyze(
         self, model, dataset, detectors: Sequence[Any] = None, verbose=True, raise_exceptions=False, embed=True
-    ) -> ScanReport:
+    ):
         """Runs the analysis of a model and dataset, detecting issues.
         Parameters
         ----------
@@ -70,6 +64,10 @@ class Scanner:
         ScanReport
             A report object containing the detected issues and other information.
         """
+        try:
+            from giskard.scanner.report import ScanReport
+        except (ImportError, ModuleNotFoundError) as e:
+            raise GiskardImportError(["giskard"]) from e
 
         # Good, we can start
         maybe_print("🔎 Running scan…", verbose=verbose)
@@ -127,6 +125,12 @@ class Scanner:
 
     def get_detectors(self, tags: Optional[Sequence[str]] = None) -> Sequence:
         """Returns the detector instances."""
+
+        try:
+            from giskard.scanner.registry import DetectorRegistry
+        except (ImportError, ModuleNotFoundError) as e:
+            raise GiskardImportError(["giskard"]) from e
+
         detectors = []
         classes = DetectorRegistry.get_detector_classes(tags=tags)
 

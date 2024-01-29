@@ -1,6 +1,6 @@
 from ..dataloaders.wrappers import CroppedDataLoader
 from ..marks.facial_parts import FacialParts
-from .base import LandmarkDetectionBaseDetector
+from .base import Cropping, LandmarkDetectionBaseDetector
 from .decorator import maybe_detector
 
 
@@ -10,7 +10,7 @@ class CroppingDetectorLandmark(LandmarkDetectionBaseDetector):
     Detector that evaluates models performance relative to a facial part
     """
 
-    group: str = "Cropping"
+    issue_group = Cropping
 
     def get_dataloaders(self, dataset):
         facial_parts = [elt.value for elt in FacialParts]

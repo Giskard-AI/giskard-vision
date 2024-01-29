@@ -6,7 +6,7 @@ from giskard_vision.landmark_detection.dataloaders.wrappers import (
     HeadPoseDataLoader,
 )
 
-from .base import LandmarkDetectionBaseDetector
+from .base import LandmarkDetectionBaseDetector, Pose
 from .decorator import maybe_detector
 
 
@@ -16,7 +16,7 @@ class HeadPoseDetectorLandmark(LandmarkDetectionBaseDetector):
     Detector that evaluates models performance depending on the head position
     """
 
-    group: str = "Head Pose"
+    issue_group = Pose
 
     selected_poses = {
         "roll": [(-inf, -1e-5), (-1e-5, 1e-5), (1e-5, inf)],

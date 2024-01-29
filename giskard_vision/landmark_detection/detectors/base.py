@@ -5,17 +5,29 @@ from typing import Any, Sequence
 
 import cv2
 
-from giskard_vision.detectors.base import DetectorVisionBase, ScanResult
+from giskard_vision.detectors.base import DetectorVisionBase, IssueGroup, ScanResult
 from giskard_vision.landmark_detection.tests.base import TestDiff
 from giskard_vision.landmark_detection.tests.performance import NMEMean
 from giskard_vision.utils.errors import GiskardImportError
 
-WARNING_MESSAGES: dict = {
-    "Cropping": "Cropping involves evaluating the landmark detection model on specific face areas.",
-    "Ethical": "The data are filtered by ethnicity to detect ethical biases in the landmark detection model.",
-    "Head Pose": "The data are filtered by head pose to detect biases in the landmark detection model.",
-    "Robustness": "Images from the dataset are blurred, recolored and resized to test the robustness of the model to transformations.",
-}
+Cropping = IssueGroup(
+    "Cropping", description="Cropping involves evaluating the landmark detection model on specific face areas."
+)
+
+Ethical = IssueGroup(
+    "Ethical",
+    description="The data are filtered by ethnicity to detect ethical biases in the landmark detection model.",
+)
+
+Pose = IssueGroup(
+    "Head Pose",
+    description="The data are filtered by head pose to detect biases in the landmark detection model.",
+)
+
+Robustness = IssueGroup(
+    "Robustness",
+    description="Images from the dataset are blurred, recolored and resized to test the robustness of the model to transformations.",
+)
 
 
 class LandmarkDetectionBaseDetector(DetectorVisionBase):
@@ -33,8 +45,6 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
         get_scan_result(self, test_result) -> ScanResult:
             Convert TestResult to ScanResult
     """
-
-    warning_messages: dict = WARNING_MESSAGES
 
     @abstractmethod
     def get_dataloaders(self, dataset: Any) -> Sequence[Any]:
@@ -92,7 +102,6 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
 
         return ScanResult(
             name=name,
-            group=self.group,
             metric_name=test_result.metric_name,
             metric_value=test_result.metric_value_test,
             metric_reference_value=test_result.metric_value_ref,

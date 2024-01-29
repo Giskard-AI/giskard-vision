@@ -4,7 +4,7 @@ from giskard_vision.landmark_detection.dataloaders.wrappers import (
     FilteredDataLoader,
 )
 
-from .base import LandmarkDetectionBaseDetector
+from .base import Ethical, LandmarkDetectionBaseDetector
 from .decorator import maybe_detector
 
 
@@ -14,7 +14,7 @@ class EthnicityDetectorLandmark(LandmarkDetectionBaseDetector):
     Detector that evaluates models performance depending on ethnicity
     """
 
-    group: str = "Ethical"
+    issue_group = Ethical
 
     supported_ethnicities = EthnicityDataLoader.supported_ethnicities
 

@@ -170,9 +170,8 @@ class Metric(ABC):
         ...
 
     @staticmethod
-    @abstractmethod
     def rank_data(prediction_result: PredictionResult, marks: np.ndarray, **kwargs) -> List[int]:
-        """Abstract method to define how the mtric ranks data samples from worse to best
+        """Abstract method to define how the metric ranks data samples from worse to best
 
         Args:
             prediction_result (PredictionResult): The prediction result to evaluate.
@@ -181,7 +180,7 @@ class Metric(ABC):
         Returns:
             List[int]: Indexes of data samples from worse to best
         """
-        ...
+        return None
 
     @classmethod
     def validation(cls, prediction_result: PredictionResult, marks: np.ndarray, **kwargs) -> None:
@@ -314,10 +313,7 @@ class TestDiff:
         ground_truth_ref = dataloader_ref.all_marks
         metric_value_ref = self.metric.get(prediction_result_ref, ground_truth_ref)
 
-        if hasattr(self.metric, "rank_data"):
-            indexes = self.metric.rank_data(prediction_result, ground_truth)
-        else:
-            indexes = None
+        indexes = self.metric.rank_data(prediction_result, ground_truth)
 
         norm = metric_value_ref if self.relative else 1.0
         metric_value = (metric_value_test - metric_value_ref) / norm

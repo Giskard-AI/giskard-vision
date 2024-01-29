@@ -5,6 +5,12 @@ from typing import Any, List, Optional, Sequence, Tuple
 from ..utils.errors import GiskardImportError
 
 
+@dataclass(frozen=True)
+class IssueGroup:
+    name: str
+    description: str
+
+
 @dataclass
 class ScanResult:
     """
@@ -12,7 +18,6 @@ class ScanResult:
 
     Attributes:
         name (str): Details on transformation or slice
-        group (str): Group name for the issue
         metric_name (str): Name of the metric
         metric_value (float): Value of the metric on sliced or transformed dataset
         metric_reference_value (float): Value of the metric on original dataset
@@ -25,7 +30,6 @@ class ScanResult:
     """
 
     name: str
-    group: str
     metric_name: str
     metric_value: float
     metric_reference_value: float
@@ -62,7 +66,7 @@ class DetectorVisionBase:
             evaluation results for the scan.
     """
 
-    group: str
+    issue_group: IssueGroup
     warning_messages: dict
     issue_level_threshold: float = 0.2
     deviation_threshold: float = 0.05
@@ -98,7 +102,7 @@ class DetectorVisionBase:
         issues = []
 
         try:
-            from giskard.scanner.issues import Issue, IssueGroup, IssueLevel
+            from giskard.scanner.issues import Issue, IssueLevel
 
             from .example_manager import ImagesExampleManager
 
@@ -116,10 +120,7 @@ class DetectorVisionBase:
                         dataset,
                         level=result.issue_level,
                         slicing_fn=result.name,
-                        group=IssueGroup(
-                            result.group,
-                            self.warning_messages[result.group] if result.group in self.warning_messages else "",
-                        ),
+                        group=self.issue_group,
                         meta=result.get_meta_required(),
                         scan_examples=ImagesExampleManager(result.filename_examples, embed=embed),
                         display_footer_info=False,
@@ -134,8 +135,6 @@ class DetectorVisionBase:
         ScanResult should contain
         name : str
             Details on transformation or slice
-        group : IssueGroup
-            Group name for the issue
         metric_name : str
             Name of the metric
         metric_value : float

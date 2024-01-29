@@ -18,10 +18,10 @@ def scan(
 
     Parameters
     ----------
-    model : BaseModel
-        A Giskard model object.
-    dataset : Dataset
-        A Giskard dataset object.
+    model : Any
+        A model object.
+    dataset : Any
+        A dataset object.
     detectors : List[Any]
         A list of detectors to use for the scan. If not specified, all detectors that correspond to the model type will be used.
     params : dict
