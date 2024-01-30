@@ -50,13 +50,6 @@ class MEMean(Metric):
     def definition(prediction_result: PredictionResult, marks: np.ndarray):
         return np.nanmean(Es.get(prediction_result, marks))
 
-    @staticmethod
-    def rank_data(prediction_result: PredictionResult, marks: np.ndarray):
-        mes = Es.get(prediction_result, marks)
-        indexes = sorted(range(len(mes)), key=mes.__getitem__)
-        indexes.reverse()
-        return indexes
-
 
 @dataclass
 class MEStd(Metric):
@@ -68,13 +61,6 @@ class MEStd(Metric):
     @staticmethod
     def definition(prediction_result: PredictionResult, marks: np.ndarray):
         return np.nanstd(Es.get(prediction_result, marks))
-
-    @staticmethod
-    def rank_data(prediction_result: PredictionResult, marks: np.ndarray):
-        mes = Es.get(prediction_result, marks)
-        indexes = sorted(range(len(mes)), key=mes.__getitem__)
-        indexes.reverse()
-        return indexes
 
 
 @dataclass
@@ -104,13 +90,6 @@ class NMEStd(Metric):
     @staticmethod
     def definition(prediction_result: PredictionResult, marks: np.ndarray):
         return np.nanstd(NMEs.get(prediction_result, marks))
-
-    @staticmethod
-    def rank_data(prediction_result: PredictionResult, marks: np.ndarray):
-        nmes = NMEs.get(prediction_result, marks)
-        indexes = sorted(range(len(nmes)), key=nmes.__getitem__)
-        indexes.reverse()
-        return indexes
 
 
 @dataclass
@@ -142,13 +121,6 @@ class NERFMarks(Metric):
             raise ValueError(
                 f"{cls.__name__}: radius_limit is defined as a fraction of the outer canthal distance (i.e. distance between left and right eyes). It must be a float between 0 and 1."
             )
-
-    @staticmethod
-    def rank_data(prediction_result: PredictionResult, marks: np.ndarray, radius_limit: float):
-        nerfmarks = NEs.get(prediction_result, marks, radius_limit)
-        indexes = sorted(range(len(nerfmarks)), key=nerfmarks.__getitem__)
-        indexes.reverse()
-        return indexes
 
 
 @dataclass
