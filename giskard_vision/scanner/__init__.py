@@ -19,7 +19,7 @@ _register_default_detectors()
 
 def scan(
     model: FaceLandmarksModelBase,
-    dataloader: DataIteratorBase,
+    dataset: DataIteratorBase,
     params=None,
     only=None,
     verbose=True,
@@ -33,8 +33,8 @@ def scan(
     ----------
     model : FaceLandmarksModelBase
         A model object.
-    dataloader : DataIteratorBase
-        A dataloader object.
+    dataset : DataIteratorBase
+        A dataset object.
     params : dict
         Advanced scanner configuration. See :class:`Scanner` for more details.
     only : list
@@ -52,7 +52,7 @@ def scan(
         A scan report object containing the results of the scan.
     """
     scanner = Scanner(params, only=only)
-    return scanner.analyze(model, dataloader=dataloader, verbose=verbose, raise_exceptions=raise_exceptions)
+    return scanner.analyze(model, dataset=dataset, verbose=verbose, raise_exceptions=raise_exceptions)
 
 
 __all__ = ["scan", "Scanner"]

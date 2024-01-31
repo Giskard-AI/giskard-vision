@@ -40,14 +40,14 @@ class Scanner:
         self.only = only
         self.uuid = uuid.uuid4()
 
-    def analyze(self, model, dataloader, verbose=True, raise_exceptions=False, embed=True):
-        """Runs the analysis of a model and dataloader, detecting issues.
+    def analyze(self, model, dataset, verbose=True, raise_exceptions=False, embed=True):
+        """Runs the analysis of a model and dataset, detecting issues.
         Parameters
         ----------
         model : FaceLandmarksModelBase
             A Giskard model object.
-        dataloader : DataIteratorBase
-            A dataloader object.
+        dataset : DataIteratorBase
+            A dataset object.
         verbose : bool
             Whether to print detailed info messages. Enabled by default.
         raise_exceptions : bool
@@ -76,7 +76,7 @@ class Scanner:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             issues, errors = self._run_detectors(
-                detectors, model, dataloader, verbose=verbose, raise_exceptions=raise_exceptions, embed=embed
+                detectors, model, dataset, verbose=verbose, raise_exceptions=raise_exceptions, embed=embed
             )
 
         # Scan completed
@@ -85,7 +85,7 @@ class Scanner:
         if verbose:
             self._print_execution_summary(model, issues, errors, elapsed)
 
-        return ScanReport(issues, model=model, dataset=dataloader)
+        return ScanReport(issues, model=model, dataset=dataset)
 
     def _run_detectors(self, detectors, model, dataset, verbose=True, raise_exceptions=False, embed=True):
         if not detectors:
