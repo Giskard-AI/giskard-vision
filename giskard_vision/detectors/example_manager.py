@@ -1,12 +1,12 @@
 import base64
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import Any
+from typing import Any, Optional
 
 import cv2
 
 
-class ExampleManager(ABC):
+class ScanExamples(ABC):
     """
     Abstract class to manage examples from different data types.
     """
@@ -21,13 +21,13 @@ class ExampleManager(ABC):
     def to_html(self): ...
 
 
-class ImagesExampleManager:
+class ImagesScanExamples(ScanExamples):
     """
     Class to manage images examples
     """
 
-    def __init__(self, examples: list = [], embed: bool = True):
-        self.examples = examples
+    def __init__(self, examples: Optional[list] = None, embed: bool = True):
+        self.examples = examples if examples else []
         self.embed = embed
 
     def add_examples(self, example):

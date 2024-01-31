@@ -104,7 +104,7 @@ class DetectorVisionBase:
         try:
             from giskard.scanner.issues import Issue, IssueLevel
 
-            from .example_manager import ImagesExampleManager
+            from .example_manager import ImagesScanExamples
 
         except (ImportError, ModuleNotFoundError) as e:
             raise GiskardImportError(["giskard"]) from e
@@ -122,7 +122,7 @@ class DetectorVisionBase:
                         slicing_fn=result.name,
                         group=self.issue_group,
                         meta=result.get_meta_required(),
-                        scan_examples=ImagesExampleManager(result.filename_examples, embed=embed),
+                        scan_examples=ImagesScanExamples(result.filename_examples, embed=embed),
                         display_footer_info=False,
                     )
                 )

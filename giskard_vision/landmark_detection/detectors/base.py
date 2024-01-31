@@ -70,13 +70,13 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
             index_worst = 0 if test_result.indexes_examples is None else test_result.indexes_examples[0]
 
             if isinstance(dl, FilteredDataLoader):
-                filename_example_dataloader_ref = f"{current_path}/examples_images/{dataset.name}_{index_worst}.png"
+                filename_example_dataloader_ref = str(Path() / "examples_images" / f"{dataset.name}_{index_worst}.png")
                 cv2.imwrite(
                     filename_example_dataloader_ref, cv2.resize(dataset[index_worst][0][0], (0, 0), fx=0.3, fy=0.3)
                 )
                 filename_examples.append(filename_example_dataloader_ref)
 
-            filename_example_dataloader = f"{current_path}/examples_images/{dl.name}_{index_worst}.png"
+            filename_example_dataloader = str(Path() / "examples_images" / f"{dl.name}_{index_worst}.png")
             cv2.imwrite(filename_example_dataloader, cv2.resize(dl[index_worst][0][0], (0, 0), fx=0.3, fy=0.3))
             filename_examples.append(filename_example_dataloader)
             results.append(self.get_scan_result(test_result, filename_examples, dl.name, len(dl)))
@@ -91,9 +91,9 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
 
         relative_delta = (test_result.metric_value_test - test_result.metric_value_ref) / test_result.metric_value_ref
 
-        if relative_delta > self.issue_level_threshold:
+        if relative_delta > self.issue_level_threshold + self.deviation_threshold:
             issue_level = IssueLevel.MAJOR
-        elif relative_delta > self.deviation_threshold:
+        elif relative_delta > self.issue_level_threshold:
             issue_level = IssueLevel.MEDIUM
         else:
             issue_level = IssueLevel.MINOR
