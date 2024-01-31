@@ -7,8 +7,8 @@ def _register_default_detectors():
     import importlib
     from pathlib import Path
 
-    root = Path(__file__).parent
-    modules = ["." + ".".join(p.relative_to(root).with_suffix("").parts) for p in root.glob("**/*_detector.py")]
+    root = Path(__file__).parents[1]
+    modules = [".." + ".".join(p.relative_to(root).with_suffix("").parts) for p in root.glob("**/*_detector.py")]
 
     for detector_module in modules:
         importlib.import_module(detector_module, package=__package__)
