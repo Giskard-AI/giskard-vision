@@ -10,6 +10,8 @@ from giskard_vision.landmark_detection.tests.base import TestDiff
 from giskard_vision.landmark_detection.tests.performance import NMEMean
 from giskard_vision.utils.errors import GiskardImportError
 
+from ..dataloaders.wrappers import FilteredDataLoader
+
 Cropping = IssueGroup(
     "Cropping", description="Cropping involves evaluating the landmark detection model on specific face areas."
 )
@@ -66,12 +68,9 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
             os.makedirs(f"{current_path}/examples_images", exist_ok=True)
             filename_examples = []
 
-            if hasattr(test_result, "indexes_examples") and test_result.indexes_examples is not None:
-                index_worst = test_result.indexes_examples[0]
-            else:
-                index_worst = 0
+            index_worst = 0 if test_result.indexes_examples is None else test_result.indexes_examples[0]
 
-            if dl.dataloader_type != "filter":
+            if isinstance(dl, FilteredDataLoader):
                 filename_example_dataloader_ref = f"{current_path}/examples_images/{dataset.name}_{index_worst}.png"
                 cv2.imwrite(
                     filename_example_dataloader_ref, cv2.resize(dataset[index_worst][0][0], (0, 0), fx=0.3, fy=0.3)

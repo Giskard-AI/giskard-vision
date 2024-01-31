@@ -3,7 +3,7 @@ import logging
 import uuid
 import warnings
 from time import perf_counter
-from typing import Any, Optional, Sequence
+from typing import Optional, Sequence
 
 from ..utils.errors import GiskardImportError
 
@@ -40,18 +40,14 @@ class Scanner:
         self.only = only
         self.uuid = uuid.uuid4()
 
-    def analyze(
-        self, model, dataset, detectors: Sequence[Any] = None, verbose=True, raise_exceptions=False, embed=True
-    ):
-        """Runs the analysis of a model and dataset, detecting issues.
+    def analyze(self, model, dataloader, verbose=True, raise_exceptions=False, embed=True):
+        """Runs the analysis of a model and dataloader, detecting issues.
         Parameters
         ----------
-        model : BaseModel
+        model : FaceLandmarksModelBase
             A Giskard model object.
-        dataset : Dataset
-            A Giskard dataset object.
-        features : Sequence[str], optional
-            A list of features to analyze. If not provided, all model features will be analyzed.
+        dataloader : DataIteratorBase
+            A dataloader object.
         verbose : bool
             Whether to print detailed info messages. Enabled by default.
         raise_exceptions : bool
@@ -74,14 +70,13 @@ class Scanner:
         time_start = perf_counter()
 
         # # Collect the detectors
-        if detectors is None:
-            detectors = self.get_detectors(tags=[model.model_type])
+        detectors = self.get_detectors(tags=[model.model_type])
 
         # @TODO: this should be selective to specific warnings
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             issues, errors = self._run_detectors(
-                detectors, model, dataset, verbose=verbose, raise_exceptions=raise_exceptions, embed=embed
+                detectors, model, dataloader, verbose=verbose, raise_exceptions=raise_exceptions, embed=embed
             )
 
         # Scan completed
@@ -90,7 +85,7 @@ class Scanner:
         if verbose:
             self._print_execution_summary(model, issues, errors, elapsed)
 
-        return ScanReport(issues, model=model, dataset=dataset)
+        return ScanReport(issues, model=model, dataset=dataloader)
 
     def _run_detectors(self, detectors, model, dataset, verbose=True, raise_exceptions=False, embed=True):
         if not detectors:

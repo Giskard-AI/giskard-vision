@@ -1,14 +1,25 @@
-from typing import Any, List, Optional
-
 from ..landmark_detection.dataloaders.base import DataIteratorBase
 from ..landmark_detection.models.base import FaceLandmarksModelBase
 from .scanner import Scanner
 
 
+def _register_default_detectors():
+    import importlib
+    from pathlib import Path
+
+    root = Path(__file__).parent
+    modules = ["." + ".".join(p.relative_to(root).with_suffix("").parts) for p in root.glob("**/*_detector.py")]
+
+    for detector_module in modules:
+        importlib.import_module(detector_module, package=__package__)
+
+
+_register_default_detectors()
+
+
 def scan(
     model: FaceLandmarksModelBase,
     dataloader: DataIteratorBase,
-    detectors: Optional[List[Any]] = None,
     params=None,
     only=None,
     verbose=True,
@@ -24,8 +35,6 @@ def scan(
         A model object.
     dataloader : DataIteratorBase
         A dataloader object.
-    detectors : List[Any]
-        A list of detectors to use for the scan. If not specified, all detectors that correspond to the model type will be used.
     params : dict
         Advanced scanner configuration. See :class:`Scanner` for more details.
     only : list
@@ -43,9 +52,7 @@ def scan(
         A scan report object containing the results of the scan.
     """
     scanner = Scanner(params, only=only)
-    return scanner.analyze(
-        model, dataset=dataloader, detectors=detectors, verbose=verbose, raise_exceptions=raise_exceptions
-    )
+    return scanner.analyze(model, dataloader=dataloader, verbose=verbose, raise_exceptions=raise_exceptions)
 
 
 __all__ = ["scan", "Scanner"]
