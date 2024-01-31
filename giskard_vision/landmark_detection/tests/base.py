@@ -20,6 +20,8 @@ class TestResult:
         test_name (str): Name of the test.
         prediction_results (List[PredictionResult]): List of prediction results.
         metric_value (float): Value of the metric for the test.
+        metric_value_test (Optional[float]): Value of the metric on the slice for the test.
+        metric_value_ref (Optional[float]): Value of the metric on the reference dataset for the test.
         threshold (float): Threshold for the metric.
         passed (bool): True if the test passed, False otherwise.
         description (Optional[str]): Optional description of the test result.
@@ -29,6 +31,8 @@ class TestResult:
         model_name (Optional[str]): Name of the model used in the test.
         dataloader_name (Optional[str]): Name of the dataloader used in the test.
         dataloader_ref_name (Optional[str]): Name of the reference dataloader if applicable.
+        size_data (Optional[int]): Number of samples in the data
+        issues_name (Optional[str]): Name of slicing or transformation to be displayed
     """
 
     test_name: str
@@ -36,6 +40,8 @@ class TestResult:
     metric_value: float
     threshold: float
     passed: bool
+    metric_value_test: Optional[float] = None
+    metric_value_ref: Optional[float] = None
     description: Optional[str] = None
     prediction_time: Optional[float] = None
     prediction_fail_rate: Optional[float] = None
@@ -44,6 +50,7 @@ class TestResult:
     model_name: Optional[str] = None
     dataloader_name: Optional[str] = None
     dataloader_ref_name: Optional[str] = None
+    indexes_examples: Optional[list] = None
 
     def _repr_html_(self):
         """
@@ -109,6 +116,8 @@ class TestResult:
             "test": self.test_name,
             "metric": self.metric_name,
             "metric_value": self.metric_value,
+            "metric_value_test": self.metric_value_test,
+            "metric_value_ref": self.metric_value_ref,
             "threshold": self.threshold,
             "passed": self.passed,
             "facial_part": self.facial_part.name,
@@ -159,6 +168,19 @@ class Metric(ABC):
 
         """
         ...
+
+    @staticmethod
+    def rank_data(prediction_result: PredictionResult, marks: np.ndarray, **kwargs) -> List[int]:
+        """Abstract method to define how the metric ranks data samples from worse to best
+
+        Args:
+            prediction_result (PredictionResult): The prediction result to evaluate.
+            marks (np.ndarray): Ground truth facial landmarks.
+
+        Returns:
+            List[int]: Indexes of data samples from worse to best
+        """
+        return None
 
     @classmethod
     def validation(cls, prediction_result: PredictionResult, marks: np.ndarray, **kwargs) -> None:
@@ -286,23 +308,28 @@ class TestDiff:
         prediction_result_ref = model.predict(dataloader_ref, facial_part=facial_part)
 
         ground_truth = dataloader.all_marks
-        metric_value = self.metric.get(prediction_result, ground_truth)
+        metric_value_test = self.metric.get(prediction_result, ground_truth)
 
         ground_truth_ref = dataloader_ref.all_marks
-        metric_ref_value = self.metric.get(prediction_result_ref, ground_truth_ref)
+        metric_value_ref = self.metric.get(prediction_result_ref, ground_truth_ref)
 
-        norm = metric_ref_value if self.relative else 1.0
-        metric_value = (metric_value - metric_ref_value) / norm
+        indexes = self.metric.rank_data(prediction_result, ground_truth)
+
+        norm = metric_value_ref if self.relative else 1.0
+        metric_value = (metric_value_test - metric_value_ref) / norm
 
         prediction_results = [prediction_result, prediction_result_ref]
         prediction_time = prediction_result.prediction_time + prediction_result_ref.prediction_time
         prediction_fail_rate = np.mean(
             [prediction_result.prediction_fail_rate, prediction_result_ref.prediction_fail_rate]
         )
+
         return TestResult(
             test_name=self.__class__.__name__,
             description=self.metric.description,
             metric_value=metric_value,
+            metric_value_test=metric_value_test,
+            metric_value_ref=metric_value_ref,
             threshold=self.threshold,
             prediction_results=prediction_results,
             passed=bool(metric_value <= self.threshold),  # casting is important for json dumping
@@ -313,4 +340,5 @@ class TestDiff:
             model_name=model.name,
             dataloader_name=dataloader.name,
             dataloader_ref_name=dataloader_ref.name,
+            indexes_examples=indexes,
         )

@@ -5,7 +5,7 @@ from typing import Dict, List, Optional, Union
 import cv2
 import numpy as np
 
-from giskard_vision.landmark_detection.utils.errors import GiskardImportError
+from giskard_vision.utils.errors import GiskardImportError
 
 from .base import DataIteratorBase, DataLoaderBase
 

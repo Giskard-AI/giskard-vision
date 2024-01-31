@@ -26,6 +26,8 @@ def calculate_fail_rate(prediction):
 class FaceLandmarksModelBase(ABC):
     """Abstract class that serves as a template for all landmark model predictions"""
 
+    model_type: str = "landmark"
+
     def __init__(self, n_landmarks: int, n_dimensions: int, name: Optional[str] = None) -> None:
         """init method that accepts a model object, number of landmarks and dimensions
 

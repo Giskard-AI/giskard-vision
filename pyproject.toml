@@ -46,6 +46,7 @@ dev = [
     "tensorflow-datasets>=4.9.4",
     "scipy>=1.11.4",
     "tensorflow-io-gcs-filesystem==0.34; platform_machine == 'arm64' and sys_platform == 'darwin'", # The only wheel for ARM64 Mac
+    "giskard>=2.7.0",
 ]
 
 [tool.ruff]
