@@ -320,9 +320,7 @@ class TestDiff:
 
         prediction_results = [prediction_result, prediction_result_ref]
         prediction_time = prediction_result.prediction_time + prediction_result_ref.prediction_time
-        prediction_fail_rate = np.mean(
-            [prediction_result.prediction_fail_rate, prediction_result_ref.prediction_fail_rate]
-        )
+        prediction_fail_rate = prediction_result.prediction_fail_rate
 
         return TestResult(
             test_name=self.__class__.__name__,
