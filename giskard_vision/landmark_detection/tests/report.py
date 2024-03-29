@@ -55,7 +55,7 @@ class Report:
                 for metric in metrics:
                     self.results.append(test(metric=metric, threshold=threshold).run(**run_kwargs).to_dict())
 
-    def to_dataframe(self):
+    def to_dataframe(self, summary: Optional[bool] = False):
         """
         Converts the test results to a pandas DataFrame.
 
@@ -68,23 +68,56 @@ class Report:
         except (ImportError, ModuleNotFoundError) as e:
             raise GiskardImportError(["pandas"]) from e
 
+        df = pd.DataFrame(self.results)
+
+        for col in ["metric_value", "prediction_time", "prediction_fail_rate"]:
+            col_name = f"Best({col})"
+            # Create a new column 'Best' and set it to False by default
+            df[col_name] = ""
+
         # columns reordering
-        df = pd.DataFrame(self.results)[
+        df = df[
             [
                 "dataloader",
                 "model",
                 "test",
                 "metric",
                 "metric_value",
-                "threshold",
-                "passed",
+                "Best(metric_value)",
                 "prediction_time",
+                "Best(prediction_time)",
                 "prediction_fail_rate",
+                "Best(prediction_fail_rate)",
             ]
         ].rename(columns={"dataloader": "criteria"})
+
+        df = df.sort_values(["criteria", "model"], ignore_index=True)
+
+        # Add a column for grouping n models
+        df["group"] = df.index // df["model"].nunique()
+
+        for col in ["metric_value", "prediction_time", "prediction_fail_rate"]:
+            # Group by the 'group' column and find the index of the minimum value in column col for each group
+            min_col = df.groupby("group")[col].idxmin()
+            col_name = f"Best({col})"
+            # Set the 'Best' column to True for the rows corresponding to the minimum indices
+            df.loc[min_col, col_name] = "✓"
+
+        if summary:
+            # columns filtering
+            df = df[
+                [
+                    "criteria",
+                    "model",
+                    "Best(metric_value)",
+                    "Best(prediction_time)",
+                    "Best(prediction_fail_rate)",
+                ]
+            ]
+
         return df.sort_values(["criteria", "model"], ignore_index=True)
 
-    def to_markdown(self, filename: Optional[str] = None):
+    def to_markdown(self, summary: Optional[bool] = False, filename: Optional[str] = None):
         """
         Writes the test results to a markdown file.
 
@@ -101,7 +134,8 @@ class Report:
         current_time = str(datetime.now()).replace(" ", "-")
         filename = f"report_{current_time}.md"
 
-        df = self.to_dataframe()
+        df = self.to_dataframe(summary=summary)
+
         df.to_markdown(filename)
 
     def to_json(self, filename: Optional[str] = None):
