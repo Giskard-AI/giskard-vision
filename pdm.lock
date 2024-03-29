@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:1a3e2121a7896af06cb28da4fba535fe1c52b4800852974e2324c00e50ec1fef"
+content_hash = "sha256:f77e1d2855db20a749580f2f3eccafcd0040b1019b97d92993aeec99e718eb69"
 
 [[package]]
 name = "absl-py"
@@ -153,6 +153,7 @@ name = "astunparse"
 version = "1.6.3"
 summary = "An AST unparser for Python"
 groups = ["dev"]
+marker = "(platform_machine == \"arm64\" or platform_machine == \"aarch64\") and platform_system == \"Linux\" or platform_system == \"Windows\" or platform_system == \"Darwin\" and platform_machine == \"arm64\""
 dependencies = [
     "six<2.0,>=1.6.1",
     "wheel<1.0,>=0.23.0",
@@ -297,6 +298,7 @@ version = "5.3.2"
 requires_python = ">=3.7"
 summary = "Extensible memoizing collections and decorators"
 groups = ["dev"]
+marker = "(platform_machine == \"arm64\" or platform_machine == \"aarch64\") and platform_system == \"Linux\" or platform_system == \"Windows\" or platform_system == \"Darwin\" and platform_machine == \"arm64\""
 files = [
     {file = "cachetools-5.3.2-py3-none-any.whl", hash = "sha256:861f35a13a451f94e301ce2bec7cac63e881232ccce7ed67fab9b5df4d3beaa1"},
     {file = "cachetools-5.3.2.tar.gz", hash = "sha256:086ee420196f7b2ab9ca2db2520aca326318b68fe5ba8bc4d49cca91add450f2"},
@@ -866,6 +868,7 @@ name = "flatbuffers"
 version = "23.5.26"
 summary = "The FlatBuffers serialization format for Python"
 groups = ["dev"]
+marker = "(platform_machine == \"arm64\" or platform_machine == \"aarch64\") and platform_system == \"Linux\" or platform_system == \"Windows\" or platform_system == \"Darwin\" and platform_machine == \"arm64\""
 files = [
     {file = "flatbuffers-23.5.26-py2.py3-none-any.whl", hash = "sha256:c0ff356da363087b915fde4b8b45bdda73432fc17cddb3c8157472eab1422ad1"},
     {file = "flatbuffers-23.5.26.tar.gz", hash = "sha256:9ea1144cac05ce5d86e2859f431c6cd5e66cd9c78c558317c7955fb8d4c78d89"},
@@ -926,6 +929,7 @@ version = "0.5.4"
 requires_python = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 summary = "Python AST that abstracts the underlying Python version"
 groups = ["dev"]
+marker = "(platform_machine == \"arm64\" or platform_machine == \"aarch64\") and platform_system == \"Linux\" or platform_system == \"Windows\" or platform_system == \"Darwin\" and platform_machine == \"arm64\""
 files = [
     {file = "gast-0.5.4-py3-none-any.whl", hash = "sha256:6fc4fa5fa10b72fb8aab4ae58bcb023058386e67b6fa2e3e34cec5c769360316"},
     {file = "gast-0.5.4.tar.gz", hash = "sha256:9c270fe5f4b130969b54174de7db4e764b09b4f7f67ccfc32480e29f78348d97"},
@@ -1017,6 +1021,7 @@ version = "2.27.0"
 requires_python = ">=3.7"
 summary = "Google Authentication Library"
 groups = ["dev"]
+marker = "(platform_machine == \"arm64\" or platform_machine == \"aarch64\") and platform_system == \"Linux\" or platform_system == \"Windows\" or platform_system == \"Darwin\" and platform_machine == \"arm64\""
 dependencies = [
     "cachetools<6.0,>=2.0.0",
     "pyasn1-modules>=0.2.1",
@@ -1033,6 +1038,7 @@ version = "1.2.0"
 requires_python = ">=3.6"
 summary = "Google Authentication Library"
 groups = ["dev"]
+marker = "(platform_machine == \"arm64\" or platform_machine == \"aarch64\") and platform_system == \"Linux\" or platform_system == \"Windows\" or platform_system == \"Darwin\" and platform_machine == \"arm64\""
 dependencies = [
     "google-auth>=2.15.0",
     "requests-oauthlib>=0.7.0",
@@ -1047,6 +1053,7 @@ name = "google-pasta"
 version = "0.2.0"
 summary = "pasta is an AST-based Python refactoring library"
 groups = ["dev"]
+marker = "(platform_machine == \"arm64\" or platform_machine == \"aarch64\") and platform_system == \"Linux\" or platform_system == \"Windows\" or platform_system == \"Darwin\" and platform_machine == \"arm64\""
 dependencies = [
     "six",
 ]
@@ -1089,6 +1096,7 @@ version = "1.60.0"
 requires_python = ">=3.7"
 summary = "HTTP/2-based RPC framework"
 groups = ["dev"]
+marker = "(platform_machine == \"arm64\" or platform_machine == \"aarch64\") and platform_system == \"Linux\" or platform_system == \"Windows\" or platform_system == \"Darwin\" and platform_machine == \"arm64\""
 files = [
     {file = "grpcio-1.60.0-cp310-cp310-linux_armv7l.whl", hash = "sha256:d020cfa595d1f8f5c6b343530cd3ca16ae5aefdd1e832b777f9f0eb105f5b139"},
     {file = "grpcio-1.60.0-cp310-cp310-macosx_12_0_universal2.whl", hash = "sha256:b98f43fcdb16172dec5f4b49f2fece4b16a99fd284d81c6bbac1b3b69fcbe0ff"},
@@ -1131,6 +1139,7 @@ version = "3.10.0"
 requires_python = ">=3.8"
 summary = "Read and write HDF5 files from Python"
 groups = ["dev"]
+marker = "(platform_machine == \"arm64\" or platform_machine == \"aarch64\") and platform_system == \"Linux\" or platform_system == \"Windows\" or platform_system == \"Darwin\" and platform_machine == \"arm64\""
 dependencies = [
     "numpy>=1.17.3",
 ]
@@ -1685,6 +1694,7 @@ name = "libclang"
 version = "16.0.6"
 summary = "Clang Python Bindings, mirrored from the official LLVM repo: https://github.com/llvm/llvm-project/tree/main/clang/bindings/python, to make the installation process easier."
 groups = ["dev"]
+marker = "(platform_machine == \"arm64\" or platform_machine == \"aarch64\") and platform_system == \"Linux\" or platform_system == \"Windows\" or platform_system == \"Darwin\" and platform_machine == \"arm64\""
 files = [
     {file = "libclang-16.0.6-1-py2.py3-none-manylinux2014_aarch64.whl", hash = "sha256:88bc7e7b393c32e41e03ba77ef02fdd647da1f764c2cd028e69e0837080b79f6"},
     {file = "libclang-16.0.6-1-py2.py3-none-manylinux2014_armv7l.whl", hash = "sha256:d80ed5827736ed5ec2bcedf536720476fd9d4fa4c79ef0cb24aea4c59332f361"},
@@ -1844,6 +1854,7 @@ version = "0.2.0"
 requires_python = ">=3.7"
 summary = ""
 groups = ["dev"]
+marker = "(platform_machine == \"arm64\" or platform_machine == \"aarch64\") and platform_system == \"Linux\" or platform_system == \"Windows\" or platform_system == \"Darwin\" and platform_machine == \"arm64\""
 dependencies = [
     "numpy>1.20",
     "numpy>=1.21.2; python_version > \"3.9\"",
@@ -2324,6 +2335,7 @@ version = "3.3.0"
 requires_python = ">=3.5"
 summary = "Optimizing numpys einsum function"
 groups = ["dev"]
+marker = "(platform_machine == \"arm64\" or platform_machine == \"aarch64\") and platform_system == \"Linux\" or platform_system == \"Windows\" or platform_system == \"Darwin\" and platform_machine == \"arm64\""
 dependencies = [
     "numpy>=1.7",
 ]
@@ -2623,6 +2635,7 @@ version = "0.5.1"
 requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,>=2.7"
 summary = "Pure-Python implementation of ASN.1 types and DER/BER/CER codecs (X.208)"
 groups = ["dev"]
+marker = "(platform_machine == \"arm64\" or platform_machine == \"aarch64\") and platform_system == \"Linux\" or platform_system == \"Windows\" or platform_system == \"Darwin\" and platform_machine == \"arm64\""
 files = [
     {file = "pyasn1-0.5.1-py2.py3-none-any.whl", hash = "sha256:4439847c58d40b1d0a573d07e3856e95333f1976294494c325775aeca506eb58"},
     {file = "pyasn1-0.5.1.tar.gz", hash = "sha256:6d391a96e59b23130a5cfa74d6fd7f388dbbe26cc8f1edf39fdddf08d9d6676c"},
@@ -2634,6 +2647,7 @@ version = "0.3.0"
 requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,>=2.7"
 summary = "A collection of ASN.1-based protocols modules"
 groups = ["dev"]
+marker = "(platform_machine == \"arm64\" or platform_machine == \"aarch64\") and platform_system == \"Linux\" or platform_system == \"Windows\" or platform_system == \"Darwin\" and platform_machine == \"arm64\""
 dependencies = [
     "pyasn1<0.6.0,>=0.4.6",
 ]
@@ -2968,6 +2982,7 @@ version = "1.3.1"
 requires_python = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 summary = "OAuthlib authentication support for Requests."
 groups = ["dev"]
+marker = "(platform_machine == \"arm64\" or platform_machine == \"aarch64\") and platform_system == \"Linux\" or platform_system == \"Windows\" or platform_system == \"Darwin\" and platform_machine == \"arm64\""
 dependencies = [
     "oauthlib>=3.0.0",
     "requests>=2.0.0",
@@ -3125,6 +3140,7 @@ version = "4.9"
 requires_python = ">=3.6,<4"
 summary = "Pure-Python RSA implementation"
 groups = ["dev"]
+marker = "(platform_machine == \"arm64\" or platform_machine == \"aarch64\") and platform_system == \"Linux\" or platform_system == \"Windows\" or platform_system == \"Darwin\" and platform_machine == \"arm64\""
 dependencies = [
     "pyasn1>=0.1.3",
 ]
@@ -3383,6 +3399,7 @@ version = "2.15.1"
 requires_python = ">=3.9"
 summary = "TensorBoard lets you watch Tensors Flow"
 groups = ["dev"]
+marker = "(platform_machine == \"arm64\" or platform_machine == \"aarch64\") and platform_system == \"Linux\" or platform_system == \"Windows\" or platform_system == \"Darwin\" and platform_machine == \"arm64\""
 dependencies = [
     "absl-py>=0.4",
     "google-auth-oauthlib<2,>=0.5",
@@ -3407,6 +3424,7 @@ version = "0.7.2"
 requires_python = ">=3.7"
 summary = "Fast data loading for TensorBoard"
 groups = ["dev"]
+marker = "(platform_machine == \"arm64\" or platform_machine == \"aarch64\") and platform_system == \"Linux\" or platform_system == \"Windows\" or platform_system == \"Darwin\" and platform_machine == \"arm64\""
 files = [
     {file = "tensorboard_data_server-0.7.2-py3-none-any.whl", hash = "sha256:7e0610d205889588983836ec05dc098e80f97b7e7bbff7e994ebb78f578d0ddb"},
     {file = "tensorboard_data_server-0.7.2-py3-none-macosx_10_9_x86_64.whl", hash = "sha256:9fe5d24221b29625dbc7328b0436ca7fc1c23de4acf4d272f1180856e32f9f60"},
@@ -3420,30 +3438,9 @@ requires_python = ">=3.9"
 summary = "TensorFlow is an open source machine learning framework for everyone."
 groups = ["dev"]
 dependencies = [
-    "absl-py>=1.0.0",
-    "astunparse>=1.6.0",
-    "flatbuffers>=23.5.26",
-    "gast!=0.5.0,!=0.5.1,!=0.5.2,>=0.2.1",
-    "google-pasta>=0.1.1",
-    "grpcio<2.0,>=1.24.3",
-    "h5py>=2.9.0",
-    "keras<2.16,>=2.15.0",
-    "libclang>=13.0.0",
-    "ml-dtypes~=0.2.0",
-    "numpy<2.0.0,>=1.23.5",
-    "opt-einsum>=2.3.2",
-    "packaging",
-    "protobuf!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5,<5.0.0dev,>=3.20.3",
-    "setuptools",
-    "six>=1.12.0",
-    "tensorboard<2.16,>=2.15",
     "tensorflow-cpu-aws==2.15.0; (platform_machine == \"arm64\" or platform_machine == \"aarch64\") and platform_system == \"Linux\"",
-    "tensorflow-estimator<2.16,>=2.15.0",
     "tensorflow-intel==2.15.0; platform_system == \"Windows\"",
-    "tensorflow-io-gcs-filesystem>=0.23.1",
-    "termcolor>=1.1.0",
-    "typing-extensions>=3.6.6",
-    "wrapt<1.15,>=1.11.0",
+    "tensorflow-macos==2.15.0; platform_system == \"Darwin\" and platform_machine == \"arm64\"",
 ]
 files = [
     {file = "tensorflow-2.15.0-cp310-cp310-macosx_10_15_x86_64.whl", hash = "sha256:9b248e0f4316b3a3c54cd1f83edfb7a761d473060c1972a8ea31a90d5de3aa72"},
@@ -3528,6 +3525,7 @@ version = "2.15.0"
 requires_python = ">=3.7"
 summary = "TensorFlow Estimator."
 groups = ["dev"]
+marker = "(platform_machine == \"arm64\" or platform_machine == \"aarch64\") and platform_system == \"Linux\" or platform_system == \"Windows\" or platform_system == \"Darwin\" and platform_machine == \"arm64\""
 files = [
     {file = "tensorflow_estimator-2.15.0-py2.py3-none-any.whl", hash = "sha256:aedf21eec7fb2dc91150fc91a1ce12bc44dbb72278a08b58e79ff87c9e28f153"},
 ]
@@ -3574,6 +3572,7 @@ version = "0.34.0"
 requires_python = ">=3.7, <3.12"
 summary = "TensorFlow IO"
 groups = ["dev"]
+marker = "platform_machine == \"arm64\" and sys_platform == \"darwin\" or platform_system == \"Linux\" and (platform_machine == \"arm64\" or platform_machine == \"aarch64\") or platform_system == \"Windows\" or platform_system == \"Darwin\" and platform_machine == \"arm64\""
 files = [
     {file = "tensorflow_io_gcs_filesystem-0.34.0-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:d831702fbb270996b27cda7fde06e0825b2ea81fd8dd3ead35242f4f8b3889b8"},
     {file = "tensorflow_io_gcs_filesystem-0.34.0-cp310-cp310-macosx_12_0_arm64.whl", hash = "sha256:b9a93fcb01db269bc845a1ced431f3c61201755ce5f9ec4885760f30122276ef"},
@@ -3583,6 +3582,42 @@ files = [
     {file = "tensorflow_io_gcs_filesystem-0.34.0-cp311-cp311-macosx_12_0_arm64.whl", hash = "sha256:ec4604c99cbb5b708f4516dee27aa655abae222b876c98b740f4c2f89dd5c001"},
     {file = "tensorflow_io_gcs_filesystem-0.34.0-cp311-cp311-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:cbe26c4a3332589c7b724f147df453b5c226993aa8d346a15536358d77b364c4"},
     {file = "tensorflow_io_gcs_filesystem-0.34.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:6e6353123a5b51397950138a118876af833a7db66b531123bb86f82e80ab0e72"},
+]
+
+[[package]]
+name = "tensorflow-macos"
+version = "2.15.0"
+requires_python = ">=3.9"
+summary = "TensorFlow is an open source machine learning framework for everyone."
+groups = ["dev"]
+marker = "platform_system == \"Darwin\" and platform_machine == \"arm64\""
+dependencies = [
+    "absl-py>=1.0.0",
+    "astunparse>=1.6.0",
+    "flatbuffers>=23.5.26",
+    "gast!=0.5.0,!=0.5.1,!=0.5.2,>=0.2.1",
+    "google-pasta>=0.1.1",
+    "grpcio<2.0,>=1.24.3",
+    "h5py>=2.9.0",
+    "keras<2.16,>=2.15.0",
+    "libclang>=13.0.0",
+    "ml-dtypes~=0.2.0",
+    "numpy<2.0.0,>=1.23.5",
+    "opt-einsum>=2.3.2",
+    "packaging",
+    "protobuf!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5,<5.0.0dev,>=3.20.3",
+    "setuptools",
+    "six>=1.12.0",
+    "tensorboard<2.16,>=2.15",
+    "tensorflow-estimator<2.16,>=2.15.0",
+    "tensorflow-io-gcs-filesystem>=0.23.1",
+    "termcolor>=1.1.0",
+    "typing-extensions>=3.6.6",
+    "wrapt<1.15,>=1.11.0",
+]
+files = [
+    {file = "tensorflow_macos-2.15.0-cp310-cp310-macosx_12_0_arm64.whl", hash = "sha256:cdfb4cd80ddfdf189212f4e3747a4404702d58cc6a346ab8887bd567ca3284f8"},
+    {file = "tensorflow_macos-2.15.0-cp311-cp311-macosx_12_0_arm64.whl", hash = "sha256:6933b6a298bcce3b302fa55c6943a2e2caba44601d0e5d0a86cae248fd90da8f"},
 ]
 
 [[package]]
@@ -3956,6 +3991,7 @@ version = "0.42.0"
 requires_python = ">=3.7"
 summary = "A built-package format for Python"
 groups = ["dev"]
+marker = "(platform_machine == \"arm64\" or platform_machine == \"aarch64\") and platform_system == \"Linux\" or platform_system == \"Windows\" or platform_system == \"Darwin\" and platform_machine == \"arm64\""
 files = [
     {file = "wheel-0.42.0-py3-none-any.whl", hash = "sha256:177f9c9b0d45c47873b619f5b650346d632cdc35fb5e4d25058e09c9e581433d"},
     {file = "wheel-0.42.0.tar.gz", hash = "sha256:c45be39f7882c9d34243236f2d63cbd58039e360f85d0913425fbd7ceea617a8"},
