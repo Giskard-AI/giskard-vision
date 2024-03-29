@@ -1,13 +1,12 @@
 from typing import Dict, List, Optional, Union
 
 import numpy as np
-import pandas as pd
 
 from giskard_vision.landmark_detection.dataloaders.base import DataIteratorBase
 from giskard_vision.landmark_detection.models.base import FaceLandmarksModelBase
 from giskard_vision.landmark_detection.tests.base import Metric, Test, TestDiff
 from giskard_vision.landmark_detection.tests.performance import NMEMean
-
+from giskard_vision.utils.errors import GiskardImportError
 
 class Report:
     """
@@ -19,8 +18,8 @@ class Report:
 
     """
 
-    default_rel_threshold = -0.1
-    default_abs_threshold = 1
+    default_rel_threshold = 0
+    default_abs_threshold = 0
 
     def __init__(
         self,
@@ -28,6 +27,7 @@ class Report:
         dataloaders: List[DataIteratorBase],
         metrics: Optional[List[Metric]] = None,
         dataloader_ref: Optional[DataIteratorBase] = None,
+        rel_threshold: Optional[float] = None
     ):
         """
         Initializes a Report instance.
@@ -37,10 +37,12 @@ class Report:
             dataloaders (List[DataIteratorBase]): List of data loaders for testing.
             metrics (Optional[List[Metric]]): List of metrics to evaluate (default is NMEMean).
             dataloader_ref (Optional[DataIteratorBase]): Reference data loader for comparative tests.
+            rel_threshold (Optional[float]): TestDiff relative threshold, only needed if dataloader_ref is used.
 
         """
         test = Test if dataloader_ref is None else TestDiff
-        threshold = self.default_abs_threshold if dataloader_ref is None else self.default_rel_threshold
+        rel_threshold = rel_threshold if rel_threshold else self.default_rel_threshold
+        threshold = self.default_abs_threshold if dataloader_ref is None else rel_threshold
         metrics = [NMEMean] if metrics is None else metrics
 
         self.results = []
@@ -60,21 +62,46 @@ class Report:
             pd.DataFrame: A DataFrame containing the test results.
 
         """
+        try:
+            import pandas as pd
+        except (ImportError, ModuleNotFoundError) as e:
+            raise GiskardImportError(["pandas"]) from e
+        
         # columns reordering
-        return pd.DataFrame(self.results)[
+        df = pd.DataFrame(self.results)[
             [
-                "model",
-                "facial_part",
                 "dataloader",
-                "prediction_time",
-                "prediction_fail_rate",
+                "model",
                 "test",
                 "metric",
                 "metric_value",
                 "threshold",
                 "passed",
+                "prediction_time",
+                "prediction_fail_rate",
             ]
-        ]
+        ].rename(columns={"dataloader": "criteria"})
+        return df.sort_values(['criteria', 'model'], ignore_index=True)
+        
+    def to_markdown(self, filename: Optional[str] = None):
+        """
+        Writes the test results to a markdown file.
+
+        Args:
+            filename (Optional[str]): Name of the markdown file (default is generated with a unique identifier).
+
+        """
+        try:
+            import tabulate  # noqa: F401
+        except (ImportError, ModuleNotFoundError) as e:
+            raise GiskardImportError(["tabulate"]) from e
+        from datetime import datetime
+        
+        current_time = str(datetime.now()).replace(" ", "-")
+        filename = f"report_{current_time}.md"
+        
+        df = self.to_dataframe()
+        df.to_markdown(filename)
 
     def to_json(self, filename: Optional[str] = None):
         """
@@ -87,10 +114,11 @@ class Report:
         import json
 
         if filename is None:
-            import uuid
+            from datetime import datetime
+            
+            current_time = str(datetime.now()).replace(" ", "-")
 
-            _uuid = str(uuid.uuid4())
-            filename = "report-{}.jsonl".format(_uuid)
+        filename = f"report_{current_time}.md"
 
         with open(filename, "w") as jsonl_file:
             for result in self.results:
