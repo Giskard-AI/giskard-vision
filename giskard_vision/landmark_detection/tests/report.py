@@ -152,8 +152,7 @@ class Report:
             from datetime import datetime
 
             current_time = str(datetime.now()).replace(" ", "-")
-
-        filename = f"report_{current_time}.md"
+            filename = f"report_{current_time}.md"
 
         with open(filename, "w") as jsonl_file:
             for result in self.results:
