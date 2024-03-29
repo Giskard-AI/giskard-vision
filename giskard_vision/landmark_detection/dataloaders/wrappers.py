@@ -54,7 +54,7 @@ class CroppedDataLoader(DataLoaderWrapper):
         Returns:
             str: The name of the cropped data loader.
         """
-        return f"{self._wrapped_dataloader.name} cropped on {self._part.name}"
+        return f"cropped on {self._part.name}"  # f"{self._wrapped_dataloader.name} cropped on {self._part.name}"
 
     @property
     def facial_part(self) -> FacialPart:
@@ -210,7 +210,7 @@ class ResizedDataLoader(DataLoaderWrapper):
         Returns:
             str: The name of the resized data loader.
         """
-        return f"{self._wrapped_dataloader.name} resizing with ratios: {self._scales}"
+        return f"resized with ratios: {self._scales}"  # f"{self._wrapped_dataloader.name} resizing with ratios: {self._scales}"
 
     def get_image(self, idx: int) -> np.ndarray:
         """
@@ -283,7 +283,7 @@ class BlurredDataLoader(DataLoaderWrapper):
         Returns:
             str: The name of the blurred data loader.
         """
-        return f"{self._wrapped_dataloader.name} blurred"
+        return "blurred"  # f"{self._wrapped_dataloader.name} blurred"
 
     def get_image(self, idx: int) -> np.ndarray:
         """
@@ -335,7 +335,7 @@ class ColoredDataLoader(DataLoaderWrapper):
         Returns:
             str: The name of the colored data loader.
         """
-        return f"{self._wrapped_dataloader.name} altered with color mode {self._mode}"
+        return "altered color"  # f"{self._wrapped_dataloader.name} altered with color mode {self._mode}"
 
     def get_image(self, idx: int) -> np.ndarray:
         """
@@ -370,7 +370,7 @@ class FilteredDataLoader(DataLoaderWrapper):
         Returns:
             str: The name of the filtered data loader.
         """
-        return f"({self._wrapped_dataloader.name}) filtered using '{self._predicate_name}'"
+        return f"{self._predicate_name}"  # f"({self._wrapped_dataloader.name}) filtered using '{self._predicate_name}'"
 
     @property
     def idx_sampler(self) -> np.ndarray:
@@ -435,15 +435,15 @@ class HeadPoseDataLoader(DataLoaderWrapper):
 
         self.pose_detection_model = SixDRepNet(gpu_id=gpu_id)
 
-    @property
-    def name(self):
-        """
-        Gets the name of the head pose data loader.
-
-        Returns:
-            str: The name of the head pose data loader.
-        """
-        return f"({self._wrapped_dataloader.name}) with head-pose"
+    # @property
+    # def name(self):
+    #    """
+    #    Gets the name of the head pose data loader.
+    #
+    #    Returns:
+    #        str: The name of the head pose data loader.
+    #    """
+    #    return f"({self._wrapped_dataloader.name}) with head-pose"
 
     def get_meta(self, idx):
         """
@@ -501,15 +501,15 @@ class EthnicityDataLoader(DataLoaderWrapper):
                 raise ValueError("Only one-to-one mapping is allowed in ethnicity_map.")
         self.ethnicity_map = ethnicity_map
 
-    @property
-    def name(self):
-        """
-        Gets the name of the ethnicity data loader.
-
-        Returns:
-            str: The name of the ethnicity data loader.
-        """
-        return f"({self._wrapped_dataloader.name}) with ethnicity"
+    # @property
+    # def name(self):
+    #    """
+    #    Gets the name of the ethnicity data loader.
+    #
+    #    Returns:
+    #        str: The name of the ethnicity data loader.
+    #    """
+    #    return f"({self._wrapped_dataloader.name}) with ethnicity"
 
     def _map_ethnicities(self, ethnicities: Dict):
         """
