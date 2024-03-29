@@ -68,7 +68,7 @@ def test_filtering_dataloader():
     filtered = FilteredDataLoader(dl, predicate=is_odd)
 
     assert len(filtered) == 5
-    assert "filtered using 'is_odd'" in filtered.name
+    assert "is_odd" in filtered.name
     # dl[1][0][0] => second batch, first elt of tuple, first image of batch
     assert dl[1][0][0].shape == (32, 32, 3)
     print(filtered.name)

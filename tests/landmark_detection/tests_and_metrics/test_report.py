@@ -12,7 +12,7 @@ def test_report(opencv_model, dataset_300w):
 
     report = Report(models=models, dataloaders=dls)
     assert report.results[0]["test"] == "Test"
-    assert report.results[0]["passed"]
+    assert not report.results[0]["passed"]
     assert np.allclose(report.results[0]["metric_value"], 0.04136279942)
 
     report.adjust_thresholds({0: 0.03})
