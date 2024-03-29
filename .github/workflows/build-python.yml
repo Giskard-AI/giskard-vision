@@ -33,6 +33,25 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Check disk space
+        run: |
+          df -h
+
+      - name: Free disk space
+        run: |
+          sudo swapoff -a
+          sudo rm -f /swapfile
+          sudo rm -rf /usr/local/lib/android
+          docker rmi $(docker image ls -aq)
+          sudo apt update && sudo apt remove -y \
+          google-cloud-cli microsoft-edge-stable dotnet-sdk-* llvm-* google-chrome-stable temurin-*
+          sudo apt autoremove -y
+          sudo apt autoclean -y
+
+      - name: Check new disk space
+        run: |
+          df -h
+
       - name: Setup PDM
         uses: pdm-project/setup-pdm@v3
         with:
