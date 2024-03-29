@@ -8,6 +8,7 @@ from giskard_vision.landmark_detection.tests.base import Metric, Test, TestDiff
 from giskard_vision.landmark_detection.tests.performance import NMEMean
 from giskard_vision.utils.errors import GiskardImportError
 
+
 class Report:
     """
     A class for generating and managing test reports for landmark detection models.
@@ -27,7 +28,7 @@ class Report:
         dataloaders: List[DataIteratorBase],
         metrics: Optional[List[Metric]] = None,
         dataloader_ref: Optional[DataIteratorBase] = None,
-        rel_threshold: Optional[float] = None
+        rel_threshold: Optional[float] = None,
     ):
         """
         Initializes a Report instance.
@@ -66,7 +67,7 @@ class Report:
             import pandas as pd
         except (ImportError, ModuleNotFoundError) as e:
             raise GiskardImportError(["pandas"]) from e
-        
+
         # columns reordering
         df = pd.DataFrame(self.results)[
             [
@@ -81,8 +82,8 @@ class Report:
                 "prediction_fail_rate",
             ]
         ].rename(columns={"dataloader": "criteria"})
-        return df.sort_values(['criteria', 'model'], ignore_index=True)
-        
+        return df.sort_values(["criteria", "model"], ignore_index=True)
+
     def to_markdown(self, filename: Optional[str] = None):
         """
         Writes the test results to a markdown file.
@@ -96,10 +97,10 @@ class Report:
         except (ImportError, ModuleNotFoundError) as e:
             raise GiskardImportError(["tabulate"]) from e
         from datetime import datetime
-        
+
         current_time = str(datetime.now()).replace(" ", "-")
         filename = f"report_{current_time}.md"
-        
+
         df = self.to_dataframe()
         df.to_markdown(filename)
 
@@ -115,7 +116,7 @@ class Report:
 
         if filename is None:
             from datetime import datetime
-            
+
             current_time = str(datetime.now()).replace(" ", "-")
 
         filename = f"report_{current_time}.md"
