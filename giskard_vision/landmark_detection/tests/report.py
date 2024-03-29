@@ -132,8 +132,7 @@ class Report:
         from datetime import datetime
 
         current_time = str(datetime.now()).replace(" ", "-")
-        ext = "summary_" if summary else ""
-        filename = f"report_{ext}{current_time}.md"
+        filename = f"report_{'summary' if summary else 'full'}_{current_time}.md"
 
         df = self.to_dataframe(summary=summary)
 
