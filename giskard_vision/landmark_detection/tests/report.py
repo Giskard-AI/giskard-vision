@@ -114,8 +114,14 @@ class Report:
                     "Best(prediction_fail_rate)",
                 ]
             ]
+            df.sort_values(["criteria", "model"], ignore_index=True)
+            return df.pivot(
+                columns="model",
+                values=["Best(prediction_time)", "Best(prediction_fail_rate)", "Best(metric_value)"],
+                index="criteria",
+            )
 
-        return df.sort_values(["criteria", "model"], ignore_index=True)
+        return df.sort_values(["criteria", "model"], ignore_index=True).drop(["group"], axis=1, errors="ignore")
 
     def to_markdown(self, summary: Optional[bool] = False, filename: Optional[str] = None):
         """
@@ -135,6 +141,9 @@ class Report:
         filename = f"report_{'summary' if summary else 'full'}_{current_time}.md"
 
         df = self.to_dataframe(summary=summary)
+
+        if summary:
+            df.columns = [" - ".join(col).strip() for col in df.columns.values]
 
         df.to_markdown(filename)
 
