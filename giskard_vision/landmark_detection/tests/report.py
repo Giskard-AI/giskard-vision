@@ -123,7 +123,7 @@ class Report:
 
         return df.sort_values(["criteria", "model"], ignore_index=True).drop(["group"], axis=1, errors="ignore")
 
-    def to_markdown(self, summary: Optional[bool] = False, filename: Optional[str] = None):
+    def to_markdown(self, filename: Optional[str] = None, summary: Optional[bool] = False):
         """
         Writes the test results to a markdown file.
 
@@ -166,6 +166,23 @@ class Report:
         with open(filename, "w") as jsonl_file:
             for result in self.results:
                 jsonl_file.write(json.dumps(result) + "\n")
+
+    def to_html(self, filename: Optional[str] = None, summary: Optional[bool] = False):
+        """
+        Writes the test results to an html file.
+
+        Args:
+            filename (Optional[str]): Name of the html file (default is generated with a unique identifier).
+
+        """
+        from datetime import datetime
+
+        current_time = str(datetime.now()).replace(" ", "-")
+        filename = f"report_{'summary' if summary else 'full'}_{current_time}.html"
+
+        df = self.to_dataframe(summary=summary)
+
+        df.to_html(filename)
 
     def adjust_thresholds(self, thresholds: Union[List[float], Dict[int, float]]):
         """
