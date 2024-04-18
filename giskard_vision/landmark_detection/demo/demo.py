@@ -1,3 +1,5 @@
+import os
+
 from giskard_vision.landmark_detection.dataloaders.loaders import (
     DataLoader300W,
     DataLoaderFFHQ,
@@ -5,8 +7,8 @@ from giskard_vision.landmark_detection.dataloaders.loaders import (
 
 
 def get_300W():
-    return DataLoader300W(dir_path="300W")
+    return DataLoader300W(os.path.join(os.path.dirname(__file__), "300W"))
 
 
 def get_ffhq():
-    return DataLoaderFFHQ("../datasets/ffhq")
+    return DataLoaderFFHQ(os.path.join(os.path.dirname(__file__), "ffhq"))
