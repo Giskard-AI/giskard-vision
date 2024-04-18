@@ -19,7 +19,7 @@ include = ["giskard_vision*"]
 exclude = ["docs*", "tests*"]
 
 [tool.setuptools.package-data]
-giskard-vision = [
+giskard_vision = [
     "**/demo/*.png",
     "**/demo/*.json",
     "**/demo/*.pts",
