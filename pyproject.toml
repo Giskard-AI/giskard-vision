@@ -18,6 +18,14 @@ build-backend = "setuptools.build_meta"
 include = ["giskard_vision*"]
 exclude = ["docs*", "tests*"]
 
+[tool.setuptools.package-data]
+giskard_vision = [
+    "**/demo/300W/*.png",
+    "**/demo/300W/*.pts",
+    "**/demo/ffhq/*.png",
+    "**/demo/ffhq/*.json",
+]
+
 
 [tool.pdm.scripts]
 notebook = "jupyter notebook --ip 0.0.0.0 --port 8888 --no-browser --notebook-dir ./examples --NotebookApp.token=''"
