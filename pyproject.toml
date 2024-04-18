@@ -20,9 +20,10 @@ exclude = ["docs*", "tests*"]
 
 [tool.setuptools.package-data]
 giskard_vision = [
-    "**/demo/*.png",
-    "**/demo/*.json",
-    "**/demo/*.pts",
+    "**/demo/300W/*.png",
+    "**/demo/300W/*.pts",
+    "**/demo/ffhq/*.png",
+    "**/demo/ffhq/*.json",
 ]
 
 
