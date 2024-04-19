@@ -1,6 +1,6 @@
 [project]
 name = "giskard-vision"
-version = "0.0.4"
+version = "0.0.5"
 description = "The expansion of Giskard into testing computer vision models"
 authors = [{ name = "Giskard AI", email = "hello@giskard.ai" }]
 dependencies = [
