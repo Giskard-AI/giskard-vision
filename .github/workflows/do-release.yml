@@ -28,7 +28,7 @@ jobs:
           fail_on_unmatched_files: true
           generate_release_notes: true
           files: |
-            dist/giskard-vision-*.tar.gz
+            dist/giskard_vision-*.tar.gz
             dist/giskard_vision-*.whl
 
       - name: Push to Pipy
