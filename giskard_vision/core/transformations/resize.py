@@ -19,16 +19,6 @@ def compute_scale_ratios(scales: Union[Tuple[float, float], float], absolute_sca
     return scale_ratios
 
 
-def resize_image_with_marks(
-    img: np.ndarray, marks: np.ndarray | None, scales: Union[Tuple[float, float], float], absolute_scales: bool
-) -> np.ndarray:
-    resized_img, scale_ratios = resize_image(img, scales, absolute_scales, return_ratios=True)
-    if marks is not None:
-        resized_marks = resize_marks(marks, scale_ratios)
-        return resized_img, resized_marks
-    return resized_img
-
-
 def resize_image(
     img: np.ndarray, scales: Union[Tuple[float, float], float], absolute_scales: bool, return_ratios: bool = False
 ) -> np.ndarray:
@@ -44,13 +34,3 @@ def resize_image(
     if return_ratios:
         return resized_img, scale_ratios
     return resized_img
-
-
-def resize_marks(marks: np.ndarray, scales: Union[Tuple[float, float], float]) -> np.ndarray:
-    scale_ratios = (scales, scales) if not isinstance(scales, tuple) else scales
-
-    if any([s <= 0 for s in scale_ratios]):
-        raise ValueError(f"Invalid scale parameter: {scale_ratios} contains at least one non-positive scale ratio.")
-
-    marks = marks * scale_ratios
-    return marks

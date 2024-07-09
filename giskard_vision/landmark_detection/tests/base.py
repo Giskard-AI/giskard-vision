@@ -4,12 +4,10 @@ from typing import Any, List, Optional
 
 import numpy as np
 
+from giskard_vision.core.types import LandmarkTypes
 from giskard_vision.landmark_detection.dataloaders.base import DataIteratorBase
 from giskard_vision.landmark_detection.marks.facial_parts import FacialPart, FacialParts
-from giskard_vision.landmark_detection.models.base import (
-    FaceLandmarksModelBase,
-    PredictionResult,
-)
+from giskard_vision.landmark_detection.models.base import FaceLandmarksModelBase
 
 
 @dataclass
@@ -18,7 +16,7 @@ class TestResult:
 
     Attributes:
         test_name (str): Name of the test.
-        prediction_results (List[PredictionResult]): List of prediction results.
+        prediction_results (List[LandmarkTypes.prediction_result]): List of prediction results.
         metric_value (float): Value of the metric for the test.
         metric_value_test (Optional[float]): Value of the metric on the slice for the test.
         metric_value_ref (Optional[float]): Value of the metric on the reference dataset for the test.
@@ -36,7 +34,7 @@ class TestResult:
     """
 
     test_name: str
-    prediction_results: List[PredictionResult]
+    prediction_results: List[LandmarkTypes.prediction_result]
     metric_value: float
     threshold: float
     passed: bool
@@ -140,13 +138,13 @@ class Metric(ABC):
         description (str): Description of the metric.
 
     Methods:
-        definition(prediction_result: PredictionResult, marks: np.ndarray) -> Any:
+        definition(prediction_result: LandmarkTypes.prediction_result, marks: LandmarkTypes.label) -> Any:
             Abstract method to define how the metric is calculated.
 
-        validation(prediction_result: PredictionResult, marks: np.ndarray) -> None:
+        validation(prediction_result: LandmarkTypes.prediction_result, marks: LandmarkTypes.label) -> None:
             Validate the input types for the metric calculation.
 
-        get(prediction_result: PredictionResult, marks: np.ndarray) -> Any:
+        get(prediction_result: LandmarkTypes.prediction_result, marks: LandmarkTypes.label) -> Any:
             Get the calculated value of the metric.
 
     """
@@ -156,11 +154,11 @@ class Metric(ABC):
 
     @staticmethod
     @abstractmethod
-    def definition(prediction_result: PredictionResult, marks: np.ndarray, **kwargs) -> Any:
+    def definition(prediction_result: LandmarkTypes.prediction_result, marks: LandmarkTypes.label, **kwargs) -> Any:
         """Abstract method to define how the metric is calculated.
 
         Args:
-            prediction_result (PredictionResult): The prediction result to evaluate.
+            prediction_result (LandmarkTypes.prediction_result): The prediction result to evaluate.
             marks (np.ndarray): Ground truth facial landmarks.
 
         Returns:
@@ -170,11 +168,13 @@ class Metric(ABC):
         ...
 
     @staticmethod
-    def rank_data(prediction_result: PredictionResult, marks: np.ndarray, **kwargs) -> List[int]:
+    def rank_data(
+        prediction_result: LandmarkTypes.prediction_result, marks: LandmarkTypes.label, **kwargs
+    ) -> List[int]:
         """Abstract method to define how the metric ranks data samples from worse to best
 
         Args:
-            prediction_result (PredictionResult): The prediction result to evaluate.
+            prediction_result (LandmarkTypes.prediction_result): The prediction result to evaluate.
             marks (np.ndarray): Ground truth facial landmarks.
 
         Returns:
@@ -183,26 +183,28 @@ class Metric(ABC):
         return None
 
     @classmethod
-    def validation(cls, prediction_result: PredictionResult, marks: np.ndarray, **kwargs) -> None:
+    def validation(
+        cls, prediction_result: LandmarkTypes.prediction_result, marks: LandmarkTypes.label, **kwargs
+    ) -> None:
         """Validate the input types for the metric calculation.
 
         Args:
-            prediction_result (PredictionResult): The prediction result to evaluate.
+            prediction_result (LandmarkTypes.prediction_result): The prediction result to evaluate.
             marks (np.ndarray): Ground truth facial landmarks.
 
         Raises:
             ValueError: If the input types are incorrect.
 
         """
-        if not isinstance(prediction_result, PredictionResult) or not isinstance(marks, np.ndarray):
+        if not isinstance(prediction_result, LandmarkTypes.prediction_result) or not isinstance(marks, np.ndarray):
             raise ValueError(f"{cls.__name__}: Arguments passed to metric are of the wrong types.")
 
     @classmethod
-    def get(cls, prediction_result: PredictionResult, marks: np.ndarray, **kwargs) -> Any:
+    def get(cls, prediction_result: LandmarkTypes.prediction_result, marks: LandmarkTypes.label, **kwargs) -> Any:
         """Get the calculated value of the metric.
 
         Args:
-            prediction_result (PredictionResult): The prediction result to evaluate.
+            prediction_result (LandmarkTypes.prediction_result): The prediction result to evaluate.
             marks (np.ndarray): Ground truth facial landmarks.
 
         Returns:
@@ -246,7 +248,7 @@ class Test:
         facial_part = (
             getattr(dataloader, "facial_part", FacialParts.ENTIRE.value) if facial_part is None else facial_part
         )
-        ground_truth = dataloader.all_marks
+        ground_truth = dataloader.all_labels
         prediction_result = model.predict(dataloader, facial_part=facial_part)
         metric_value = self.metric.get(prediction_result, ground_truth)
         return TestResult(
@@ -307,10 +309,10 @@ class TestDiff:
         prediction_result = model.predict(dataloader, facial_part=facial_part)
         prediction_result_ref = model.predict(dataloader_ref, facial_part=facial_part)
 
-        ground_truth = dataloader.all_marks
+        ground_truth = dataloader.all_labels
         metric_value_test = self.metric.get(prediction_result, ground_truth)
 
-        ground_truth_ref = dataloader_ref.all_marks
+        ground_truth_ref = dataloader_ref.all_labels
         metric_value_ref = self.metric.get(prediction_result_ref, ground_truth_ref)
 
         indexes = self.metric.rank_data(prediction_result, ground_truth)

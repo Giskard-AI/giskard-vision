@@ -12,13 +12,16 @@ class ScanExamples(ABC):
     """
 
     @abstractmethod
-    def add_examples(self, example: Any): ...
+    def add_examples(self, example: Any):
+        ...
 
     @abstractmethod
-    def head(self, n: int): ...
+    def head(self, n: int):
+        ...
 
     @abstractmethod
-    def to_html(self): ...
+    def to_html(self):
+        ...
 
 
 class ImagesScanExamples(ScanExamples):

@@ -1,8 +1,8 @@
-from giskard_vision.landmark_detection.dataloaders.wrappers import (
+from giskard_vision.core.dataloaders.wrappers import (
     CachedDataLoader,
     FilteredDataLoader,
-    HeadPoseDataLoader,
 )
+from giskard_vision.landmark_detection.dataloaders.wrappers import HeadPoseDataLoader
 
 from .base import LandmarkDetectionBaseDetector, Pose
 from .decorator import maybe_detector
@@ -23,7 +23,7 @@ class HeadPoseDetectorLandmark(LandmarkDetectionBaseDetector):
     }
 
     def get_dataloaders(self, dataset):
-        cached_dl = CachedDataLoader(HeadPoseDataLoader(dataset), cache_size=None, cache_img=False, cache_marks=False)
+        cached_dl = CachedDataLoader(HeadPoseDataLoader(dataset), cache_size=None, cache_img=False, cache_labels=False)
 
         dls = []
 

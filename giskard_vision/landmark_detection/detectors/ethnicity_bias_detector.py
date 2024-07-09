@@ -1,8 +1,8 @@
-from giskard_vision.landmark_detection.dataloaders.wrappers import (
+from giskard_vision.core.dataloaders.wrappers import (
     CachedDataLoader,
-    EthnicityDataLoader,
     FilteredDataLoader,
 )
+from giskard_vision.landmark_detection.dataloaders.wrappers import EthnicityDataLoader
 
 from .base import Ethical, LandmarkDetectionBaseDetector
 from .decorator import maybe_detector
@@ -20,7 +20,7 @@ class EthnicityDetectorLandmark(LandmarkDetectionBaseDetector):
 
     def get_dataloaders(self, dataset):
         ethnicity_dl = EthnicityDataLoader(dataset, ethnicity_map={"indian": "asian"})
-        cached_dl = CachedDataLoader(ethnicity_dl, cache_size=None, cache_img=False, cache_marks=False)
+        cached_dl = CachedDataLoader(ethnicity_dl, cache_size=None, cache_img=False, cache_labels=False)
 
         dls = []
 

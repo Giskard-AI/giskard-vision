@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from giskard_vision.landmark_detection.dataloaders.base import DataIteratorBase
+from giskard_vision.core.dataloaders.base import DataIteratorBase
 
 
 class DataloaderForTest(DataIteratorBase):
@@ -21,7 +21,7 @@ class DataloaderForTest(DataIteratorBase):
     def get_image(self, idx: int) -> np.ndarray:
         return self.dataset[idx]
 
-    def get_marks(self, idx: int) -> np.ndarray:
+    def get_labels(self, idx: int) -> np.ndarray:
         return self.marks[idx]
 
 
@@ -43,14 +43,14 @@ class DataloaderMissingAnnotation(DataIteratorBase):
         return self.dataset[idx]
 
     @classmethod
-    def marks_none(cls):
+    def labels_none(cls):
         return np.full((68, 2), np.nan)
 
     @classmethod
     def meta_none(cls):
         return {"key1": -1, "key2": -1}
 
-    def get_marks(self, idx: int) -> np.ndarray | None:
+    def get_labels(self, idx: int) -> np.ndarray | None:
         return self.marks[idx] if idx % 2 == 0 else None
 
     def get_meta(self, idx: int) -> dict | None:

@@ -1,12 +1,12 @@
 import numpy as np
 import pytest
 
+from giskard_vision.core.types import LandmarkPredictionResult
 from giskard_vision.landmark_detection.marks.utils import (
     LEFT_EYE_LEFT_LANDMARK,
     RIGHT_EYE_RIGHT_LANDMARK,
     compute_d_outers,
 )
-from giskard_vision.landmark_detection.models.base import PredictionResult
 from giskard_vision.landmark_detection.tests.performance import (
     Es,
     MEMean,
@@ -29,7 +29,7 @@ TEST_ARRAY_A_3D = [[0.0, 0.0, 1.0], [1.0, 0.0, 0.0], [0.0, 1.0, 1.0], [1.0, 1.0,
 TEST_ARRAY_B_3D = [[4.0, 0.0, 0.0], [1.0, 1.0, 1.0], [2.0, 2.0, 0.0], [2.0, 3.0, 1.0]]
 
 
-def calculate_me_naive(prediction_result: PredictionResult, marks):
+def calculate_me_naive(prediction_result: LandmarkPredictionResult, marks):
     return np.asarray(
         [
             np.mean(
@@ -57,7 +57,7 @@ def calculate_normalisation_distances_naive(marks):
     )
 
 
-def calculate_euclidean_distances_naive(prediction_result: PredictionResult, marks):
+def calculate_euclidean_distances_naive(prediction_result: LandmarkPredictionResult, marks):
     return np.asarray(
         [
             [
@@ -69,7 +69,7 @@ def calculate_euclidean_distances_naive(prediction_result: PredictionResult, mar
     )
 
 
-def compute_nes_naive(prediction_result: PredictionResult, marks):
+def compute_nes_naive(prediction_result: LandmarkPredictionResult, marks):
     distances = calculate_normalisation_distances_naive(marks)
     return calculate_euclidean_distances_naive(prediction_result, marks) / distances[:, None]
 
@@ -80,7 +80,7 @@ def test_calculate_es_2d():
     c = np.asarray([np.sqrt((p_a[0] - p_b[0]) ** 2 + (p_a[1] - p_b[1]) ** 2) for p_a, p_b in zip(a, b)])
     a = np.asarray(a)[np.newaxis, :, :]  # (Nimages, Nlandmark, Ndim) expected in Metric
     b = np.asarray(b)[np.newaxis, :, :]  # (Nimages, Nlandmark, Ndim) expected in Metric
-    prediction_result = PredictionResult(prediction=a)
+    prediction_result = LandmarkPredictionResult(prediction=a)
     calculated = Es.get(prediction_result, b)
     assert np.all(np.isclose(np.asarray([c]), calculated))
 
@@ -91,13 +91,13 @@ def test_calculate_es_3d():
     c = np.asarray(
         [np.sqrt((p_a[0] - p_b[0]) ** 2 + (p_a[1] - p_b[1]) ** 2 + (p_a[2] - p_b[2]) ** 2) for p_a, p_b in zip(a, b)]
     )
-    prediction_result = PredictionResult(prediction=np.asarray([a]))
+    prediction_result = LandmarkPredictionResult(prediction=np.asarray([a]))
     calculated = Es.get(prediction_result, np.asarray([b]))
     assert np.all(np.isclose(np.asarray([c]), calculated))
 
 
 def test_compute_d_outers(dataset_300w):
-    marks = dataset_300w.all_marks
+    marks = dataset_300w.all_labels
     calculated = compute_d_outers(marks)
     original = np.asarray(
         [
@@ -112,7 +112,7 @@ def test_compute_d_outers(dataset_300w):
 
 
 def test_calculate_nmes(opencv_model, dataset_300w):
-    marks = dataset_300w.all_marks
+    marks = dataset_300w.all_labels
     prediction_result = opencv_model.predict(dataset_300w)
     calculated = NMEs.get(prediction_result, marks)
 
@@ -132,13 +132,13 @@ def test_benchmark_nmes(model_name, dataset_name, benchmark, request):
     model = request.getfixturevalue(model_name)
     dataset = request.getfixturevalue(dataset_name)
     predictions = model.predict(dataset)
-    nmes = NMEs.get(predictions, dataset.all_marks)
+    nmes = NMEs.get(predictions, dataset.all_labels)
     dataset_nmes = np.nanmean(nmes)
     assert np.isclose(benchmark, dataset_nmes)
 
 
 def test_calculate_me_mean(opencv_model, dataset_300w):
-    marks = dataset_300w.all_marks
+    marks = dataset_300w.all_labels
     prediction_result = opencv_model.predict(dataset_300w)
 
     me_mean = MEMean.get(prediction_result=prediction_result, marks=marks)
@@ -147,7 +147,7 @@ def test_calculate_me_mean(opencv_model, dataset_300w):
 
 
 def test_calculate_me_std(opencv_model, dataset_300w):
-    marks = dataset_300w.all_marks
+    marks = dataset_300w.all_labels
     prediction_result = opencv_model.predict(dataset_300w)
 
     me_std = MEStd.get(prediction_result=prediction_result, marks=marks)
@@ -156,7 +156,7 @@ def test_calculate_me_std(opencv_model, dataset_300w):
 
 
 def test_calculate_nme_mean(opencv_model, dataset_300w):
-    marks = dataset_300w.all_marks
+    marks = dataset_300w.all_labels
     prediction_result = opencv_model.predict(dataset_300w)
 
     nme_mean = NMEMean.get(prediction_result=prediction_result, marks=marks)
@@ -166,7 +166,7 @@ def test_calculate_nme_mean(opencv_model, dataset_300w):
 
 
 def test_calculate_nme_std(opencv_model, dataset_300w):
-    marks = dataset_300w.all_marks
+    marks = dataset_300w.all_labels
     prediction_result = opencv_model.predict(dataset_300w)
 
     nme_std = NMEStd.get(prediction_result=prediction_result, marks=marks)
@@ -176,7 +176,7 @@ def test_calculate_nme_std(opencv_model, dataset_300w):
 
 
 def test_calculate_nes(opencv_model, dataset_300w):
-    marks = dataset_300w.all_marks
+    marks = dataset_300w.all_labels
     prediction_result = opencv_model.predict(dataset_300w)
     calculated = NEs.get(prediction_result, marks)
     assert len(calculated.shape) == 2
@@ -188,7 +188,7 @@ def test_calculate_nes(opencv_model, dataset_300w):
 
 
 def test_calculate_nerf_marks(opencv_model, dataset_300w):
-    marks = dataset_300w.all_marks
+    marks = dataset_300w.all_labels
     prediction_result = opencv_model.predict(dataset_300w)
 
     distances = calculate_normalisation_distances_naive(marks)[:, None, None]
@@ -212,7 +212,7 @@ def test_calculate_nerf_marks(opencv_model, dataset_300w):
 
 
 def test_calculate_nerf_images_mean(opencv_model, dataset_300w):
-    marks = dataset_300w.all_marks
+    marks = dataset_300w.all_labels
     prediction_result = opencv_model.predict(dataset_300w)
 
     radius_limit = 0.25
@@ -235,7 +235,7 @@ def test_calculate_nerf_images_mean(opencv_model, dataset_300w):
 
 
 def test_calculate_nerf_images_std(opencv_model, dataset_300w):
-    marks = dataset_300w.all_marks
+    marks = dataset_300w.all_labels
     prediction_result = opencv_model.predict(dataset_300w)
 
     radius_limit = 0.25
@@ -256,7 +256,7 @@ def test_calculate_nerf_images_std(opencv_model, dataset_300w):
 
 
 def test_calculate_nerf_marks_mean(opencv_model, dataset_300w):
-    marks = dataset_300w.all_marks
+    marks = dataset_300w.all_labels
     prediction_result = opencv_model.predict(dataset_300w)
 
     radius_limit = 0.25
@@ -278,7 +278,7 @@ def test_calculate_nerf_marks_mean(opencv_model, dataset_300w):
 
 
 def test_calculate_nerf_marks_std(opencv_model, dataset_300w):
-    marks = dataset_300w.all_marks
+    marks = dataset_300w.all_labels
     prediction_result = opencv_model.predict(dataset_300w)
 
     radius_limit = 0.25
@@ -298,7 +298,7 @@ def test_calculate_nerf_marks_std(opencv_model, dataset_300w):
 
 
 def test_calculate_nerf_images(opencv_model, dataset_300w):
-    marks = dataset_300w.all_marks
+    marks = dataset_300w.all_labels
     prediction_result = opencv_model.predict(dataset_300w)
 
     radius_limit = 0.2

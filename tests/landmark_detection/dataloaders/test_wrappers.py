@@ -3,15 +3,15 @@ from collections import defaultdict
 import numpy as np
 import pytest
 
-from giskard_vision.landmark_detection.dataloaders.base import (
-    DataLoaderWrapper,
-    SingleLandmarkData,
-)
-from giskard_vision.landmark_detection.dataloaders.wrappers import (
+from giskard_vision.core.dataloaders.base import DataLoaderWrapper
+from giskard_vision.core.dataloaders.wrappers import (
     CachedDataLoader,
+    FilteredDataLoader,
+)
+from giskard_vision.core.types import LandmarkTypes
+from giskard_vision.landmark_detection.dataloaders.wrappers import (
     CroppedDataLoader,
     EthnicityDataLoader,
-    FilteredDataLoader,
     HeadPoseDataLoader,
     ResizedDataLoader,
 )
@@ -58,7 +58,7 @@ def test_cropped_dataloader():
         assert not np.array_equal(img, cropped_img)
 
 
-def is_odd(elt: SingleLandmarkData) -> bool:
+def is_odd(elt: LandmarkTypes.single_data) -> bool:
     return elt[2]["type"] == "odd"
 
 

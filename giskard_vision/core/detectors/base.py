@@ -2,7 +2,7 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Any, List, Optional, Sequence, Tuple
 
-from ..utils.errors import GiskardImportError
+from giskard_vision.utils.errors import GiskardImportError
 
 
 @dataclass(frozen=True)
