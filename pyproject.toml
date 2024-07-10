@@ -5,7 +5,7 @@ description = "The expansion of Giskard into testing computer vision models"
 authors = [{ name = "Giskard AI", email = "hello@giskard.ai" }]
 dependencies = [
     "opencv-python",
-    "numpy",
+    "numpy<2",
 ]
 requires-python = ">=3.10,<3.12"
 readme = "README.md"
