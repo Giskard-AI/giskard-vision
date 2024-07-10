@@ -1,7 +1,6 @@
 # %%
-from giskard_vision.landmark_detection.models.wrappers import OpenCVWrapper
 from giskard_vision.landmark_detection.dataloaders.loaders import DataLoader300W
-
+from giskard_vision.landmark_detection.models.wrappers import OpenCVWrapper
 from giskard_vision.scanner import scan
 
 # %%
