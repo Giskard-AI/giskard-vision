@@ -13,6 +13,3 @@ results = scan(model, dl_ref)
 # %%
 
 results.to_html(filename="example_vision_300w.html")
-# %%
-
-# %%
