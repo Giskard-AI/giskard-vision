@@ -3,9 +3,8 @@ from typing import Any, Optional
 
 import numpy as np
 
-from giskard_vision.core.types import LandmarkTypes
-
 from ..marks.utils import compute_d_outers
+from ..types import Types
 from .base import Metric
 
 
@@ -15,7 +14,7 @@ class Es(Metric):
     description = "Array of landmarks Euclidean distances (prediction vs ground truth)"
 
     @classmethod
-    def validation(cls, prediction_result: LandmarkTypes.prediction_result, marks: LandmarkTypes.label) -> None:
+    def validation(cls, prediction_result: Types.prediction_result, marks: Types.label) -> None:
         super().validation(prediction_result, marks)
         shapes = {"Predictions": prediction_result.prediction.shape, "Marks": marks.shape}
         for obj, shape in shapes.items():
@@ -25,7 +24,7 @@ class Es(Metric):
                 )
 
     @staticmethod
-    def definition(prediction_result: LandmarkTypes.prediction_result, marks: LandmarkTypes.label) -> np.ndarray:
+    def definition(prediction_result: Types.prediction_result, marks: Types.label) -> np.ndarray:
         return np.sqrt(np.einsum("ijk->ij", (prediction_result.prediction - marks) ** 2))
 
 
@@ -35,7 +34,7 @@ class NMEs(Metric):
     description = "Array of landmarks normalized mean Euclidean distances (prediction vs ground truth)"
 
     @staticmethod
-    def definition(prediction_result: LandmarkTypes.prediction_result, marks: LandmarkTypes.label):
+    def definition(prediction_result: Types.prediction_result, marks: Types.label):
         nes = NEs.get(prediction_result, marks)
         return np.nanmean(nes, axis=1)
 
@@ -48,7 +47,7 @@ class MEMean(Metric):
     description = "Mean of mean Euclidean distances across images"
 
     @staticmethod
-    def definition(prediction_result: LandmarkTypes.prediction_result, marks: LandmarkTypes.label):
+    def definition(prediction_result: Types.prediction_result, marks: Types.label):
         return np.nanmean(Es.get(prediction_result, marks))
 
 
@@ -60,7 +59,7 @@ class MEStd(Metric):
     description = "Standard deviation of mean Euclidean distances across images"
 
     @staticmethod
-    def definition(prediction_result: LandmarkTypes.prediction_result, marks: LandmarkTypes.label):
+    def definition(prediction_result: Types.prediction_result, marks: Types.label):
         return np.nanstd(Es.get(prediction_result, marks))
 
 
@@ -72,11 +71,11 @@ class NMEMean(Metric):
     description = "Mean of normalised mean Euclidean distances across images"
 
     @staticmethod
-    def definition(prediction_result: LandmarkTypes.prediction_result, marks: LandmarkTypes.label):
+    def definition(prediction_result: Types.prediction_result, marks: Types.label):
         return np.nanmean(NMEs.get(prediction_result, marks))
 
     @staticmethod
-    def rank_data(prediction_result: LandmarkTypes.prediction_result, marks: LandmarkTypes.label):
+    def rank_data(prediction_result: Types.prediction_result, marks: Types.label):
         nmes = NMEs.get(prediction_result, marks)
         indexes = sorted(range(len(nmes)), key=nmes.__getitem__)
         indexes.reverse()
@@ -89,7 +88,7 @@ class NMEStd(Metric):
     description = "Standard deviation of normalised Mean Euclidean distances across images"
 
     @staticmethod
-    def definition(prediction_result: LandmarkTypes.prediction_result, marks: LandmarkTypes.label):
+    def definition(prediction_result: Types.prediction_result, marks: Types.label):
         return np.nanstd(NMEs.get(prediction_result, marks))
 
 
@@ -99,7 +98,7 @@ class NEs(Metric):
     description = "Array of normalised Euclidean Distance per mark"
 
     @staticmethod
-    def definition(prediction_result: LandmarkTypes.prediction_result, marks: LandmarkTypes.label) -> Any:
+    def definition(prediction_result: Types.prediction_result, marks: Types.label) -> Any:
         es = Es.get(prediction_result, marks)
         d_outers = compute_d_outers(marks)
         return es / d_outers[:, None]
@@ -111,16 +110,12 @@ class NERFMarks(Metric):
     description: Optional[str] = "Array of Normalised Euclidean distance Range Failure rate"
 
     @staticmethod
-    def definition(
-        prediction_result: LandmarkTypes.prediction_result, marks: LandmarkTypes.label, radius_limit: float
-    ) -> Any:
+    def definition(prediction_result: Types.prediction_result, marks: Types.label, radius_limit: float) -> Any:
         nes = NEs.get(prediction_result, marks)
         return (nes > radius_limit).astype(float)
 
     @classmethod
-    def validation(
-        cls, prediction_result: LandmarkTypes.prediction_result, marks: LandmarkTypes.label, radius_limit: float
-    ) -> None:
+    def validation(cls, prediction_result: Types.prediction_result, marks: Types.label, radius_limit: float) -> None:
         super().validation(prediction_result, marks)
         if not isinstance(radius_limit, float) or radius_limit < 0 or radius_limit > 1:
             raise ValueError(
@@ -134,9 +129,7 @@ class NERFImagesMean(NERFMarks):
     description = "Array of Means per mark of Normalised Euclidean distance Range Failure rate across images"
 
     @staticmethod
-    def definition(
-        prediction_result: LandmarkTypes.prediction_result, marks: LandmarkTypes.label, radius_limit: float
-    ) -> Any:
+    def definition(prediction_result: Types.prediction_result, marks: Types.label, radius_limit: float) -> Any:
         nerfs_marks = NERFMarks.get(prediction_result, marks, radius_limit=radius_limit)
         return np.nanmean(nerfs_marks, axis=0)
 
@@ -149,9 +142,7 @@ class NERFImagesStd(NERFMarks):
     )
 
     @staticmethod
-    def definition(
-        prediction_result: LandmarkTypes.prediction_result, marks: LandmarkTypes.label, radius_limit: float
-    ) -> Any:
+    def definition(prediction_result: Types.prediction_result, marks: Types.label, radius_limit: float) -> Any:
         nerfs_marks = NERFMarks.get(prediction_result, marks, radius_limit=radius_limit)
         return np.nanstd(nerfs_marks, axis=0)
 
@@ -162,9 +153,7 @@ class NERFMarksMean(NERFMarks):
     description = "Mean of Normalised Euclidean distance Range Failure across landmarks"
 
     @staticmethod
-    def definition(
-        prediction_result: LandmarkTypes.prediction_result, marks: LandmarkTypes.label, radius_limit: float
-    ) -> Any:
+    def definition(prediction_result: Types.prediction_result, marks: Types.label, radius_limit: float) -> Any:
         nerfs_marks = NERFMarks.get(prediction_result, marks, radius_limit=radius_limit)
         return np.nanmean(nerfs_marks, axis=1)
 
@@ -175,9 +164,7 @@ class NERFMarksStd(NERFMarks):
     description = "Standard Deviation of Normalised Euclidean distance Range Failure across landmarks"
 
     @staticmethod
-    def definition(
-        prediction_result: LandmarkTypes.prediction_result, marks: LandmarkTypes.label, radius_limit: float
-    ) -> Any:
+    def definition(prediction_result: Types.prediction_result, marks: Types.label, radius_limit: float) -> Any:
         nerfs_marks = NERFMarks.get(prediction_result, marks, radius_limit=radius_limit)
         return np.nanstd(nerfs_marks, axis=1)
 
@@ -189,8 +176,8 @@ class NERFImages(NERFMarks):
 
     @staticmethod
     def definition(
-        prediction_result: LandmarkTypes.prediction_result,
-        marks: LandmarkTypes.label,
+        prediction_result: Types.prediction_result,
+        marks: Types.label,
         radius_limit: float,
         failed_mark_ratio: float,
     ) -> Any:
@@ -199,8 +186,8 @@ class NERFImages(NERFMarks):
     @classmethod
     def validation(
         cls,
-        prediction_result: LandmarkTypes.prediction_result,
-        marks: LandmarkTypes.label,
+        prediction_result: Types.prediction_result,
+        marks: Types.label,
         radius_limit: float,
         failed_mark_ratio: float,
     ) -> None:

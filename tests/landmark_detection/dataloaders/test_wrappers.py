@@ -8,7 +8,6 @@ from giskard_vision.core.dataloaders.wrappers import (
     CachedDataLoader,
     FilteredDataLoader,
 )
-from giskard_vision.core.types import LandmarkTypes
 from giskard_vision.landmark_detection.dataloaders.wrappers import (
     CroppedDataLoader,
     EthnicityDataLoader,
@@ -16,6 +15,7 @@ from giskard_vision.landmark_detection.dataloaders.wrappers import (
     ResizedDataLoader,
 )
 from giskard_vision.landmark_detection.marks.facial_parts import FacialParts
+from giskard_vision.landmark_detection.types import Types
 
 from .test_base import DataloaderForTest
 
@@ -58,7 +58,7 @@ def test_cropped_dataloader():
         assert not np.array_equal(img, cropped_img)
 
 
-def is_odd(elt: LandmarkTypes.single_data) -> bool:
+def is_odd(elt: Types.single_data) -> bool:
     return elt[2]["type"] == "odd"
 
 

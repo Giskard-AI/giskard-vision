@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 
 from ..transformations.resize import resize_image
-from ..types import LandmarkTypes
+from ..types import TypesBase
 from .base import DataIteratorBase, DataLoaderWrapper
 
 
@@ -285,7 +285,7 @@ class FilteredDataLoader(DataLoaderWrapper):
 
     Args:
         dataloader (DataIteratorBase): The data loader to be wrapped.
-        predicate (Callable[[LandmarkTypes.single_data], bool]): A function to filter elements.
+        predicate (Callable[[TypesBase.single_data], bool]): A function to filter elements.
 
     Returns:
         FilteredDataLoader: Filtered data loader instance.
@@ -311,13 +311,13 @@ class FilteredDataLoader(DataLoaderWrapper):
         """
         return self._reindex
 
-    def __init__(self, dataloader: DataIteratorBase, predicate: Callable[[LandmarkTypes.single_data], bool]):
+    def __init__(self, dataloader: DataIteratorBase, predicate: Callable[[TypesBase.single_data], bool]):
         """
         Initializes the FilteredDataLoader.
 
         Args:
             dataloader (DataIteratorBase): The data loader to be wrapped.
-            predicate (Callable[[LandmarkTypes.single_data], bool]): A function to filter elements.
+            predicate (Callable[[TypesBase.single_data], bool]): A function to filter elements.
         """
         super().__init__(dataloader)
         self._predicate_name = predicate.__name__ if hasattr(predicate, "__name__") else str(predicate)

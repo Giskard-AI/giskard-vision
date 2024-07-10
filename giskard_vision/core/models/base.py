@@ -6,7 +6,7 @@ from typing import Any, List, Optional
 import numpy as np
 
 from giskard_vision.core.dataloaders.base import DataIteratorBase
-from giskard_vision.core.types import LandmarkPredictionResult, LandmarkTypes
+from giskard_vision.core.types import TypesBase
 
 logger = getLogger(__name__)
 
@@ -18,7 +18,8 @@ def calculate_fail_rate(prediction):
 class ModelBase(ABC):
     """Abstract class that serves as a template for all model predictions"""
 
-    model_type: LandmarkTypes.model
+    model_type: str
+    prediction_result_cls = TypesBase.prediction_result
 
     @abstractmethod
     def predict_image(self, image: np.ndarray) -> Any:
@@ -73,7 +74,7 @@ class ModelBase(ABC):
             )
         return res
 
-    def predict(self, dataloader: DataIteratorBase, **kwargs) -> LandmarkTypes.prediction_result:
+    def predict(self, dataloader: DataIteratorBase, **kwargs) -> TypesBase.prediction_result:
         """main method to predict the landmarks
 
         Args:
@@ -81,7 +82,7 @@ class ModelBase(ABC):
             idx_range (Optional[List], optional): range of images to predict from the dataloader. Defaults to None.
 
         Returns:
-            LandmarkTypes.prediction_result
+            TypesBase.prediction_result
         """
         ts = time()
         predictions = []
@@ -98,7 +99,7 @@ class ModelBase(ABC):
         if len(predictions.shape) > 3:
             raise ValueError("predict: ME only implemented for 2D images.")
 
-        return LandmarkPredictionResult(
+        return self.prediction_result_cls(
             prediction=predictions,
             prediction_fail_rate=prediction_fail_rate,
             prediction_time=te - ts,

@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Union
 import numpy as np
 
 from giskard_vision.core.dataloaders.base import DataIteratorBase
-from giskard_vision.core.types import LandmarkTypes
+from giskard_vision.core.types import TypesBase
 
 
 class DataLoaderBase(DataIteratorBase):
@@ -217,7 +217,7 @@ class DataLoaderBase(DataIteratorBase):
         return image
 
     @classmethod
-    def _validate_marks(cls, marks: LandmarkTypes.label) -> None:
+    def _validate_marks(cls, marks: TypesBase.label) -> None:
         """
         Validates the shape of the marks array.
 

@@ -5,21 +5,19 @@ import numpy as np
 
 IMAGE_TYPE = np.ndarray
 META_TYPE = Optional[Dict[Any, Any]]
-
-LANDMARK_LABEL_TYPE = np.ndarray
+LABEL_TYPE = Any
 
 
 @dataclass
-class LandmarkPredictionResult:
-    prediction: LANDMARK_LABEL_TYPE
+class PredictionResultBase:
+    prediction: Any
     prediction_fail_rate: float = None
     prediction_time: float = None
 
 
 @dataclass
-class LandmarkTypes:
-    model = "landmark"
-    prediction_result = LandmarkPredictionResult
-    label = LANDMARK_LABEL_TYPE
-    single_data = Tuple[Tuple[IMAGE_TYPE], np.ndarray, Tuple[META_TYPE]]
-    batched_data = Tuple[Tuple[IMAGE_TYPE], np.ndarray, Tuple[META_TYPE]]
+class TypesBase:
+    prediction_result = PredictionResultBase
+    label = LABEL_TYPE
+    single_data = Tuple[IMAGE_TYPE, LABEL_TYPE, META_TYPE]
+    batched_data = Tuple[Tuple[IMAGE_TYPE], LABEL_TYPE, Tuple[META_TYPE]]

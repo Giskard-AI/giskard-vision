@@ -4,7 +4,8 @@ from typing import List, Optional
 import numpy as np
 
 from giskard_vision.core.models.base import ModelBase
-from giskard_vision.core.types import LandmarkTypes
+
+from ..types import Types
 
 logger = getLogger(__name__)
 
@@ -12,7 +13,8 @@ logger = getLogger(__name__)
 class FaceLandmarksModelBase(ModelBase):
     """Abstract class that serves as a template for all landmark model predictions"""
 
-    model_type: LandmarkTypes.model
+    model_type = "landmark"
+    prediction_result_cls = Types.prediction_result
 
     def __init__(self, n_landmarks: int, n_dimensions: int, name: Optional[str] = None) -> None:
         """init method that accepts a model object, number of landmarks and dimensions
