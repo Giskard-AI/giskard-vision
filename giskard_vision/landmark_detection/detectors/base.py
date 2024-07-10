@@ -52,8 +52,7 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
     """
 
     @abstractmethod
-    def get_dataloaders(self, dataset: Any) -> Sequence[Any]:
-        ...
+    def get_dataloaders(self, dataset: Any) -> Sequence[Any]: ...
 
     def get_results(self, model: Any, dataset: Any) -> Sequence[ScanResult]:
         dataloaders = self.get_dataloaders(dataset)
