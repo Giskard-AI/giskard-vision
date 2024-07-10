@@ -17,7 +17,7 @@ from giskard_vision.landmark_detection.dataloaders.wrappers import (
 from giskard_vision.landmark_detection.marks.facial_parts import FacialParts
 from giskard_vision.landmark_detection.types import Types
 
-from .test_base import DataloaderForTest
+from ...core.dataloaders.test_base import DataloaderForTest
 
 
 class WithMetaDataLoader(DataLoaderWrapper):

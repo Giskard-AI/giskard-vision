@@ -59,7 +59,7 @@ class DetectorVisionBase:
             Returns a list of giskard Issue to feed to the scan.
 
         get_issues(model: Any, dataset: Any, results: List[ScanResult], issue_levels: Tuple[IssueLevel]):
-            Returns a list of giskard Issue from results output by get_results
+            Returns a list of giskard Issue from results output by get_results.
 
         get_results(model: Any, dataset: Any) -> List[ScanResult]
             Abstract method that returns a list of ScanResult objects containing
