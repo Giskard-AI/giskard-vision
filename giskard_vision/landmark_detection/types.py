@@ -10,7 +10,7 @@ from giskard_vision.core.types import (
     TypesBase,
 )
 
-LANDMARK_LABEL_TYPE = np.ndarray # Just one face is supported
+LANDMARK_LABEL_TYPE = np.ndarray  # Just one face is supported
 
 
 @dataclass
