@@ -3,21 +3,21 @@ from collections import defaultdict
 import numpy as np
 import pytest
 
-from giskard_vision.landmark_detection.dataloaders.base import (
-    DataLoaderWrapper,
-    SingleLandmarkData,
+from giskard_vision.core.dataloaders.base import DataLoaderWrapper
+from giskard_vision.core.dataloaders.wrappers import (
+    CachedDataLoader,
+    FilteredDataLoader,
 )
 from giskard_vision.landmark_detection.dataloaders.wrappers import (
-    CachedDataLoader,
     CroppedDataLoader,
     EthnicityDataLoader,
-    FilteredDataLoader,
     HeadPoseDataLoader,
     ResizedDataLoader,
 )
 from giskard_vision.landmark_detection.marks.facial_parts import FacialParts
+from giskard_vision.landmark_detection.types import Types
 
-from .test_base import DataloaderForTest
+from ...core.dataloaders.test_base import DataloaderForTest
 
 
 class WithMetaDataLoader(DataLoaderWrapper):
@@ -58,7 +58,7 @@ def test_cropped_dataloader():
         assert not np.array_equal(img, cropped_img)
 
 
-def is_odd(elt: SingleLandmarkData) -> bool:
+def is_odd(elt: Types.single_data) -> bool:
     return elt[2]["type"] == "odd"
 
 

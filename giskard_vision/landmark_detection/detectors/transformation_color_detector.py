@@ -1,4 +1,4 @@
-from giskard_vision.landmark_detection.dataloaders.wrappers import ColoredDataLoader
+from giskard_vision.core.dataloaders.wrappers import ColoredDataLoader
 
 from .base import LandmarkDetectionBaseDetector, Robustness
 from .decorator import maybe_detector
