@@ -76,7 +76,13 @@ class Scanner:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             issues, errors = self._run_detectors(
-                detectors, model, dataset, verbose=verbose, raise_exceptions=raise_exceptions, embed=embed, num_images=num_images
+                detectors,
+                model,
+                dataset,
+                verbose=verbose,
+                raise_exceptions=raise_exceptions,
+                embed=embed,
+                num_images=num_images,
             )
 
         # Scan completed
