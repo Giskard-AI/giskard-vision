@@ -96,7 +96,9 @@ class MetadataScanDetector(DetectorVisionBase):
                 df["prediction"].append(prediction_surrogate)
                 df["image_path"].append(str(dataset.image_paths[i]))
                 df["index"].append(i)
-            except:
+            except (KeyboardInterrupt, SystemExit):
+                raise
+            except Exception:
                 pass
 
         return pd.DataFrame(df)
