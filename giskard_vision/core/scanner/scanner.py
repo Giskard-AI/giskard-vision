@@ -40,7 +40,7 @@ class Scanner:
         self.only = only
         self.uuid = uuid.uuid4()
 
-    def analyze(self, model, dataset, verbose=True, raise_exceptions=False, embed=True):
+    def analyze(self, model, dataset, verbose=True, raise_exceptions=False, embed=True, num_images=0):
         """Runs the analysis of a model and dataset, detecting issues.
         Parameters
         ----------
@@ -76,7 +76,7 @@ class Scanner:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             issues, errors = self._run_detectors(
-                detectors, model, dataset, verbose=verbose, raise_exceptions=raise_exceptions, embed=embed
+                detectors, model, dataset, verbose=verbose, raise_exceptions=raise_exceptions, embed=embed, num_images=num_images
             )
 
         # Scan completed
@@ -87,7 +87,7 @@ class Scanner:
 
         return ScanReport(issues, model=model, dataset=dataset)
 
-    def _run_detectors(self, detectors, model, dataset, verbose=True, raise_exceptions=False, embed=True):
+    def _run_detectors(self, detectors, model, dataset, verbose=True, raise_exceptions=False, embed=True, num_images=0):
         if not detectors:
             raise RuntimeError("No issue detectors available. Scan will not be performed.")
 
@@ -99,7 +99,7 @@ class Scanner:
             maybe_print(f"Running detector {detector.__class__.__name__}…", verbose=verbose)
             detector_start = perf_counter()
             try:
-                detected_issues = detector.run(model, dataset, embed=embed)
+                detected_issues = detector.run(model, dataset, embed=embed, num_images=num_images)
             except Exception as err:
                 logger.error(f"Detector {detector.__class__.__name__} failed with error: {err}")
                 errors.append((detector, err))

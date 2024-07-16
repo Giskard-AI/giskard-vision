@@ -27,6 +27,7 @@ def scan(
     only=None,
     verbose=True,
     raise_exceptions=False,
+    num_images=0
 ):
     """Automatically detects model vulnerabilities.
 
@@ -48,6 +49,8 @@ def scan(
     raise_exceptions : bool
         Whether to raise an exception if detection errors are encountered. By default, errors are logged and
         handled gracefully, without interrupting the scan.
+    num_images : int
+        Number of images to display in the html report
 
     Returns
     -------
@@ -55,7 +58,7 @@ def scan(
         A scan report object containing the results of the scan.
     """
     scanner = Scanner(params, only=only)
-    return scanner.analyze(model, dataset=dataset, verbose=verbose, raise_exceptions=raise_exceptions)
+    return scanner.analyze(model, dataset=dataset, verbose=verbose, raise_exceptions=raise_exceptions, num_images=num_images)
 
 
 __all__ = ["scan", "Scanner"]

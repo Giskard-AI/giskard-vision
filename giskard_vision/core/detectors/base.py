@@ -78,13 +78,14 @@ class DetectorVisionBase:
         features: Optional[Any] = None,
         issue_levels: Tuple[Any] = None,
         embed: bool = True,
+        num_images: int = 0
     ) -> Sequence[Any]:
         results = self.get_results(model, dataset)
-        issues = self.get_issues(model, dataset, results=results, issue_levels=issue_levels, embed=embed)
+        issues = self.get_issues(model, dataset, results=results, issue_levels=issue_levels, embed=embed, num_images=num_images)
         return issues
 
     def get_issues(
-        self, model: Any, dataset: Any, results: List[ScanResult], issue_levels: Tuple[Any], embed: bool = True
+        self, model: Any, dataset: Any, results: List[ScanResult], issue_levels: Tuple[Any], embed: bool = True, num_images: int = 0
     ) -> Sequence[Any]:
         """
         Returns a list of giskard Issue from results output by get_results
@@ -122,7 +123,7 @@ class DetectorVisionBase:
                         slicing_fn=result.name,
                         group=self.issue_group,
                         meta=result.get_meta_required(),
-                        scan_examples=ImagesScanExamples(result.filename_examples, embed=embed),
+                        scan_examples=ImagesScanExamples(result.filename_examples[:num_images], embed=embed),
                         display_footer_info=False,
                     )
                 )
