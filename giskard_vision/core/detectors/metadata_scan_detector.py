@@ -37,18 +37,18 @@ class MetadataScanDetector(DetectorVisionBase):
         
         df_for_prediction = df_for_scan.copy()
         def prediction_function(df: pd.DataFrame) -> np.ndarray:
-            return pd.merge(df, df_for_prediction, right_index=True, left_index=True)["prediction"].values
+            return pd.merge(df, df_for_prediction, on='index', how='inner')["prediction"].values
 
         giskard_dataset = Dataset(
             df=df_for_scan.copy(),
             target="target",
-            cat_columns=list_categories
+            cat_columns=list_categories + ["index"]
         )
         
         giskard_model = Model(
             model=prediction_function,
             model_type=self.type_task,
-            feature_names=[feature for feature in list_metadata if feature not in ["prediction", "image_path", "metric", "target"]],
+            feature_names=list_metadata + ["index"],
         )
         
         results = scan(giskard_model, giskard_dataset)
@@ -57,7 +57,7 @@ class MetadataScanDetector(DetectorVisionBase):
 
         for issue in results.issues:
             current_data_slice = giskard_dataset.slice(issue.slicing_fn)
-            filenames = current_data_slice.nlargest(5, "metric")["image_path"].values
+            filenames = list(current_data_slice.df.nlargest(2, "metric")["image_path"].values)
             list_scan_results.append(
                 self.get_scan_result(
                     metric_value=current_data_slice.df["metric"].mean(),
@@ -78,7 +78,8 @@ class MetadataScanDetector(DetectorVisionBase):
         df["target"] = []
         df["prediction"] = []
         df["image_path"] = []
-        
+        df["index"] = []
+
         for i in range(len(dataset)):
             try:
                 image = dataset.get_image(i)
@@ -90,16 +91,19 @@ class MetadataScanDetector(DetectorVisionBase):
                 truth_surrogate = self.surrogate_function(ground_truth, image)
                 
                 for name_metadata in list_metadata:
-                    df[name_metadata].append(metadata.get(name_metadata))
+                    try:
+                        df[name_metadata].append(metadata.get(name_metadata))
+                    except KeyError:
+                        df[name_metadata].append(None)
                 
                 df["metric"].append(metric_value)
                 df["target"].append(truth_surrogate)
                 df["prediction"].append(prediction_surrogate)
-                df["image_path"].append(dataset.image_paths[i])
-            
+                df["image_path"].append(str(dataset.image_paths[i]))
+                df["index"].append(i)
             except:
                 pass
-        
+
         return pd.DataFrame(df)
 
     def get_scan_result(self, metric_value, metric_reference_value, metric_name, filename_examples, name, size_data) -> ScanResult:

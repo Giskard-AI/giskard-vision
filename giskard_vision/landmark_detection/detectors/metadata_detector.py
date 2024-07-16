@@ -1,6 +1,7 @@
 from giskard_vision.landmark_detection.types import PredictionResult
 from .decorator import maybe_detector
 from giskard_vision.landmark_detection.detectors.surrogate_functions import (
+    nme_0,
     relative_volume_convex_hull
 )
 from giskard_vision.core.detectors.metadata_scan_detector import MetadataScanDetector

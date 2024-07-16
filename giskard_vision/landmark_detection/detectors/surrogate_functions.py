@@ -2,7 +2,7 @@ import numpy as np
 
 from scipy.spatial import ConvexHull
 from giskard_vision.landmark_detection.tests.performance import NMEMean, Es
-from giskard_vision.landmark_detection.models.base import PredictionResult
+from giskard_vision.landmark_detection.types import PredictionResult
 
 
 def nme_0(landmarks, *args):
