@@ -170,6 +170,33 @@ class DataLoaderFFHQ(DataLoaderBase):
         """
         return np.array(self.landmarks[idx])
 
+    @staticmethod
+    def process_hair_color_data(data: Dict[str, Any]) -> Dict[str, Any]:
+        # Extract hair color information
+        hair_colors = {k: v for k, v in data.items() if "faceAttributes_hair_hairColor" in k}
+
+        # Find the color with the highest confidence
+        max_confidence = -1
+        color = None
+        for i in range(6):
+            color_key = f"faceAttributes_hair_hairColor_{i}_color"
+            confidence_key = f"faceAttributes_hair_hairColor_{i}_confidence"
+            if confidence_key in hair_colors and hair_colors[confidence_key] > max_confidence:
+                max_confidence = hair_colors[confidence_key]
+                color = hair_colors[color_key]
+
+        # Remove the old keys
+        for key in list(hair_colors.keys()):
+            del data[key]
+
+        # Add the new keys
+        if color is not None:
+            data["hairColor"] = color
+        if max_confidence != -1:
+            data["confidence"] = max_confidence
+
+        return data
+
     def get_meta(self, idx: int) -> Optional[Dict[str, Any]]:
         """
         Gets metadata for a specific index and flattens it.
@@ -183,8 +210,23 @@ class DataLoaderFFHQ(DataLoaderBase):
         try:
             with Path(self.images_dir_path / f"{idx:05d}.json").open(encoding="utf-8") as fp:
                 meta = json.load(fp)
-            flat_meta = flatten_dict(meta[0])
-            return MetaData(data=flat_meta)
+            flat_meta = self.process_hair_color_data(flatten_dict(meta[0]))
+            return MetaData(
+                data=flat_meta,
+                categories=[
+                    "faceAttributes_gender",
+                    "faceAttributes_glasses",
+                    "faceAttributes_exposure_exposureLevel",
+                    "faceAttributes_noise_noiseLevel",
+                    "faceAttributes_makeup_eyeMakeup",
+                    "faceAttributes_makeup_lipMakeup",
+                    "faceAttributes_occlusion_foreheadOccluded",
+                    "faceAttributes_occlusion_eyeOccluded",
+                    "faceAttributes_occlusion_mouthOccluded",
+                    "faceAttributes_hair_invisible",
+                    "hairColor",
+                ],
+            )
         except FileNotFoundError:
             return None
 
