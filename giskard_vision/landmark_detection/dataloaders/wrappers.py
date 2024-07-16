@@ -3,9 +3,9 @@ from typing import Dict, Optional, Tuple, Union
 import numpy as np
 
 from giskard_vision.core.dataloaders.base import DataLoaderWrapper
+from giskard_vision.core.dataloaders.meta import MetaData
 from giskard_vision.core.dataloaders.wrappers import ResizedDataLoaderBase
 from giskard_vision.landmark_detection.marks.facial_parts import FacialPart
-from giskard_vision.core.dataloaders.meta import MetaData
 from giskard_vision.landmark_detection.transformations import (
     crop_image_from_mark,
     crop_mark,

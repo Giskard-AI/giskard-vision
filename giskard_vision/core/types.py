@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 from typing import Any, Optional, Tuple
-from .dataloaders.meta import MetaData
 
 import numpy as np
+
+from .dataloaders.meta import MetaData
 
 IMAGE_TYPE = np.ndarray
 META_TYPE = Optional[MetaData]

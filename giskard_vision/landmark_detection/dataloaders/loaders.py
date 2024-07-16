@@ -1,15 +1,15 @@
 import json
 from pathlib import Path
-from typing import Dict, List, Optional, Union, Any
+from typing import Any, Dict, List, Optional, Union
 
 import cv2
 import numpy as np
 
-from giskard_vision.utils.errors import GiskardImportError
 from giskard_vision.core.dataloaders.meta import MetaData
+from giskard_vision.utils.errors import GiskardImportError
 
-from .base import DataIteratorBase, DataLoaderBase
 from ..types import Types
+from .base import DataIteratorBase, DataLoaderBase
 
 
 def flatten_dict(d: Dict[str, Any], parent_key: str = "", sep: str = "_") -> Dict[str, Any]:

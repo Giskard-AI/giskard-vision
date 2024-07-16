@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from typing import List, Optional
 
 import numpy as np
+
 from ..types import TypesBase
 
 
