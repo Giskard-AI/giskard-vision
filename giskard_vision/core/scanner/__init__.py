@@ -1,5 +1,5 @@
-from ..landmark_detection.dataloaders.base import DataIteratorBase
-from ..landmark_detection.models.base import FaceLandmarksModelBase
+from giskard_vision.core.dataloaders.base import DataIteratorBase
+from giskard_vision.core.models.base import ModelBase
 from .scanner import Scanner
 
 
@@ -7,8 +7,10 @@ def _register_default_detectors():
     import importlib
     from pathlib import Path
 
-    root = Path(__file__).parents[1]
-    modules = [".." + ".".join(p.relative_to(root).with_suffix("").parts) for p in root.glob("**/*_detector.py")]
+    root = Path(__file__).parents[2]
+    modules = [
+        "giskard_vision." + ".".join(p.relative_to(root).with_suffix("").parts) for p in root.glob("**/*_detector.py")
+    ]
 
     for detector_module in modules:
         importlib.import_module(detector_module, package=__package__)
@@ -18,7 +20,7 @@ _register_default_detectors()
 
 
 def scan(
-    model: FaceLandmarksModelBase,
+    model: ModelBase,
     dataset: DataIteratorBase,
     params=None,
     only=None,
@@ -31,7 +33,7 @@ def scan(
 
     Parameters
     ----------
-    model : FaceLandmarksModelBase
+    model : ModelBase
         A model object.
     dataset : DataIteratorBase
         A dataset object.
