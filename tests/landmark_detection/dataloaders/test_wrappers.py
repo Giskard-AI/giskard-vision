@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from giskard_vision.core.dataloaders.base import DataLoaderWrapper
+from giskard_vision.core.dataloaders.meta import MetaData
 from giskard_vision.core.dataloaders.wrappers import (
     CachedDataLoader,
     FilteredDataLoader,
@@ -16,7 +17,6 @@ from giskard_vision.landmark_detection.dataloaders.wrappers import (
 )
 from giskard_vision.landmark_detection.marks.facial_parts import FacialParts
 from giskard_vision.landmark_detection.types import Types
-from giskard_vision.core.dataloaders.meta import MetaData
 
 from ...core.dataloaders.test_base import DataloaderForTest
 
