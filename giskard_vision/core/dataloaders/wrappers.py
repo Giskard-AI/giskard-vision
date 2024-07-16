@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Any, Callable, Dict, Optional, Tuple, Union
+from typing import Any, Callable, Optional, Tuple, Union
 
 import cv2
 import numpy as np
@@ -75,7 +75,7 @@ class CachedDataLoader(DataLoaderWrapper):
         """
         return self._cached_functions[1](idx)
 
-    def get_meta(self, idx: int) -> Optional[Dict]:
+    def get_meta(self, idx: int) -> Optional[TypesBase.meta]:
         """
         Gets meta information from the cache or the wrapped data loader.
 
@@ -83,7 +83,7 @@ class CachedDataLoader(DataLoaderWrapper):
             idx (int): Index of the data.
 
         Returns:
-            Optional[Dict]: Meta information.
+            Optional[TypesBase.meta]: Meta information.
         """
         return self._cached_functions[2](idx)
 

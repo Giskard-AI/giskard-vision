@@ -5,6 +5,7 @@ import numpy as np
 from giskard_vision.core.dataloaders.base import DataLoaderWrapper
 from giskard_vision.core.dataloaders.wrappers import ResizedDataLoaderBase
 from giskard_vision.landmark_detection.marks.facial_parts import FacialPart
+from giskard_vision.core.dataloaders.meta import MetaData
 from giskard_vision.landmark_detection.transformations import (
     crop_image_from_mark,
     crop_mark,
@@ -150,10 +151,10 @@ class HeadPoseDataLoader(DataLoaderWrapper):
             idx (int): Index of the data.
 
         Returns:
-            Dict: Head pose metadata including pitch, yaw, and roll.
+            Types.meta: Head pose metadata including pitch, yaw, and roll.
         """
         pitch, yaw, roll = self.pose_detection_model.predict(self.get_image(idx))
-        return {"headPose": {"pitch": pitch[0], "yaw": -yaw[0], "roll": roll[0]}}
+        return MetaData(data={"pitch": pitch[0], "yaw": -yaw[0], "roll": roll[0]})
 
 
 class EthnicityDataLoader(DataLoaderWrapper):
@@ -233,7 +234,7 @@ class EthnicityDataLoader(DataLoaderWrapper):
             idx (int): Index of the data.
 
         Returns:
-            Dict: Ethnicity metadata.
+            Types.meta: Ethnicity metadata.
         """
         try:
             from deepface import DeepFace
@@ -242,6 +243,6 @@ class EthnicityDataLoader(DataLoaderWrapper):
         try:
             ethnicities = DeepFace.analyze(img_path=self.get_image(idx), actions=["race"])[0]["race"]
             ethnicities = self._map_ethnicities(ethnicities) if self.ethnicity_map else ethnicities
-            return {"ethnicity": max(ethnicities, key=ethnicities.get)}
+            return MetaData(data={"ethnicity": max(ethnicities, key=ethnicities.get)})
         except ValueError:
-            return {"ethnicity": "unknown"}
+            return MetaData(data={"ethnicity": "unknown"})

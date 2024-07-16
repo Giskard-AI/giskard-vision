@@ -1,13 +1,40 @@
 import json
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Any
 
 import cv2
 import numpy as np
 
 from giskard_vision.utils.errors import GiskardImportError
+from giskard_vision.core.dataloaders.meta import MetaData
 
 from .base import DataIteratorBase, DataLoaderBase
+from ..types import Types
+
+
+def flatten_dict(d: Dict[str, Any], parent_key: str = "", sep: str = "_") -> Dict[str, Any]:
+    """
+    Flattens a nested dictionary.
+
+    Args:
+        d (Dict[str, Any]): The dictionary to flatten.
+        parent_key (str): The base key string for the flattened keys.
+        sep (str): The separator between keys.
+
+    Returns:
+        Dict[str, Any]: The flattened dictionary.
+    """
+    items = []
+    for k, v in d.items():
+        new_key = f"{parent_key}{sep}{k}" if parent_key else k
+        if isinstance(v, dict):
+            items.extend(flatten_dict(v, new_key, sep=sep).items())
+        elif isinstance(v, list):
+            for i, item in enumerate(v):
+                items.extend(flatten_dict({f"{new_key}_{i}": item}, sep=sep).items())
+        else:
+            items.append((new_key, v))
+    return dict(items)
 
 
 class DataLoader300W(DataLoaderBase):
@@ -143,19 +170,23 @@ class DataLoaderFFHQ(DataLoaderBase):
         """
         return np.array(self.landmarks[idx])
 
-    def get_meta(self, idx: int) -> Optional[Dict]:
+    def get_meta(self, idx: int) -> Optional[Dict[str, Any]]:
         """
-        Gets metadata for a specific index.
+        Gets metadata for a specific index and flattens it.
 
         Args:
             idx (int): Index of the image.
 
         Returns:
-            Optional[Dict]: Metadata for the given index.
+            Optional[Dict[str, Any]]: Flattened metadata for the given index.
         """
-        with Path(self.images_dir_path / f"{idx:05d}.json").open(encoding="utf-8") as fp:
-            meta = json.load(fp)
-        return meta[0]
+        try:
+            with Path(self.images_dir_path / f"{idx:05d}.json").open(encoding="utf-8") as fp:
+                meta = json.load(fp)
+            flat_meta = flatten_dict(meta[0])
+            return MetaData(data=flat_meta)
+        except FileNotFoundError:
+            return None
 
     @classmethod
     def load_image_from_file(cls, image_file: Path) -> np.ndarray:
@@ -271,7 +302,7 @@ class DataLoader300WLP(DataIteratorBase):
         # Compute the marks
         return normalized_marks * row[self.image_key].shape[:2]
 
-    def get_meta(self, idx: int) -> Optional[Dict]:
+    def get_meta(self, idx: int) -> Optional[Types.meta]:
         """
         Returns metadata associated with the image at the specified index.
 
@@ -279,7 +310,7 @@ class DataLoader300WLP(DataIteratorBase):
             idx (int): Index of the image.
 
         Returns:
-            Optional[Dict]: Metadata associated with the image, currently None.
+            Optional[Types.meta]: Metadata associated with the image, currently None.
         """
         return None
 

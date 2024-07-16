@@ -35,7 +35,7 @@ class EthnicityDetectorLandmark(LandmarkDetectionBaseDetector):
 
     def _get_predicate_function(self, ethn_str):
         def predicate_function(elt):
-            return elt[2]["ethnicity"] == ethn_str
+            return elt[2].get_includes("ethnicity") == ethn_str
 
         predicate_function.__name__ = f"ethnicity: {ethn_str}"
         return predicate_function

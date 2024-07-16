@@ -42,7 +42,7 @@ class HeadPoseDetectorLandmark(LandmarkDetectionBaseDetector):
         upper = self.selected_poses[key][index][1]
 
         def predicate_function(elt):
-            return elt[2]["headPose"][key] > lower and elt[2]["headPose"][key] < upper
+            return elt[2].get_includes(key) > lower and elt[2].get_includes(key) < upper
 
         predicate_function.__name__ = f"head pose: {lower} < {key} < {upper}"
         return predicate_function

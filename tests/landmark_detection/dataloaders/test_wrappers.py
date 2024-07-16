@@ -16,13 +16,14 @@ from giskard_vision.landmark_detection.dataloaders.wrappers import (
 )
 from giskard_vision.landmark_detection.marks.facial_parts import FacialParts
 from giskard_vision.landmark_detection.types import Types
+from giskard_vision.core.dataloaders.meta import MetaData
 
 from ...core.dataloaders.test_base import DataloaderForTest
 
 
 class WithMetaDataLoader(DataLoaderWrapper):
     def get_meta(self, idx):
-        return {"type": "even" if idx % 2 == 0 else "odd"}
+        return MetaData({"type": "even" if idx % 2 == 0 else "odd"})
 
 
 class CountingDataloaderForTest(DataloaderForTest):
@@ -59,7 +60,7 @@ def test_cropped_dataloader():
 
 
 def is_odd(elt: Types.single_data) -> bool:
-    return elt[2]["type"] == "odd"
+    return elt[2].get("type") == "odd"
 
 
 def test_filtering_dataloader():
@@ -92,7 +93,7 @@ def test_resized_dataloader():
 
 
 def test_headpose_dataloader(dataset_ffhq):
-    head_pose_dl = FilteredDataLoader(HeadPoseDataLoader(dataset_ffhq), lambda elt: elt[2]["headPose"]["roll"] > 0)
+    head_pose_dl = FilteredDataLoader(HeadPoseDataLoader(dataset_ffhq), lambda elt: elt[2].get_includes("roll") > 0)
 
     assert len(head_pose_dl) == 4
     assert np.array_equal(head_pose_dl._reindex, [0, 2, 7, 10])
@@ -100,7 +101,7 @@ def test_headpose_dataloader(dataset_ffhq):
 
 def test_ethnicity_dataloader(dataset_ffhq):
     ethnicity_dl = EthnicityDataLoader(dataset_ffhq, ethnicity_map={"indian": "asian"})
-    asians = FilteredDataLoader(ethnicity_dl, lambda elt: elt[2]["ethnicity"] == "asian")
+    asians = FilteredDataLoader(ethnicity_dl, lambda elt: elt[2].get_includes("ethnicity") == "asian")
 
     assert len(asians) == 4
     assert np.array_equal(asians._reindex, [0, 3, 4, 7])
