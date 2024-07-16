@@ -4,7 +4,7 @@ from .head_pose_detector import HeadPoseDetectorLandmark
 from .transformation_blurring_detector import TransformationBlurringDetectorLandmark
 from .transformation_color_detector import TransformationColorDetectorLandmark
 from .transformation_resize_detector import TransformationResizeDetectorLandmark
-from .metadata import MetadataScanDetector
+from .metadata_detector import MetadataScanDetectorLanmdark
 
 __all__ = [
     "CroppingDetectorLandmark",
@@ -13,5 +13,5 @@ __all__ = [
     "TransformationColorDetectorLandmark",
     "TransformationResizeDetectorLandmark",
     "EthnicityDetectorLandmark",
-    "MetadataScanDetector"
+    "MetadataScanDetectorLanmdark"
 ]

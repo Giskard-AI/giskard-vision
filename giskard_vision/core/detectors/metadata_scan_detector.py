@@ -16,11 +16,9 @@ class MetadataScanDetector(DetectorVisionBase):
     
     issue_group = Metadata
     
-    def __init__(self, surrogate_function: Any, list_metadata: Sequence[str], list_metadata_categories: Sequence[str], metric : Any, type_task: str) -> None:
+    def __init__(self, surrogate_function: Any, metric : Any, type_task: str) -> None:
         super().__init__()
         self.surrogate_function = surrogate_function
-        self.list_metadata = list_metadata
-        self.list_metadata_categories = list_metadata_categories
         self.metric = metric
         self.type_task = type_task
     
@@ -31,22 +29,26 @@ class MetadataScanDetector(DetectorVisionBase):
         except (ImportError, ModuleNotFoundError) as e:
             raise GiskardImportError(["giskard"]) from e
         
-        df_for_scan = self.get_df_for_scan(model, dataset)
+        meta = dataset.get_meta(0)
+        list_categories = meta.get_categories()
+        list_metadata = list(meta.get_scannable().keys())
+        
+        df_for_scan = self.get_df_for_scan(model, dataset, list_metadata)
         
         df_for_prediction = df_for_scan.copy()
         def prediction_function(df: pd.DataFrame) -> np.ndarray:
             return pd.merge(df, df_for_prediction, right_index=True, left_index=True)["prediction"].values
-        
+
         giskard_dataset = Dataset(
             df=df_for_scan.copy(),
             target="target",
-            cat_columns=self.list_metadata_categories
+            cat_columns=list_categories
         )
         
         giskard_model = Model(
             model=prediction_function,
             model_type=self.type_task,
-            feature_names=[feature for feature in self.list_metadata if feature not in ["prediction", "image_path", "metric", "target"]],
+            feature_names=[feature for feature in list_metadata if feature not in ["prediction", "image_path", "metric", "target"]],
         )
         
         results = scan(giskard_model, giskard_dataset)
@@ -69,9 +71,9 @@ class MetadataScanDetector(DetectorVisionBase):
         
         return list_scan_results
     
-    def get_df_for_scan(self, model: Any, dataset: Any) -> pd.DataFrame:
+    def get_df_for_scan(self, model: Any, dataset: Any, list_metadata: Sequence[str]) -> pd.DataFrame:
 
-        df = {name_metadata : [] for name_metadata in self.list_metadata}
+        df = {name_metadata : [] for name_metadata in list_metadata}
         df["metric"] = []
         df["target"] = []
         df["prediction"] = []
@@ -87,8 +89,8 @@ class MetadataScanDetector(DetectorVisionBase):
                 prediction_surrogate = self.surrogate_function(prediction_result, image)
                 truth_surrogate = self.surrogate_function(ground_truth, image)
                 
-                for name_metadata in self.list_metadata:
-                    df[name_metadata].append(metadata[name_metadata])
+                for name_metadata in list_metadata:
+                    df[name_metadata].append(metadata.get(name_metadata))
                 
                 df["metric"].append(metric_value)
                 df["target"].append(truth_surrogate)
