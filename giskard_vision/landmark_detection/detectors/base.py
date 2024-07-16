@@ -15,9 +15,6 @@ from giskard_vision.landmark_detection.tests.base import TestDiff
 from giskard_vision.landmark_detection.tests.performance import NMEMean
 from giskard_vision.utils.errors import GiskardImportError
 
-from giskard_vision.landmark_detection.tests.performance import NMEMean
-
-
 Cropping = IssueGroup(
     "Cropping", description="Cropping involves evaluating the landmark detection model on specific face areas."
 )
@@ -55,7 +52,8 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
     """
 
     @abstractmethod
-    def get_dataloaders(self, dataset: Any) -> Sequence[Any]: ...
+    def get_dataloaders(self, dataset: Any) -> Sequence[Any]:
+        ...
 
     def get_results(self, model: Any, dataset: Any) -> Sequence[ScanResult]:
         dataloaders = self.get_dataloaders(dataset)

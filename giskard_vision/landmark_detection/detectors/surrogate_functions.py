@@ -1,7 +1,7 @@
 import numpy as np
-
 from scipy.spatial import ConvexHull
-from giskard_vision.landmark_detection.tests.performance import NMEMean, Es
+
+from giskard_vision.landmark_detection.tests.performance import Es, NMEMean
 from giskard_vision.landmark_detection.types import PredictionResult
 
 
@@ -23,4 +23,3 @@ def volume_convex_hull(landmarks, *args):
 
 def relative_volume_convex_hull(landmarks, image):
     return ConvexHull(landmarks).volume / image.shape[0] / image.shape[1]
-

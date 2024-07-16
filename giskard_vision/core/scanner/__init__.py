@@ -1,5 +1,6 @@
-from giskard_vision.landmark_detection.dataloaders.base import DataIteratorBase
 from giskard_vision.core.models.base import ModelBase
+from giskard_vision.landmark_detection.dataloaders.base import DataIteratorBase
+
 from .scanner import Scanner
 
 
