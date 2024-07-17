@@ -1,11 +1,10 @@
 import math
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Tuple
+from typing import List, Optional
 
 import numpy as np
 
-SingleLabel = Tuple[np.ndarray, Any, Optional[Dict[Any, Any]]]
-BatchedLabels = Tuple[Tuple[np.ndarray], Any, Tuple[Optional[Dict[Any, Any]]]]
+from ..types import TypesBase
 
 
 class DataIteratorBase(ABC):
@@ -104,7 +103,7 @@ class DataIteratorBase(ABC):
         """
         return None
 
-    def meta_none(self) -> Optional[Dict]:
+    def meta_none(self) -> Optional[TypesBase.meta]:
         """
         Returns default for meta data if it is None.
 
@@ -125,7 +124,7 @@ class DataIteratorBase(ABC):
         """
         return None
 
-    def get_meta(self, idx: int) -> Optional[Dict]:
+    def get_meta(self, idx: int) -> Optional[TypesBase.meta]:
         """
         Gets meta information (for a single image) for a specific index.
 
@@ -133,7 +132,7 @@ class DataIteratorBase(ABC):
             idx (int): Index of the image.
 
         Returns:
-            Optional[Dict]: Meta information for the given index.
+            Optional[TypesBase.meta]: Meta information for the given index.
         """
         return None
 
@@ -163,7 +162,7 @@ class DataIteratorBase(ABC):
         meta = self.get_meta(idx)
         return meta if meta is not None else self.meta_none()
 
-    def get_single_element(self, idx) -> SingleLabel:
+    def get_single_element(self, idx) -> TypesBase.single_data:
         """
         Gets a single element as a tuple of (image, labels, meta) for a specific index.
 
@@ -171,11 +170,11 @@ class DataIteratorBase(ABC):
             idx (int): Index of the image.
 
         Returns:
-            SingleLabel: Tuple containing image, labels, and meta information.
+            TypesBase.single_data: Tuple containing image, labels, and meta information.
         """
         return self.get_image(idx), self.get_labels_with_default(idx), self.get_meta_with_default(idx)
 
-    def __getitem__(self, idx: int) -> BatchedLabels:
+    def __getitem__(self, idx: int) -> TypesBase.batched_data:
         """
         Gets a batch of elements for a specific index.
 
@@ -183,7 +182,7 @@ class DataIteratorBase(ABC):
             idx (int): Index of the batch.
 
         Returns:
-            BatchedLabels: Batched data containing images, labels, and meta information.
+            TypesBase.batched_data: Batched data containing images, labels, and meta information.
         """
         return self._collate_fn(
             [self.get_single_element(i) for i in self.idx_sampler[idx * self.batch_size : (idx + 1) * self.batch_size]]
@@ -220,12 +219,12 @@ class DataIteratorBase(ABC):
         """
         return [self.get_meta_with_default(idx) for idx in self.idx_sampler]
 
-    def __next__(self) -> BatchedLabels:
+    def __next__(self) -> TypesBase.batched_data:
         """
         Gets the next batch of elements.
 
         Returns:
-            BatchedLabels: Batched data containing images, labels, and meta information.
+            TypesBase.batched_data: Batched data containing images, labels, and meta information.
         """
         if self.idx >= len(self):
             raise StopIteration
@@ -233,15 +232,15 @@ class DataIteratorBase(ABC):
         self.idx += 1
         return elt
 
-    def _collate_fn(self, elements: List[SingleLabel]) -> BatchedLabels:
+    def _collate_fn(self, elements: List[TypesBase.single_data]) -> TypesBase.batched_data:
         """
         Collates a list of single elements into a batched element.
 
         Args:
-            elements (List[SingleLabel]): List of single elements.
+            elements (List[TypesBase.single_data]): List of single elements.
 
         Returns:
-            BatchedLabels: Batched data containing images, labels, and meta information.
+            TypesBase.batched_data: Batched data containing images, labels, and meta information.
         """
         batched_elements = list(zip(*elements, strict=True))
         return batched_elements[0], np.array(batched_elements[1]), batched_elements[2]
@@ -311,7 +310,7 @@ class DataLoaderWrapper(DataIteratorBase):
         """
         return self._wrapped_dataloader.get_labels(idx)
 
-    def get_meta(self, idx: int) -> Optional[Dict]:
+    def get_meta(self, idx: int) -> Optional[TypesBase.meta]:
         """
         Gets meta information from the wrapped data loader.
 
@@ -319,7 +318,7 @@ class DataLoaderWrapper(DataIteratorBase):
             idx (int): Index of the data.
 
         Returns:
-            Optional[Dict]: Meta information from the wrapped data loader.
+            Optional[TypesBase.meta]: Meta information from the wrapped data loader.
         """
         return self._wrapped_dataloader.get_meta(idx)
 
