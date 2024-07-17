@@ -97,6 +97,11 @@ class MetaDataScanDetector(DetectorVisionBase):
         df["image_path"] = []
         df["index"] = []
 
+        # For now the DataFrame is built without a batch strategy because
+        # we need the metadata, labels and image path on an individual basis,
+        # and sometimes the model may fail on an image.
+        # TODO: make this cleaner and more efficient with batch computations
+
         for i in range(len(dataset)):
             try:
                 image = dataset.get_image(i)
