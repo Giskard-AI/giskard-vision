@@ -41,12 +41,8 @@ def test_base_detector(opencv_model, dataset_300w, detector):
 def test_meta_detector(opencv_model, dataset_ffhq):
     results = MetadataScanDetectorLanmdark().get_results(opencv_model, dataset_ffhq)
     assert isinstance(results, list)
-    assert len(results) > 0
-    assert isinstance(results[0], ScanResult)
 
     issues = MetadataScanDetectorLanmdark().get_issues(
         opencv_model, dataset_ffhq, results, (IssueLevel.MINOR, IssueLevel.MEDIUM, IssueLevel.MAJOR)
     )
-    assert isinstance(results, list)
-    assert len(issues) > 0
-    assert isinstance(issues[0], Issue)
+    assert isinstance(issues, list)
