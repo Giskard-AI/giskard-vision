@@ -1,4 +1,4 @@
-from giskard_vision.core.detectors.metadata_scan_detector import MetadataScanDetector
+from giskard_vision.core.detectors.metadata_scan_detector import MetaDataScanDetector
 from giskard_vision.landmark_detection.detectors.surrogate_functions import (
     relative_volume_convex_hull,
 )
@@ -9,7 +9,7 @@ from .decorator import maybe_detector
 
 
 @maybe_detector("metadata_landmark", tags=["vision", "face", "landmark", "metadata"])
-class MetadataScanDetectorLanmdark(MetadataScanDetector):
+class MetaDataScanDetectorLanmdark(MetaDataScanDetector):
     def __init__(self) -> None:
         def metric(prediction_result, ground_truth):
             return NMEMean.get(PredictionResult(prediction=prediction_result[None, :]), ground_truth[None, :])

@@ -11,7 +11,7 @@ from giskard_vision.core.detectors.base import (
 from giskard_vision.utils.errors import GiskardImportError
 
 
-class MetadataScanDetector(DetectorVisionBase):
+class MetaDataScanDetector(DetectorVisionBase):
     """
     Detector based on Giskard scan that looks for issues based on metadata
 
@@ -41,7 +41,7 @@ class MetadataScanDetector(DetectorVisionBase):
 
         meta = dataset.get_meta(0)
         list_categories = meta.get_categories()
-        list_metadata = list(meta.get_scannable().keys())
+        list_metadata = meta.get_scannables()
 
         # If the list of metadata is empty, return no issue
         if not list_metadata:

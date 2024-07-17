@@ -99,14 +99,14 @@ class MetaData:
         """
         return not isinstance(value, (list, tuple, dict, set))
 
-    def get_scannable(self) -> Dict[str, Any]:
+    def get_scannables(self) -> List[str]:
         """
         Returns only the non-iterable items from the metadata.
 
         Returns:
             Dict[str, Any]: A dictionary of non-iterable items from the metadata.
         """
-        return {k: v for k, v in self.data.items() if self.is_scannable(v)}
+        return list({k: v for k, v in self.data.items() if self.is_scannable(v)}.keys())
 
     def get_categories(self) -> Optional[List[str]]:
         """

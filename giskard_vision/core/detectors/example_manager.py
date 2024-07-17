@@ -1,7 +1,7 @@
 import base64
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import Any, Optional
+from typing import Any, Optional, Tuple
 
 import cv2
 
@@ -26,10 +26,12 @@ class ImagesScanExamples(ScanExamples):
     Class to manage images examples
     """
 
-    def __init__(self, examples: Optional[list] = None, embed: bool = True):
+    def __init__(self, examples: Optional[list] = None, embed: bool = True, target_size: Tuple[int] = (100, 100)):
         self.examples = examples if examples else []
         self.embed = embed
-        self.target_size = (100, 100)
+
+        # If target_size is set to None, the images are saved with the original size
+        self.target_size = target_size
 
     def add_examples(self, example):
         if isinstance(example, list):
@@ -43,6 +45,7 @@ class ImagesScanExamples(ScanExamples):
 
         Args:
             n (int): number of elements to keep
+            keep_n (bool): whether to keep the first n examples (True) or to keep everything (False)
 
         Returns:
             ExampleManager: new example manager with n first examples
