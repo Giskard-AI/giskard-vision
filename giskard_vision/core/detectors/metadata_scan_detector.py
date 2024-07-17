@@ -72,7 +72,7 @@ class MetadataScanDetector(DetectorVisionBase):
         # For each slice found, get appropriate scna results with the metric
         for issue in results.issues:
             current_data_slice = giskard_dataset.slice(issue.slicing_fn)
-            filenames = list(current_data_slice.df.nlargest(2, "metric")["image_path"].values)
+            filenames = list(current_data_slice.df.sort_values(by="metric", ascending=False)["image_path"].values)
             list_scan_results.append(
                 self.get_scan_result(
                     metric_value=current_data_slice.df["metric"].mean(),

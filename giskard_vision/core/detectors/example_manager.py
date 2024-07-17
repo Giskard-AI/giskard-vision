@@ -29,6 +29,7 @@ class ImagesScanExamples(ScanExamples):
     def __init__(self, examples: Optional[list] = None, embed: bool = True):
         self.examples = examples if examples else []
         self.embed = embed
+        self.target_size = (100, 100)
 
     def add_examples(self, example):
         if isinstance(example, list):
@@ -36,7 +37,7 @@ class ImagesScanExamples(ScanExamples):
         else:
             self.examples.append(example)
 
-    def head(self, n):
+    def head(self, n, keep_n=False):
         """
         Returns a new example manager keeping only n first examples
 
@@ -46,6 +47,8 @@ class ImagesScanExamples(ScanExamples):
         Returns:
             ExampleManager: new example manager with n first examples
         """
+        if not keep_n:
+            return type(self)(deepcopy(self.examples), embed=self.embed)
         return type(self)(deepcopy(self.examples[:n]), embed=self.embed)
 
     def __len__(self):
@@ -54,7 +57,7 @@ class ImagesScanExamples(ScanExamples):
     def to_html(self, **kwargs):
         html = '<div style="display:flex;justify-content:space-around">'
         for elt in self.examples:
-            html += f'<img src="data:image/png;base64,{self._encode(elt) if self.embed else elt}" style="width:30%">'
+            html += f'<img src="data:image/png;base64,{self._encode(elt) if self.embed else elt}">'
         html += "</div>"
         return html
 
@@ -69,5 +72,21 @@ class ImagesScanExamples(ScanExamples):
            str: Image encoded in base64
         """
         img = cv2.imread(path_img)
+
+        if self.target_size:
+            original_height, original_width = img.shape[:2]
+            target_width, target_height = self.target_size
+
+            # Calculate the target dimensions while maintaining the aspect ratio
+            aspect_ratio = original_width / original_height
+            if target_width / aspect_ratio <= target_height:
+                new_width = target_width
+                new_height = int(target_width / aspect_ratio)
+            else:
+                new_height = target_height
+                new_width = int(target_height * aspect_ratio)
+
+            img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_AREA)
+
         png_img = cv2.imencode(".png", img)
         return base64.b64encode(png_img[1]).decode("utf-8")
