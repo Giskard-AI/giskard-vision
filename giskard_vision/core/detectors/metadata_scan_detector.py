@@ -1,4 +1,4 @@
-from typing import Any, List, Sequence
+from typing import Any, Callable, List, Sequence
 
 import numpy as np
 import pandas as pd
@@ -10,13 +10,24 @@ from giskard_vision.core.detectors.base import (
 )
 from giskard_vision.utils.errors import GiskardImportError
 
-Metadata = IssueGroup(name="Metadata", description="Slices are found based on metadata")
-
 
 class MetadataScanDetector(DetectorVisionBase):
-    issue_group = Metadata
+    """
+    Detector based on Giskard scan that looks for issues based on metadata
 
-    def __init__(self, surrogate_function: Any, metric: Any, type_task: str) -> None:
+    Args:
+        surrogate_function: function
+            Function to transform the output of the model and the ground truth into one value
+            that will be used by the scan
+        metric: function
+            Metric to evaluate the prediction with respect to the ground truth
+        type_task: str
+            Type of the task for the scan, ["regression", "classification"]
+    """
+
+    issue_group = IssueGroup(name="Metadata", description="Slices are found based on metadata")
+
+    def __init__(self, surrogate_function: Callable, metric: Callable, type_task: str) -> None:
         super().__init__()
         self.surrogate_function = surrogate_function
         self.metric = metric
@@ -32,6 +43,11 @@ class MetadataScanDetector(DetectorVisionBase):
         list_categories = meta.get_categories()
         list_metadata = list(meta.get_scannable().keys())
 
+        # If the list of metadata is empty, return no issue
+        if not list_metadata:
+            return []
+
+        # Get dataframe from metadata
         df_for_scan = self.get_df_for_scan(model, dataset, list_metadata)
 
         df_for_prediction = df_for_scan.copy()
@@ -39,6 +55,7 @@ class MetadataScanDetector(DetectorVisionBase):
         def prediction_function(df: pd.DataFrame) -> np.ndarray:
             return pd.merge(df, df_for_prediction, on="index", how="inner")["prediction"].values
 
+        # Create Giskard dataset and model
         giskard_dataset = Dataset(df=df_for_scan.copy(), target="target", cat_columns=list_categories + ["index"])
 
         giskard_model = Model(
@@ -47,10 +64,12 @@ class MetadataScanDetector(DetectorVisionBase):
             feature_names=list_metadata + ["index"],
         )
 
+        # Get scan results
         results = scan(giskard_model, giskard_dataset)
 
         list_scan_results = []
 
+        # For each slice found, get appropriate scna results with the metric
         for issue in results.issues:
             current_data_slice = giskard_dataset.slice(issue.slicing_fn)
             filenames = list(current_data_slice.df.nlargest(2, "metric")["image_path"].values)
@@ -68,6 +87,9 @@ class MetadataScanDetector(DetectorVisionBase):
         return list_scan_results
 
     def get_df_for_scan(self, model: Any, dataset: Any, list_metadata: Sequence[str]) -> pd.DataFrame:
+
+        # Create a dataframe containing each metadata and metric, surrogate target, surrogate prediction
+        # image path for display in html, and index
         df = {name_metadata: [] for name_metadata in list_metadata}
         df["metric"] = []
         df["target"] = []
