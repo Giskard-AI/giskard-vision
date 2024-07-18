@@ -1,10 +1,9 @@
 from typing import Any, Optional
+
 import numpy as np
 
 from giskard_vision.core.dataloaders.hf import DataLoaderHuggingFaceDataset
 from giskard_vision.core.dataloaders.tfds import DataLoaderTensorFlowDatasets
-
-
 
 
 class DataLoaderGeirhosConflictStimuli(DataLoaderTensorFlowDatasets):
@@ -98,13 +97,13 @@ class DataLoaderSkinCancerHuggingFaceDataset(DataLoaderHuggingFaceDataset):
     image_key = "image"
     dataset_id = "marmal88/skin_cancer"
     classification_label_mapping = {
-        'benign_keratosis-like_lesions': 0,
-        'basal_cell_carcinoma': 1,
-        'actinic_keratoses': 2,
-        'vascular_lesions': 3,
-        'melanocytic_Nevi': 4,
-        'melanoma': 5,
-        'dermatofibroma': 6,
+        "benign_keratosis-like_lesions": 0,
+        "basal_cell_carcinoma": 1,
+        "actinic_keratoses": 2,
+        "vascular_lesions": 3,
+        "melanocytic_Nevi": 4,
+        "melanoma": 5,
+        "dermatofibroma": 6,
     }
 
     def __init__(

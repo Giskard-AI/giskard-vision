@@ -19,7 +19,7 @@ class SkinCancerHuggingFaceModel(ImageClassificationHuggingFaceModel):
             name=name,
             device=device,
         )
-    
+
     def predict_image(self, image) -> np.ndarray:
         probas = super().predict_image(image)
         return np.array([np.argmax(probas)])
