@@ -6,35 +6,10 @@ import cv2
 import numpy as np
 
 from giskard_vision.core.dataloaders.meta import MetaData
-from giskard_vision.utils.errors import GiskardImportError
+from giskard_vision.core.dataloaders.tfds import DataLoaderTensorFlowDatasets
+from giskard_vision.core.dataloaders.utils import flatten_dict
 
-from ..types import Types
-from .base import DataIteratorBase, DataLoaderBase
-
-
-def flatten_dict(d: Dict[str, Any], parent_key: str = "", sep: str = "_") -> Dict[str, Any]:
-    """
-    Flattens a nested dictionary.
-
-    Args:
-        d (Dict[str, Any]): The dictionary to flatten.
-        parent_key (str): The base key string for the flattened keys.
-        sep (str): The separator between keys.
-
-    Returns:
-        Dict[str, Any]: The flattened dictionary.
-    """
-    items = []
-    for k, v in d.items():
-        new_key = f"{parent_key}{sep}{k}" if parent_key else k
-        if isinstance(v, dict):
-            items.extend(flatten_dict(v, new_key, sep=sep).items())
-        elif isinstance(v, list):
-            for i, item in enumerate(v):
-                items.extend(flatten_dict({f"{new_key}_{i}": item}, sep=sep).items())
-        else:
-            items.append((new_key, v))
-    return dict(items)
+from .base import DataLoaderBase
 
 
 class DataLoader300W(DataLoaderBase):
@@ -260,9 +235,9 @@ class DataLoaderFFHQ(DataLoaderBase):
         raise NotImplementedError("Should not be called for FFHQ")
 
 
-class DataLoader300WLP(DataIteratorBase):
+class DataLoader300WLP(DataLoaderTensorFlowDatasets):
     """
-    A data loader for the 300W-LP dataset, extending the DataIteratorBase class.
+    A data loader for the 300W-LP dataset, extending the DataLoaderTensorFlowDatasets class.
 
     Attributes:
         landmarks_key (str): Key for accessing 2D landmarks in the dataset.
@@ -292,27 +267,20 @@ class DataLoader300WLP(DataIteratorBase):
         Raises:
             GiskardImportError: If there are missing dependencies such as TensorFlow, TensorFlow-Datasets, or SciPy.
         """
-        super().__init__(name)
+        super().__init__("the300w_lp", self.dataset_split, name, data_dir)
 
-        try:
-            import scipy.io  # noqa
-            import tensorflow  # noqa
-            import tensorflow_datasets as tfds
-        except ImportError as e:
-            raise GiskardImportError(["tensorflow", "tensorflow-datasets", "scipy"]) from e
-
-        self.splits, self.info = tfds.load("the300w_lp", data_dir=data_dir, with_info=True)
-        self.ds = self.splits[self.dataset_split]
-        self._idx_sampler = list(range(len(self)))
-
-    def __len__(self) -> int:
-        """
-        Returns the total number of examples in the specified dataset split.
-
-        Returns:
-            int: Total number of examples in the dataset split.
-        """
-        return self.info.splits[self.dataset_split].num_examples
+        self.meta_exclude_keys.extend(
+            [
+                # Exclude input and output
+                self.image_key,
+                self.landmarks_key,
+                # Exclude other info, see https://www.tensorflow.org/datasets/catalog/the300w_lp
+                "landmarks_3d",
+                "landmarks_origin",
+                "shape_params",  # 199 shape parameters
+                "tex_params",  # 199 texture parameters
+            ]
+        )
 
     def get_image(self, idx: int) -> np.ndarray:
         """
@@ -324,7 +292,7 @@ class DataLoader300WLP(DataIteratorBase):
         Returns:
             np.ndarray: The image data.
         """
-        return self.ds.skip(idx).as_numpy_iterator().next()[self.image_key]
+        return self.get_row(idx)[self.image_key]
 
     def get_labels(self, idx: int) -> Optional[np.ndarray]:
         """
@@ -336,32 +304,10 @@ class DataLoader300WLP(DataIteratorBase):
         Returns:
             Optional[np.ndarray]: Normalized 2D landmarks, or None if not available.
         """
-        row = self.ds.skip(idx).as_numpy_iterator().next()
+        row = self.get_row(idx)
 
         # Marks are normalized to [0, 1]
         normalized_marks = row[self.landmarks_key]
 
         # Compute the marks
         return normalized_marks * row[self.image_key].shape[:2]
-
-    def get_meta(self, idx: int) -> Optional[Types.meta]:
-        """
-        Returns metadata associated with the image at the specified index.
-
-        Args:
-            idx (int): Index of the image.
-
-        Returns:
-            Optional[Types.meta]: Metadata associated with the image, currently None.
-        """
-        return None
-
-    @property
-    def idx_sampler(self):
-        """
-        Gets the index sampler for the data loader.
-
-        Returns:
-            List: List of image indices for data loading.
-        """
-        return self._idx_sampler
