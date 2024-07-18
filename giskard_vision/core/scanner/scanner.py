@@ -16,9 +16,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-MAX_ISSUES_PER_DETECTOR = 15
-
-
 class Scanner:
     def __init__(self, params: Optional[dict] = None, only=None):
         """Scanner for model issues & vulnerabilities.
@@ -40,7 +37,9 @@ class Scanner:
         self.only = only
         self.uuid = uuid.uuid4()
 
-    def analyze(self, model, dataset, verbose=True, raise_exceptions=False, embed=True, num_images=0):
+    def analyze(
+        self, model, dataset, verbose=True, raise_exceptions=False, embed=True, num_images=0, max_issues_per_group=15
+    ):
         """Runs the analysis of a model and dataset, detecting issues.
         Parameters
         ----------
@@ -83,6 +82,7 @@ class Scanner:
                 raise_exceptions=raise_exceptions,
                 embed=embed,
                 num_images=num_images,
+                max_issues_per_group=max_issues_per_group,
             )
 
         # Scan completed
@@ -93,7 +93,17 @@ class Scanner:
 
         return ScanReport(issues, model=model, dataset=dataset)
 
-    def _run_detectors(self, detectors, model, dataset, verbose=True, raise_exceptions=False, embed=True, num_images=0):
+    def _run_detectors(
+        self,
+        detectors,
+        model,
+        dataset,
+        verbose=True,
+        raise_exceptions=False,
+        embed=True,
+        num_images=0,
+        max_issues_per_group=15,
+    ):
         if not detectors:
             raise RuntimeError("No issue detectors available. Scan will not be performed.")
 
@@ -113,14 +123,30 @@ class Scanner:
                     raise err
 
                 detected_issues = []
-            detected_issues = sorted(detected_issues, key=lambda i: -i.importance)[:MAX_ISSUES_PER_DETECTOR]
+            detected_issues = sorted(detected_issues, key=lambda i: -i.importance)
             detector_elapsed = perf_counter() - detector_start
+
+            # The number of detected issues here is inflated for now
             maybe_print(
                 f"{detector.__class__.__name__}: {len(detected_issues)} issue{'s' if len(detected_issues) > 1 else ''} detected. (Took {datetime.timedelta(seconds=detector_elapsed)})",
                 verbose=verbose,
             )
 
             issues.extend(detected_issues)
+
+        # Group issues by their issue group
+        issue_groups = {issue.issue_group for issue in issues}
+
+        # For each group, sort the issues by importance (descending) and limit to max_issues_per_group
+        grouped_issues = [
+            sorted([issue for issue in issues if issue.issue_group == group], key=lambda issue: -issue.importance)[
+                :max_issues_per_group
+            ]
+            for group in issue_groups
+        ]
+
+        # Flatten the list of grouped issues into a single list
+        issues = [issue for group in grouped_issues for issue in group]
 
         return issues, errors
 

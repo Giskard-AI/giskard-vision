@@ -1,5 +1,6 @@
 from giskard_vision.core.models.base import ModelBase
 from giskard_vision.landmark_detection.dataloaders.base import DataIteratorBase
+from typing import Any, Dict, List, Optional
 
 from .scanner import Scanner
 
@@ -23,11 +24,12 @@ _register_default_detectors()
 def scan(
     model: ModelBase,
     dataset: DataIteratorBase,
-    params=None,
-    only=None,
-    verbose=True,
-    raise_exceptions=False,
-    num_images=0,
+    params: Optional[Dict[Any, Any]] = None,
+    only: Optional[List[str]] = None,
+    verbose: bool = True,
+    raise_exceptions: bool = False,
+    num_images: int = 0,
+    max_issues_per_group: int = 15,
 ):
     """Automatically detects model vulnerabilities.
 
@@ -51,6 +53,8 @@ def scan(
         handled gracefully, without interrupting the scan.
     num_images : int
         Number of images to display in the html report
+    max_issues_per_group: int
+        Number of issues to display per group in the html report
 
     Returns
     -------
@@ -59,7 +63,12 @@ def scan(
     """
     scanner = Scanner(params, only=only)
     return scanner.analyze(
-        model, dataset=dataset, verbose=verbose, raise_exceptions=raise_exceptions, num_images=num_images
+        model,
+        dataset=dataset,
+        verbose=verbose,
+        raise_exceptions=raise_exceptions,
+        num_images=num_images,
+        max_issues_per_group=max_issues_per_group,
     )
 
 

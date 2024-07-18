@@ -68,7 +68,7 @@ class MetaDataScanDetector(DetectorVisionBase):
         )
 
         # Get scan results
-        results = scan(giskard_model, giskard_dataset)
+        results = scan(giskard_model, giskard_dataset, max_issues_per_group=None)
 
         list_scan_results = []
 

@@ -5,7 +5,7 @@ from giskard_vision.landmark_detection.detectors.surrogate_functions import (
 from giskard_vision.landmark_detection.tests.performance import NMEMean
 from giskard_vision.landmark_detection.types import PredictionResult
 
-from .decorator import maybe_detector
+from ...core.detectors.decorator import maybe_detector
 
 
 @maybe_detector("metadata_landmark", tags=["vision", "face", "landmark", "metadata"])
