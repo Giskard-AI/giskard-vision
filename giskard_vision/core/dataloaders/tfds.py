@@ -1,5 +1,6 @@
-import numpy as np
 from typing import Any, Dict, List, Optional
+
+import numpy as np
 
 from giskard_vision.core.dataloaders.base import DataIteratorBase
 from giskard_vision.core.dataloaders.meta import MetaData
@@ -7,7 +8,9 @@ from giskard_vision.landmark_detection.types import Types
 from giskard_vision.utils.errors import GiskardImportError
 
 
-def flatten_dict_exclude_wrapper(d: Dict[str, Any], excludes: List[str] = [], parent_key: str = "", sep: str = "_", flat_np_array: bool = False) -> Dict[str, Any]:
+def flatten_dict_exclude_wrapper(
+    d: Dict[str, Any], excludes: List[str] = [], parent_key: str = "", sep: str = "_", flat_np_array: bool = False
+) -> Dict[str, Any]:
     """
     Flattens a nested dictionary without the specified keys.
 
@@ -29,7 +32,9 @@ def flatten_dict_exclude_wrapper(d: Dict[str, Any], excludes: List[str] = [], pa
     return items
 
 
-def flatten_dict(d: Dict[str, Any], parent_key: str = "", sep: str = "_", flat_np_array: bool = False) -> Dict[str, Any]:
+def flatten_dict(
+    d: Dict[str, Any], parent_key: str = "", sep: str = "_", flat_np_array: bool = False
+) -> Dict[str, Any]:
     """
     Flattens a nested dictionary.
 
@@ -76,7 +81,9 @@ class DataLoaderTensorFlowDatasets(DataIteratorBase):
         GiskardImportError: If there are missing dependencies such as TensorFlow, TensorFlow-Datasets, or SciPy.
     """
 
-    def __init__(self, tfds_id: str, tfds_split: str = "train", name: Optional[str] = None, data_dir: Optional[str] = None) -> None:
+    def __init__(
+        self, tfds_id: str, tfds_split: str = "train", name: Optional[str] = None, data_dir: Optional[str] = None
+    ) -> None:
         """
         Initializes the Tensorflow Datasets instance.
 

@@ -11,6 +11,34 @@ from giskard_vision.core.dataloaders.tfds import DataLoaderTensorFlowDatasets
 from .base import DataLoaderBase
 
 
+def flatten_dict(
+    d: Dict[str, Any], parent_key: str = "", sep: str = "_", flat_np_array: bool = False
+) -> Dict[str, Any]:
+    """
+    Flattens a nested dictionary.
+
+    Args:
+        d (Dict[str, Any]): The dictionary to flatten.
+        parent_key (str): The base key string for the flattened keys.
+        sep (str): The separator between keys.
+        flat_np_array (bool): Flag to flatten numpy arrays. Default is `False`.
+
+    Returns:
+        Dict[str, Any]: The flattened dictionary.
+    """
+    items = []
+    for k, v in d.items():
+        new_key = f"{parent_key}{sep}{k}" if parent_key else k
+        if isinstance(v, dict):
+            items.extend(flatten_dict(v, new_key, sep=sep).items())
+        elif isinstance(v, list) or (isinstance(v, np.ndarray) and flat_np_array):
+            for i, item in enumerate(v):
+                items.extend(flatten_dict({f"{new_key}_{i}": item}, sep=sep).items())
+        else:
+            items.append((new_key, v))
+    return dict(items)
+
+
 class DataLoader300W(DataLoaderBase):
     """Data loader for the 300W dataset. Ref: https://ibug.doc.ic.ac.uk/resources/300-W/
 
@@ -268,17 +296,18 @@ class DataLoader300WLP(DataLoaderTensorFlowDatasets):
         """
         super().__init__("the300w_lp", self.dataset_split, name, data_dir)
 
-        self.meta_exclude_keys.extend([
-            # Exclude input and output
-            self.image_key,
-            self.landmarks_key,
-
-            # Exclude other info, see https://www.tensorflow.org/datasets/catalog/the300w_lp
-            "landmarks_3d",
-            "landmarks_origin",
-            "shape_params",     # 199 shape parameters
-            "tex_params",       # 199 texture parameters
-        ])
+        self.meta_exclude_keys.extend(
+            [
+                # Exclude input and output
+                self.image_key,
+                self.landmarks_key,
+                # Exclude other info, see https://www.tensorflow.org/datasets/catalog/the300w_lp
+                "landmarks_3d",
+                "landmarks_origin",
+                "shape_params",  # 199 shape parameters
+                "tex_params",  # 199 texture parameters
+            ]
+        )
 
     def get_image(self, idx: int) -> np.ndarray:
         """

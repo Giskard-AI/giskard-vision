@@ -1,4 +1,5 @@
 from typing import Optional
+
 import numpy as np
 
 from giskard_vision.core.dataloaders.tfds import DataLoaderTensorFlowDatasets
@@ -38,16 +39,17 @@ class DataLoaderGeirhosConflictStimuli(DataLoaderTensorFlowDatasets):
         """
         super().__init__("geirhos_conflict_stimuli", self.dataset_split, name, data_dir)
 
-        self.meta_exclude_keys.extend([
-            # Exclude input and output
-            self.image_key,
-            self.label_key,
-
-            # Exclude other info, see https://www.tensorflow.org/datasets/catalog/geirhos_conflict_stimuli
-            "file_name",
-            "shape_imagenet_labels",
-            "texture_imagenet_labels",
-        ])
+        self.meta_exclude_keys.extend(
+            [
+                # Exclude input and output
+                self.image_key,
+                self.label_key,
+                # Exclude other info, see https://www.tensorflow.org/datasets/catalog/geirhos_conflict_stimuli
+                "file_name",
+                "shape_imagenet_labels",
+                "texture_imagenet_labels",
+            ]
+        )
 
     def get_image(self, idx: int) -> np.ndarray:
         """
@@ -74,5 +76,3 @@ class DataLoaderGeirhosConflictStimuli(DataLoaderTensorFlowDatasets):
         row = self.get_row(idx)
 
         return np.array([row[self.label_key]])
-
-
