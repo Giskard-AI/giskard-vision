@@ -11,6 +11,11 @@ from giskard_vision.utils.errors import GiskardImportError
 from ..types import Types
 from .base import DataIteratorBase, DataLoaderBase
 
+try:
+    from giskard_vision.core.detectors.base import IssueGroup
+except:
+    pass
+
 
 def flatten_dict(d: Dict[str, Any], parent_key: str = "", sep: str = "_") -> Dict[str, Any]:
     """
@@ -226,6 +231,12 @@ class DataLoaderFFHQ(DataLoaderBase):
                     "faceAttributes_hair_invisible",
                     "hairColor",
                 ],
+                issue_groups={
+                    "faceAttributes_gender": IssueGroup(
+                        "Ethical",
+                        description="The data are filtered by gender to detect ethical biases.",
+                    )
+                },
             )
         except FileNotFoundError:
             return None

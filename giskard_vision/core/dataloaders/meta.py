@@ -1,5 +1,10 @@
 from typing import Any, Dict, List, Optional
 
+try:
+    from giskard_vision.core.detectors.base import IssueGroup
+except:
+    pass
+
 
 class MetaData:
     """
@@ -16,10 +21,12 @@ class MetaData:
         get_categories() -> Optional[List[str]]: Returns the categories of the metadata.
     """
 
-    data: Dict[str, Any]
-    categories: Optional[List[str]]
-
-    def __init__(self, data: Dict[str, Any], categories: Optional[List[str]] = None):
+    def __init__(
+        self,
+        data: Dict[str, Any],
+        categories: Optional[List[str]] = None,
+        issue_groups: Optional[Dict[str, IssueGroup]] = None,
+    ):
         """
         Constructs all the necessary attributes for the MetaData object.
 
@@ -29,6 +36,7 @@ class MetaData:
         """
         self._data = data
         self._categories = categories
+        self.issue_groups = issue_groups
 
     @property
     def data(self) -> Dict[str, Any]:
@@ -49,6 +57,26 @@ class MetaData:
             Optional[List[str]]: The categorical keys.
         """
         return self._categories
+
+    @property
+    def issue_group(self, key: str) -> IssueGroup:
+        """
+        Returns the IssueGroup for a specific metadata.
+
+        Returns:
+            IssueGroup: IssueGroup of the metadata.
+        """
+        return self.issue_groups[key] if self.issue_groups else None
+
+    @property
+    def issue_groups(self) -> Optional[Dict[str, IssueGroup]]:
+        """
+        Returns the IssueGroup map
+
+        Returns:
+            Optional[Dict[str, IssueGroup]]: IssueGroups of the metadata.
+        """
+        return self.issue_groups
 
     def get(self, key: str) -> Any:
         """

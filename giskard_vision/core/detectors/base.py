@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from dataclasses import dataclass
-from typing import Any, List, Optional, Sequence, Tuple
+from typing import Any, List, Optional, Sequence, Tuple, Dict
 
 from giskard_vision.utils.errors import GiskardImportError
 
@@ -37,6 +37,7 @@ class ScanResult:
     slice_size: int
     filename_examples: Optional[Sequence[str]]
     relative_delta: float
+    issue_group: Optional[IssueGroup] = None
 
     def get_meta_required(self) -> dict:
         # Get the meta required by the original scan API
@@ -129,7 +130,7 @@ class DetectorVisionBase:
                         dataset,
                         level=result.issue_level,
                         slicing_fn=result.name,
-                        group=self.issue_group,
+                        group=result.issue_group if result.issue_group else self.issue_group,
                         meta=result.get_meta_required(),
                         scan_examples=ImagesScanExamples(result.filename_examples[:num_images], embed=embed),
                         display_footer_info=False,
