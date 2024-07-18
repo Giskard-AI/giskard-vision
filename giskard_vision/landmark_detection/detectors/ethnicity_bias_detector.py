@@ -4,8 +4,8 @@ from giskard_vision.core.dataloaders.wrappers import (
 )
 from giskard_vision.landmark_detection.dataloaders.wrappers import EthnicityDataLoader
 
-from .base import Ethical, LandmarkDetectionBaseDetector
 from ...core.detectors.decorator import maybe_detector
+from .base import Ethical, LandmarkDetectionBaseDetector
 
 
 @maybe_detector("ethnicity_landmark", tags=["vision", "face", "landmark", "filtered", "ethnicity"])

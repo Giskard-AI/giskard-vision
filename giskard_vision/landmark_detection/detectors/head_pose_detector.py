@@ -4,8 +4,8 @@ from giskard_vision.core.dataloaders.wrappers import (
 )
 from giskard_vision.landmark_detection.dataloaders.wrappers import HeadPoseDataLoader
 
-from .base import LandmarkDetectionBaseDetector, Pose
 from ...core.detectors.decorator import maybe_detector
+from .base import LandmarkDetectionBaseDetector, Pose
 
 
 @maybe_detector("headpose_landmark", tags=["vision", "face", "landmark", "filtered", "headpose"])
