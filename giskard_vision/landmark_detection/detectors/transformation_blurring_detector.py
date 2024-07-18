@@ -1,7 +1,7 @@
 from giskard_vision.core.dataloaders.wrappers import BlurredDataLoader
 
-from .base import LandmarkDetectionBaseDetector, Robustness
 from ...core.detectors.decorator import maybe_detector
+from .base import LandmarkDetectionBaseDetector, Robustness
 
 
 @maybe_detector("blurring_landmark", tags=["vision", "face", "landmark", "transformed", "blurred"])

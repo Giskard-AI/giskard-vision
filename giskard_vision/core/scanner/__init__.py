@@ -1,6 +1,7 @@
+from typing import Any, Dict, List, Optional
+
 from giskard_vision.core.models.base import ModelBase
 from giskard_vision.landmark_detection.dataloaders.base import DataIteratorBase
-from typing import Any, Dict, List, Optional
 
 from .scanner import Scanner
 

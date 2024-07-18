@@ -1,7 +1,7 @@
 from giskard_vision.core.dataloaders.wrappers import ColoredDataLoader
 
-from .base import LandmarkDetectionBaseDetector, Robustness
 from ...core.detectors.decorator import maybe_detector
+from .base import LandmarkDetectionBaseDetector, Robustness
 
 
 @maybe_detector("color_landmark", tags=["vision", "face", "landmark", "filtered", "colored"])
