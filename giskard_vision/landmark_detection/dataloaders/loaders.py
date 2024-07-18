@@ -6,15 +6,20 @@ import cv2
 import numpy as np
 
 from giskard_vision.core.dataloaders.meta import MetaData
+from giskard_vision.core.detectors.base import IssueGroup
 from giskard_vision.utils.errors import GiskardImportError
 
 from ..types import Types
 from .base import DataIteratorBase, DataLoaderBase
 
-try:
-    from giskard_vision.core.detectors.base import IssueGroup
-except:
-    pass
+EthicalIssueMeta = IssueGroup(
+    "Ethical Metadata",
+    description="The data are filtered by gender to detect ethical biases.",
+)
+PerformanceIssueMeta = IssueGroup(
+    "Performance Metadata",
+    description="The data are filtered by emotion to detect performance issues.",
+)
 
 
 def flatten_dict(d: Dict[str, Any], parent_key: str = "", sep: str = "_") -> Dict[str, Any]:
@@ -232,10 +237,43 @@ class DataLoaderFFHQ(DataLoaderBase):
                     "hairColor",
                 ],
                 issue_groups={
-                    "faceAttributes_gender": IssueGroup(
-                        "Ethical",
-                        description="The data are filtered by gender to detect ethical biases.",
-                    )
+                    "faceRectangle_top": PerformanceIssueMeta,
+                    "faceRectangle_left": PerformanceIssueMeta,
+                    "faceRectangle_width": PerformanceIssueMeta,
+                    "faceRectangle_height": PerformanceIssueMeta,
+                    "faceAttributes_smile": PerformanceIssueMeta,
+                    "faceAttributes_headPose_pitch": PerformanceIssueMeta,
+                    "faceAttributes_headPose_roll": PerformanceIssueMeta,
+                    "faceAttributes_headPose_yaw": PerformanceIssueMeta,
+                    "faceAttributes_gender": EthicalIssueMeta,
+                    "faceAttributes_age": EthicalIssueMeta,
+                    "faceAttributes_facialHair_moustache": EthicalIssueMeta,
+                    "faceAttributes_facialHair_beard": EthicalIssueMeta,
+                    "faceAttributes_facialHair_sideburns": EthicalIssueMeta,
+                    "faceAttributes_glasses": EthicalIssueMeta,
+                    "faceAttributes_emotion_anger": PerformanceIssueMeta,
+                    "faceAttributes_emotion_contempt": PerformanceIssueMeta,
+                    "faceAttributes_emotion_disgust": PerformanceIssueMeta,
+                    "faceAttributes_emotion_fear": PerformanceIssueMeta,
+                    "faceAttributes_emotion_happiness": PerformanceIssueMeta,
+                    "faceAttributes_emotion_neutral": PerformanceIssueMeta,
+                    "faceAttributes_emotion_sadness": PerformanceIssueMeta,
+                    "faceAttributes_emotion_surprise": PerformanceIssueMeta,
+                    "faceAttributes_blur_blurLevel": PerformanceIssueMeta,
+                    "faceAttributes_blur_value": PerformanceIssueMeta,
+                    "faceAttributes_exposure_exposureLevel": PerformanceIssueMeta,
+                    "faceAttributes_exposure_value": PerformanceIssueMeta,
+                    "faceAttributes_noise_noiseLevel": PerformanceIssueMeta,
+                    "faceAttributes_noise_value": PerformanceIssueMeta,
+                    "faceAttributes_makeup_eyeMakeup": EthicalIssueMeta,
+                    "faceAttributes_makeup_lipMakeup": EthicalIssueMeta,
+                    "faceAttributes_occlusion_foreheadOccluded": PerformanceIssueMeta,
+                    "faceAttributes_occlusion_eyeOccluded": PerformanceIssueMeta,
+                    "faceAttributes_occlusion_mouthOccluded": PerformanceIssueMeta,
+                    "faceAttributes_hair_bald": EthicalIssueMeta,
+                    "faceAttributes_hair_invisible": PerformanceIssueMeta,
+                    "hairColor": EthicalIssueMeta,
+                    "confidence": PerformanceIssueMeta,
                 },
             )
         except FileNotFoundError:

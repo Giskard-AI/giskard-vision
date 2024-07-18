@@ -1,9 +1,6 @@
 from typing import Any, Dict, List, Optional
 
-try:
-    from giskard_vision.core.detectors.base import IssueGroup
-except:
-    pass
+from giskard_vision.core.detectors.base import IssueGroup
 
 
 class MetaData:
@@ -36,7 +33,7 @@ class MetaData:
         """
         self._data = data
         self._categories = categories
-        self.issue_groups = issue_groups
+        self._issue_groups = issue_groups
 
     @property
     def data(self) -> Dict[str, Any]:
@@ -59,16 +56,6 @@ class MetaData:
         return self._categories
 
     @property
-    def issue_group(self, key: str) -> IssueGroup:
-        """
-        Returns the IssueGroup for a specific metadata.
-
-        Returns:
-            IssueGroup: IssueGroup of the metadata.
-        """
-        return self.issue_groups[key] if self.issue_groups else None
-
-    @property
     def issue_groups(self) -> Optional[Dict[str, IssueGroup]]:
         """
         Returns the IssueGroup map
@@ -76,7 +63,16 @@ class MetaData:
         Returns:
             Optional[Dict[str, IssueGroup]]: IssueGroups of the metadata.
         """
-        return self.issue_groups
+        return self._issue_groups
+
+    def issue_group(self, key: str) -> IssueGroup:
+        """
+        Returns the IssueGroup for a specific metadata.
+
+        Returns:
+            IssueGroup: IssueGroup of the metadata.
+        """
+        return self._issue_groups[key] if (self._issue_groups and key in self._issue_groups) else None
 
     def get(self, key: str) -> Any:
         """

@@ -39,7 +39,10 @@ class MetaDataScanDetector(DetectorVisionBase):
         except (ImportError, ModuleNotFoundError) as e:
             raise GiskardImportError(["giskard"]) from e
 
-        meta = dataset.get_meta(0)
+        if hasattr(dataset, "get_meta"):
+            meta = dataset.get_meta(0)
+        else:
+            return []
         list_categories = meta.get_categories()
         list_metadata = meta.get_scannables()
 
@@ -69,12 +72,11 @@ class MetaDataScanDetector(DetectorVisionBase):
 
         list_scan_results = []
 
-        issue_groups = dataset.get_meta(0).issue_groups if dataset.get_meta(0) else None
-
         # For each slice found, get appropriate scna results with the metric
         for issue in results.issues:
             current_data_slice = giskard_dataset.slice(issue.slicing_fn)
             filenames = list(current_data_slice.df.sort_values(by="metric", ascending=False)["image_path"].values)
+            print(issue.features[0], meta.issue_group(issue.features[0]))
             list_scan_results.append(
                 self.get_scan_result(
                     metric_value=current_data_slice.df["metric"].mean(),
@@ -83,7 +85,7 @@ class MetaDataScanDetector(DetectorVisionBase):
                     filename_examples=filenames,
                     name=issue.slicing_fn.meta.display_name,
                     size_data=len(current_data_slice.df),
-                    issue_group=issue_groups[issue.feature_name] if issue_groups else None,
+                    issue_group=meta.issue_group(issue.features[0]),
                 )
             )
 

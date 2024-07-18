@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from dataclasses import dataclass
-from typing import Any, List, Optional, Sequence, Tuple, Dict
+from typing import Any, List, Optional, Sequence, Tuple
 
 from giskard_vision.utils.errors import GiskardImportError
 
