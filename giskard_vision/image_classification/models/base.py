@@ -33,4 +33,4 @@ class ImageClassificationHuggingFaceModel(HuggingFacePipelineModelBase):
         )
         _prediction = {p["label"]: p["score"] for p in _raw_prediction}
 
-        return [_prediction[label] for label in self.classification_labels]
+        return np.array([_prediction[label] for label in self.classification_labels])
