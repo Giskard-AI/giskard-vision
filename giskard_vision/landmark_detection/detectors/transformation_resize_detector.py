@@ -1,7 +1,7 @@
 from giskard_vision.landmark_detection.dataloaders.wrappers import ResizedDataLoader
 
 from .base import LandmarkDetectionBaseDetector, Robustness
-from .decorator import maybe_detector
+from ...core.detectors.decorator import maybe_detector
 
 
 @maybe_detector("resize_landmark", tags=["vision", "face", "landmark", "transformed", "resized"])

@@ -1,7 +1,7 @@
 from ..dataloaders.wrappers import CroppedDataLoader
 from ..marks.facial_parts import FacialParts
 from .base import Cropping, LandmarkDetectionBaseDetector
-from .decorator import maybe_detector
+from ...core.detectors.decorator import maybe_detector
 
 
 @maybe_detector("cropping_landmark", tags=["vision", "face", "landmark", "transformed", "cropped"])
