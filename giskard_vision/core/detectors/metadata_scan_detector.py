@@ -69,6 +69,8 @@ class MetaDataScanDetector(DetectorVisionBase):
 
         list_scan_results = []
 
+        issue_groups = dataset.get_meta(0).issue_groups if dataset.get_meta(0) else None
+
         # For each slice found, get appropriate scna results with the metric
         for issue in results.issues:
             current_data_slice = giskard_dataset.slice(issue.slicing_fn)
@@ -81,13 +83,13 @@ class MetaDataScanDetector(DetectorVisionBase):
                     filename_examples=filenames,
                     name=issue.slicing_fn.meta.display_name,
                     size_data=len(current_data_slice.df),
+                    issue_group=issue_groups[issue.feature_name] if issue_groups else None,
                 )
             )
 
         return list_scan_results
 
     def get_df_for_scan(self, model: Any, dataset: Any, list_metadata: Sequence[str]) -> pd.DataFrame:
-
         # Create a dataframe containing each metadata and metric, surrogate target, surrogate prediction
         # image path for display in html, and index
         df = {name_metadata: [] for name_metadata in list_metadata}
@@ -131,7 +133,7 @@ class MetaDataScanDetector(DetectorVisionBase):
         return pd.DataFrame(df)
 
     def get_scan_result(
-        self, metric_value, metric_reference_value, metric_name, filename_examples, name, size_data
+        self, metric_value, metric_reference_value, metric_name, filename_examples, name, size_data, issue_group
     ) -> ScanResult:
         try:
             from giskard.scanner.issues import IssueLevel
@@ -156,4 +158,5 @@ class MetaDataScanDetector(DetectorVisionBase):
             slice_size=size_data,
             filename_examples=filename_examples,
             relative_delta=relative_delta,
+            issue_group=issue_group,
         )
