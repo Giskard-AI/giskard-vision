@@ -4,6 +4,12 @@ from giskard_vision.image_classification.models.base import (
 
 
 class SkinCancerHuggingFaceModel(ImageClassificationHuggingFaceModel):
+    """Wrapper class for Skin Cancer model on Hugging Face.
+
+    Args:
+        name (str): The name of the model.
+        device (str): The device to run the model on.
+    """
 
     def __init__(self, name: str = None, device: str = "cpu"):
         super().__init__(
@@ -14,6 +20,12 @@ class SkinCancerHuggingFaceModel(ImageClassificationHuggingFaceModel):
 
 
 class MicrosoftResNetImageNet50HuggingFaceModel(ImageClassificationHuggingFaceModel):
+    """Wrapper class for Microsoft's ResNet model on Hugging Face.
+
+    Args:
+        name (str): The name of the model.
+        device (str): The device to run the model on.
+    """
 
     def __init__(self, name: str = None, device: str = "cpu"):
         super().__init__(
@@ -24,6 +36,12 @@ class MicrosoftResNetImageNet50HuggingFaceModel(ImageClassificationHuggingFaceMo
 
 
 class Jsli96ResNetImageNetHuggingFaceModel(ImageClassificationHuggingFaceModel):
+    """Wrapper class for Jsli96's ResNet model for tiny imagenet dataset on Hugging Face.
+
+    Args:
+        name (str): The name of the model.
+        device (str): The device to run the model on.
+    """
 
     def __init__(self, name: str = None, device: str = "cpu"):
         super().__init__(

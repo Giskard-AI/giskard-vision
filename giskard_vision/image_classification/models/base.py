@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 
 import numpy as np
 
@@ -9,9 +9,28 @@ from giskard_vision.core.models.hf_pipeline import (
 
 
 class ImageClassificationHuggingFaceModel(HuggingFacePipelineModelBase):
+    """Hugging Face pipeline wrapper class that serves as a template for image classification predictions
+
+    Args:
+        model_id (str): Hugging Face model ID
+        name (Optional[str]): name of the model
+        device (str): device to run the model on
+
+    Attributes:
+        classification_labels: list of classification labels, where the position of the label corresponds to the class index
+    """
+
     model_type = "classification"
 
-    def __init__(self, model_id: str, name: str = None, device: str = "cpu"):
+    def __init__(self, model_id: str, name: Optional[str] = None, device: str = "cpu"):
+        """init method that accepts a model id, name and device
+
+        Args:
+            model_id (str): Hugging Face model ID
+            name (Optional[str]): name of the model
+            device (str): device to run the model on
+        """
+
         super().__init__(
             model_id=model_id,
             pipeline_task=HuggingFacePipelineTask.IMAGE_CLASSIFICATION,
