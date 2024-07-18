@@ -123,7 +123,6 @@ class Scanner:
                     raise err
 
                 detected_issues = []
-            detected_issues = sorted(detected_issues, key=lambda i: -i.importance)
             detector_elapsed = perf_counter() - detector_start
 
             # The number of detected issues here is inflated for now
