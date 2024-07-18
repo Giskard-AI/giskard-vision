@@ -134,11 +134,11 @@ class Scanner:
             issues.extend(detected_issues)
 
         # Group issues by their issue group
-        issue_groups = {issue.issue_group for issue in issues}
+        issue_groups = {issue.group for issue in issues}
 
         # For each group, sort the issues by importance (descending) and limit to max_issues_per_group
         grouped_issues = [
-            sorted([issue for issue in issues if issue.issue_group == group], key=lambda issue: -issue.importance)[
+            sorted([issue for issue in issues if issue.group == group], key=lambda issue: -issue.importance)[
                 :max_issues_per_group
             ]
             for group in issue_groups
