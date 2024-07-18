@@ -1,3 +1,5 @@
+import numpy as np
+
 from giskard_vision.image_classification.models.base import (
     ImageClassificationHuggingFaceModel,
 )
@@ -17,6 +19,10 @@ class SkinCancerHuggingFaceModel(ImageClassificationHuggingFaceModel):
             name=name,
             device=device,
         )
+    
+    def predict_image(self, image) -> np.ndarray:
+        probas = super().predict_image(image)
+        return np.array([np.argmax(probas)])
 
 
 class MicrosoftResNetImageNet50HuggingFaceModel(ImageClassificationHuggingFaceModel):

@@ -40,7 +40,7 @@ class ImageClassificationHuggingFaceModel(HuggingFacePipelineModelBase):
 
         self.classification_labels = list(self.pipeline.model.config.id2label.values())
 
-    def predict_image(self, image: np.ndarray) -> Any:
+    def predict_image(self, image: np.ndarray) -> np.ndarray:
         """method that takes one image as input and outputs the prediction of probabilities for each class
 
         Args:

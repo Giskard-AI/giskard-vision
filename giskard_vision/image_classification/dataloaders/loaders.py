@@ -1,9 +1,10 @@
-from typing import Optional
-
+from typing import Any, Optional
 import numpy as np
 
 from giskard_vision.core.dataloaders.hf import DataLoaderHuggingFaceDataset
 from giskard_vision.core.dataloaders.tfds import DataLoaderTensorFlowDatasets
+
+
 
 
 class DataLoaderGeirhosConflictStimuli(DataLoaderTensorFlowDatasets):
@@ -136,7 +137,7 @@ class DataLoaderSkinCancerHuggingFaceDataset(DataLoaderHuggingFaceDataset):
             ]
         )
 
-    def get_image(self, idx: int) -> np.ndarray:
+    def get_image(self, idx: int) -> Any:
         """
         Retrieves the image at the specified index in the dataset.
 
@@ -146,7 +147,7 @@ class DataLoaderSkinCancerHuggingFaceDataset(DataLoaderHuggingFaceDataset):
         Returns:
             np.ndarray: The image data.
         """
-        return np.array(self.ds[idx][self.image_key])
+        return self.ds[idx][self.image_key]
 
     def get_labels(self, idx: int) -> Optional[np.ndarray]:
         """
