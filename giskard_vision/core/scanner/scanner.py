@@ -54,6 +54,11 @@ class Scanner:
             handled gracefully, without interrupting the scan.
         embed : bool
             Whether to embed images into html
+        num_images : int
+            Number of images to display per issue in the html report
+        max_issues_per_group : int
+            Maximal number of issues per issue group
+        
         Returns
         -------
         ScanReport
