@@ -8,6 +8,14 @@ from typing import Optional, Sequence
 from ..utils.errors import GiskardImportError
 
 
+try:
+    from giskard.scanner.issues import IssueLevel
+
+
+except (ImportError, ModuleNotFoundError) as e:
+    raise GiskardImportError(["giskard"]) from e
+
+
 def warning(content: str):
     warnings.warn(content, stacklevel=2)
 
@@ -115,7 +123,13 @@ class Scanner:
             maybe_print(f"Running detector {detector.__class__.__name__}…", verbose=verbose)
             detector_start = perf_counter()
             try:
-                detected_issues = detector.run(model, dataset, embed=embed, num_images=num_images)
+                detected_issues = detector.run(
+                    model,
+                    dataset,
+                    embed=embed,
+                    num_images=num_images,
+                    issue_levels=(IssueLevel.MAJOR, IssueLevel.MEDIUM, IssueLevel.MINOR),
+                )
             except Exception as err:
                 logger.error(f"Detector {detector.__class__.__name__} failed with error: {err}")
                 errors.append((detector, err))

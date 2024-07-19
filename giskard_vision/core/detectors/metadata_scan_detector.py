@@ -43,7 +43,7 @@ class MetaDataScanDetector(DetectorVisionBase):
             meta = dataset.get_meta(0)
         else:
             return []
-        list_categories = meta.get_categories()
+        list_categories = list(meta.get_categories())
         list_metadata = meta.get_scannables()
 
         # If the list of metadata is empty, return no issue
@@ -75,8 +75,8 @@ class MetaDataScanDetector(DetectorVisionBase):
         # For each slice found, get appropriate scna results with the metric
         for issue in results.issues:
             current_data_slice = giskard_dataset.slice(issue.slicing_fn)
-            filenames = list(current_data_slice.df.sort_values(by="metric", ascending=False)["image_path"].values)
-            print(issue.features[0], meta.issue_group(issue.features[0]))
+            filenames = []  # list(current_data_slice.df.sort_values(by="metric", ascending=False)["image_path"].values)
+            print("-- issue --> ", issue)
             list_scan_results.append(
                 self.get_scan_result(
                     metric_value=current_data_slice.df["metric"].mean(),
@@ -88,6 +88,8 @@ class MetaDataScanDetector(DetectorVisionBase):
                     issue_group=meta.issue_group(issue.features[0]),
                 )
             )
+
+        print("-- list_scan_results --> ", list_scan_results)
 
         return list_scan_results
 
@@ -113,8 +115,8 @@ class MetaDataScanDetector(DetectorVisionBase):
                 ground_truth = dataset.get_labels(i)
                 metadata = dataset.get_meta(i)
                 metric_value = self.metric(prediction_result, ground_truth)
-                prediction_surrogate = self.surrogate_function(prediction_result, image)
-                truth_surrogate = self.surrogate_function(ground_truth, image)
+                # prediction_surrogate = self.surrogate_function(prediction_result, image)
+                # truth_surrogate = self.surrogate_function(ground_truth, image)
 
                 for name_metadata in list_metadata:
                     try:
@@ -123,9 +125,10 @@ class MetaDataScanDetector(DetectorVisionBase):
                         df[name_metadata].append(None)
 
                 df["metric"].append(metric_value)
-                df["target"].append(truth_surrogate)
-                df["prediction"].append(prediction_surrogate)
-                df["image_path"].append(str(dataset.image_paths[i]))
+                df["target"].append(ground_truth[0])
+                df["prediction"].append(float(prediction_result[0]))
+
+                df["image_path"].append("")
                 df["index"].append(i)
             except (KeyboardInterrupt, SystemExit):
                 raise

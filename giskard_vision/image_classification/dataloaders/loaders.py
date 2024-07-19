@@ -4,6 +4,17 @@ import numpy as np
 
 from giskard_vision.core.dataloaders.hf import DataLoaderHuggingFaceDataset
 from giskard_vision.core.dataloaders.tfds import DataLoaderTensorFlowDatasets
+from giskard_vision.core.dataloaders.meta import MetaData
+from giskard_vision.core.detectors.base import IssueGroup
+
+EthicalIssueMeta = IssueGroup(
+    "Ethical Metadata",
+    description="The data are filtered by gender to detect ethical biases.",
+)
+PerformanceIssueMeta = IssueGroup(
+    "Performance Metadata",
+    description="The data are filtered by emotion to detect performance issues.",
+)
 
 
 class DataLoaderGeirhosConflictStimuli(DataLoaderTensorFlowDatasets):
@@ -159,3 +170,16 @@ class DataLoaderSkinCancerHuggingFaceDataset(DataLoaderHuggingFaceDataset):
             Optional[np.ndarray]: label.
         """
         return np.array([self.classification_label_mapping[self.ds[idx][self.label_key]]])
+
+    def get_meta(self, idx: int) -> MetaData | None:
+        metadata = super().get_meta(idx)
+
+        return MetaData(
+            data=metadata.data,
+            categories=metadata.categories,
+            issue_groups={
+                "age": EthicalIssueMeta,
+                "sex": EthicalIssueMeta,
+                "localization": PerformanceIssueMeta,
+            },
+        )
