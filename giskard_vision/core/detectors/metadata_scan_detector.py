@@ -118,7 +118,10 @@ class MetaDataScanDetector(DetectorVisionBase):
 
                 for name_metadata in list_metadata:
                     try:
-                        df[name_metadata].append(metadata.get(name_metadata))
+                        if name_metadata == "age":
+                            df[name_metadata].append(float(metadata.get(name_metadata)))
+                        else:
+                            df[name_metadata].append(metadata.get(name_metadata))
                     except KeyError:
                         df[name_metadata].append(None)
 
@@ -143,11 +146,11 @@ class MetaDataScanDetector(DetectorVisionBase):
         except (ImportError, ModuleNotFoundError) as e:
             raise GiskardImportError(["giskard"]) from e
 
-        relative_delta = (metric_value - metric_reference_value) / metric_reference_value
+        relative_delta = metric_reference_value - metric_value  # / metric_reference_value
 
-        if relative_delta > self.issue_level_threshold + self.deviation_threshold:
+        if relative_delta > 0.15:
             issue_level = IssueLevel.MAJOR
-        elif relative_delta > self.issue_level_threshold:
+        elif relative_delta > 0.05:
             issue_level = IssueLevel.MEDIUM
         else:
             issue_level = IssueLevel.MINOR

@@ -173,10 +173,12 @@ class DataLoaderSkinCancerHuggingFaceDataset(DataLoaderHuggingFaceDataset):
 
     def get_meta(self, idx: int) -> MetaData | None:
         metadata = super().get_meta(idx)
+        categories = list(metadata.categories)
+        categories.remove("age")
 
         return MetaData(
             data=metadata.data,
-            categories=metadata.categories,
+            categories=categories,
             issue_groups={
                 "age": EthicalIssueMeta,
                 "sex": EthicalIssueMeta,
