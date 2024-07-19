@@ -6,14 +6,11 @@ import cv2
 import numpy as np
 
 from giskard_vision.core.dataloaders.meta import MetaData
-from giskard_vision.core.detectors.base import IssueGroup
-from giskard_vision.utils.errors import GiskardImportError
-
 from giskard_vision.core.dataloaders.tfds import DataLoaderTensorFlowDatasets
 from giskard_vision.core.dataloaders.utils import flatten_dict
+from giskard_vision.core.detectors.base import IssueGroup
 
-from ..types import Types
-from .base import DataIteratorBase, DataLoaderBase
+from .base import DataLoaderBase
 
 EthicalIssueMeta = IssueGroup(
     "Ethical Metadata",
