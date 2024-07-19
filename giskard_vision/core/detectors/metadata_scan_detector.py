@@ -76,7 +76,7 @@ class MetaDataScanDetector(DetectorVisionBase):
         for issue in results.issues:
             current_data_slice = giskard_dataset.slice(issue.slicing_fn)
             filenames = []  # list(current_data_slice.df.sort_values(by="metric", ascending=False)["image_path"].values)
-            print("-- issue --> ", issue)
+
             list_scan_results.append(
                 self.get_scan_result(
                     metric_value=current_data_slice.df["metric"].mean(),
@@ -88,8 +88,6 @@ class MetaDataScanDetector(DetectorVisionBase):
                     issue_group=meta.issue_group(issue.features[0]),
                 )
             )
-
-        print("-- list_scan_results --> ", list_scan_results)
 
         return list_scan_results
 
