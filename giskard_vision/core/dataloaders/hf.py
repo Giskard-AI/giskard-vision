@@ -2,7 +2,7 @@ from typing import Optional
 
 from giskard_vision.core.dataloaders.base import DataIteratorBase
 from giskard_vision.core.dataloaders.meta import MetaData
-from giskard_vision.core.dataloaders.utils import flatten_dict_exclude_wrapper
+from giskard_vision.core.dataloaders.utils import flatten_dict
 from giskard_vision.core.types import TypesBase
 from giskard_vision.utils.errors import GiskardImportError
 
@@ -75,11 +75,11 @@ class DataLoaderHuggingFaceDataset(DataIteratorBase):
         """
         row = self.ds[idx]
 
-        flat_meta = flatten_dict_exclude_wrapper(row, excludes=self.meta_exclude_keys, flat_np_array=True)
+        flat_meta = flatten_dict(row, excludes=self.meta_exclude_keys, flat_np_array=True)
 
         return MetaData(
             data=flat_meta,
-            categories=flat_meta.keys(),
+            categories=list(flat_meta.keys()),
         )
 
     @property

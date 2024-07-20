@@ -2,7 +2,7 @@ from typing import Any, Dict, Optional
 
 from giskard_vision.core.dataloaders.base import DataIteratorBase
 from giskard_vision.core.dataloaders.meta import MetaData
-from giskard_vision.core.dataloaders.utils import flatten_dict_exclude_wrapper
+from giskard_vision.core.dataloaders.utils import flatten_dict
 from giskard_vision.landmark_detection.types import Types
 from giskard_vision.utils.errors import GiskardImportError
 
@@ -88,7 +88,7 @@ class DataLoaderTensorFlowDatasets(DataIteratorBase):
         """
         row = self.get_row(idx)
 
-        flat_meta = flatten_dict_exclude_wrapper(row, excludes=self.meta_exclude_keys, flat_np_array=True)
+        flat_meta = flatten_dict(row, excludes=self.meta_exclude_keys, flat_np_array=True)
 
         return MetaData(
             data=flat_meta,
