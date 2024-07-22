@@ -182,6 +182,23 @@ class DataLoaderFFHQ(DataLoaderBase):
 
         return data
 
+    @staticmethod
+    def process_emotions_data(data: Dict[str, Any]) -> Dict[str, Any]:
+        emotions = {k: v for k, v in data.items() if "faceAttributes_emotion" in k}
+        # Find the emotion with the highest value
+
+        max_value = 0
+        emotion = None
+        for current_emotion in emotions:
+            if emotions[current_emotion] > max_value:
+                emotion = current_emotion
+            del data[current_emotion]
+
+        if emotion is not None:
+            data["emotion"] = emotion
+
+        return data
+
     def get_meta(self, idx: int) -> Optional[Dict[str, Any]]:
         """
         Gets metadata for a specific index and flattens it.
@@ -196,6 +213,7 @@ class DataLoaderFFHQ(DataLoaderBase):
             with Path(self.images_dir_path / f"{idx:05d}.json").open(encoding="utf-8") as fp:
                 meta = json.load(fp)
             flat_meta = self.process_hair_color_data(flatten_dict(meta[0]))
+            flat_meta = self.process_emotions_data(flat_meta)
             flat_meta_without_prefix = {key.replace("faceAttributes_", ""): value for key, value in flat_meta.items()}
             flat_meta_without_prefix.pop("confidence")
             return MetaData(
@@ -212,6 +230,7 @@ class DataLoaderFFHQ(DataLoaderBase):
                     "occlusion_mouthOccluded",
                     "hair_invisible",
                     "hairColor",
+                    "emotion",
                 ],
                 issue_groups={
                     "faceRectangle_top": PerformanceIssueMeta,
@@ -228,14 +247,7 @@ class DataLoaderFFHQ(DataLoaderBase):
                     "facialHair_beard": EthicalIssueMeta,
                     "facialHair_sideburns": EthicalIssueMeta,
                     "glasses": EthicalIssueMeta,
-                    "emotion_anger": PerformanceIssueMeta,
-                    "emotion_contempt": PerformanceIssueMeta,
-                    "emotion_disgust": PerformanceIssueMeta,
-                    "emotion_fear": PerformanceIssueMeta,
-                    "emotion_happiness": PerformanceIssueMeta,
-                    "emotion_neutral": PerformanceIssueMeta,
-                    "emotion_sadness": PerformanceIssueMeta,
-                    "emotion_surprise": PerformanceIssueMeta,
+                    "emotion": PerformanceIssueMeta,
                     "blur_blurLevel": PerformanceIssueMeta,
                     "blur_value": PerformanceIssueMeta,
                     "exposure_exposureLevel": PerformanceIssueMeta,
