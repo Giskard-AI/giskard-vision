@@ -11,7 +11,7 @@ from giskard_vision.core.models.hf_pipeline import (
 from giskard_vision.image_classification.types import Types
 
 
-class ImageClassificationHuggingFaceModel(HFPipelineModelBase):
+class ImageClassificationHFModel(HFPipelineModelBase):
     """Hugging Face pipeline wrapper class that serves as a template for image classification predictions
 
     Args:

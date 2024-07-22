@@ -1,11 +1,11 @@
 import numpy as np
 
 from giskard_vision.image_classification.models.base import (
-    ImageClassificationHuggingFaceModel,
+    ImageClassificationHFModel,
 )
 
 
-class SkinCancerHuggingFaceModel(ImageClassificationHuggingFaceModel):
+class SkinCancerHuggingFaceModel(ImageClassificationHFModel):
     """Wrapper class for Skin Cancer model on Hugging Face.
 
     Args:
@@ -25,7 +25,7 @@ class SkinCancerHuggingFaceModel(ImageClassificationHuggingFaceModel):
         return np.array([np.argmax(probas)])
 
 
-class MicrosoftResNetImageNet50HuggingFaceModel(ImageClassificationHuggingFaceModel):
+class MicrosoftResNetImageNet50HuggingFaceModel(ImageClassificationHFModel):
     """Wrapper class for Microsoft's ResNet model on Hugging Face.
 
     Args:
@@ -41,7 +41,7 @@ class MicrosoftResNetImageNet50HuggingFaceModel(ImageClassificationHuggingFaceMo
         )
 
 
-class Jsli96ResNetImageNetHuggingFaceModel(ImageClassificationHuggingFaceModel):
+class Jsli96ResNetImageNetHuggingFaceModel(ImageClassificationHFModel):
     """Wrapper class for Jsli96's ResNet model for tiny imagenet dataset on Hugging Face.
 
     Args:
