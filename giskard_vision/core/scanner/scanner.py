@@ -58,7 +58,7 @@ class Scanner:
             Number of images to display per issue in the html report
         max_issues_per_group : int
             Maximal number of issues per issue group
-        
+
         Returns
         -------
         ScanReport

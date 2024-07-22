@@ -8,6 +8,7 @@ from giskard_vision.core.detectors.base import (
     IssueGroup,
     ScanResult,
 )
+from giskard_vision.core.detectors.metrics import MetricBase, NonSurrogateMetric
 from giskard_vision.utils.errors import GiskardImportError
 
 
@@ -25,13 +26,15 @@ class MetaDataScanDetector(DetectorVisionBase):
             Type of the task for the scan, ["regression", "classification"]
     """
 
-    issue_group = IssueGroup(name="Metadata", description="Slices are found based on metadata")
+    @staticmethod
+    def no_surrogate(x, y):
+        return x
 
-    def __init__(self, surrogate_function: Callable, metric: Callable, type_task: str) -> None:
-        super().__init__()
-        self.surrogate_function = surrogate_function
-        self.metric = metric
-        self.type_task = type_task
+    type_task: str = "classification"
+    surrogate_function: Callable = no_surrogate
+    metric: MetricBase = NonSurrogateMetric(type_task)
+    metric_type: str = "relative" if type_task == "regression" else "absolute"
+    issue_group = IssueGroup(name="Metadata", description="Slices are found based on metadata")
 
     def get_results(self, model: Any, dataset: Any) -> List[ScanResult]:
         try:
@@ -68,7 +71,7 @@ class MetaDataScanDetector(DetectorVisionBase):
         )
 
         # Get scan results
-        results = scan(giskard_model, giskard_dataset, max_issues_per_detector=None)
+        results = scan(giskard_model, giskard_dataset, max_issues_per_detector=None, verbose=False)
 
         list_scan_results = []
 
@@ -81,7 +84,7 @@ class MetaDataScanDetector(DetectorVisionBase):
                 self.get_scan_result(
                     metric_value=current_data_slice.df["metric"].mean(),
                     metric_reference_value=giskard_dataset.df["metric"].mean(),
-                    metric_name=self.metric.__name__,
+                    metric_name=self.metric.name,
                     filename_examples=filenames,
                     name=issue.slicing_fn.meta.display_name,
                     size_data=len(current_data_slice.df),
@@ -112,7 +115,7 @@ class MetaDataScanDetector(DetectorVisionBase):
                 prediction_result = model.predict_image(image)
                 ground_truth = dataset.get_labels(i)
                 metadata = dataset.get_meta(i)
-                metric_value = self.metric(prediction_result, ground_truth)
+                metric_value = self.metric.get(prediction_result, ground_truth)
                 prediction_surrogate = self.surrogate_function(prediction_result, image)
                 truth_surrogate = self.surrogate_function(ground_truth, image)
 
@@ -142,7 +145,9 @@ class MetaDataScanDetector(DetectorVisionBase):
         except (ImportError, ModuleNotFoundError) as e:
             raise GiskardImportError(["giskard"]) from e
 
-        relative_delta = (metric_value - metric_reference_value) / metric_reference_value
+        relative_delta = metric_value - metric_reference_value
+        if self.metric_type == "relative":
+            relative_delta /= metric_reference_value
 
         if relative_delta > self.issue_level_threshold + self.deviation_threshold:
             issue_level = IssueLevel.MAJOR
