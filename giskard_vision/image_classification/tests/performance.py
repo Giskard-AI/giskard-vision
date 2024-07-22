@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 
 import numpy as np
+from sklearn.metrics import accuracy_score
+
+from giskard_vision.core.tests.base import MetricBase
 
 from ..types import Types
-from giskard_vision.core.tests.base import MetricBase
-from sklearn.metrics import accuracy_score
 
 
 @dataclass
