@@ -38,7 +38,19 @@ class FaceLandmarksModelBase(ModelBase):
         Returns:
             np.ndarray: single batch image prediction filtered based on landmarks in facial_part
         """
-        res = super()._postprocessing(batch_prediction, batch_size)
+        if all(elt is None for elt in batch_prediction):
+            res = np.empty((batch_size, self.n_landmarks, self.n_dimensions))
+            res[:, :, :] = np.nan
+        elif all([elt is not None for elt in batch_prediction]):
+            res = np.array(batch_prediction)
+        else:
+            res = np.empty((batch_size, self.n_landmarks, self.n_dimensions))
+            for i, elt in enumerate(batch_prediction):
+                res[i] = elt if elt is not None else np.nan
+        if res.shape[1:] != (self.n_landmarks, self.n_dimensions):
+            raise ValueError(
+                f"{self.__class__.__name__}: The array shape expected from predict_batch is ({batch_size}, {self.n_landmarks}, {self.n_dimensions}) but {res.shape} was found."
+            )
         if "facial_part" in kwargs and kwargs["facial_part"] is not None:
             res[:, ~kwargs["facial_part"].idx, :] = np.nan
         return res
