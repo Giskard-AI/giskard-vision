@@ -1,10 +1,8 @@
 from enum import Enum
-from typing import Any, Optional
-
-import numpy as np
+from typing import Optional
 
 from giskard_vision.core.models.base import ModelBase
-from giskard_vision.utils.errors import GiskardImportError
+from giskard_vision.utils.errors import GiskardError, GiskardImportError
 
 
 class HFPipelineTask(Enum):
@@ -36,11 +34,5 @@ class HFPipelineModelBase(ModelBase):
             self.pipeline = pipeline(task=pipeline_task.value, model=model_id, device=device)
         except ImportError as e:
             raise GiskardImportError(["transformers"]) from e
-
-    def predict_image(self, image: np.ndarray) -> Any:
-        """abstract method that takes one image as input and outputs the prediction
-
-        Args:
-            image (np.ndarray): input image
-        """
-        return self.pipeline(image)
+        except Exception as e:
+            raise GiskardError(f"Error loading Hugging Face pipeline `{model_id}`") from e
