@@ -14,11 +14,11 @@ from .base import DataLoaderBase
 
 EthicalIssueMeta = IssueGroup(
     "Ethical Metadata",
-    description="The data are filtered by gender to detect ethical biases.",
+    description="The data are filtered by metadata like age, facial hair, or gender to detect ethical biases.",
 )
 PerformanceIssueMeta = IssueGroup(
     "Performance Metadata",
-    description="The data are filtered by emotion to detect performance issues.",
+    description="The data are filtered by metadata like emotion, head pose, or exposure value to detect performance issues.",
 )
 
 
