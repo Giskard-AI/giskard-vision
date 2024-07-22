@@ -42,9 +42,27 @@ class ImageClassificationHFModel(HFPipelineModelBase):
             device=device,
         )
 
-        self.classification_labels = list(self.pipeline.model.config.id2label.values())
+        self._classification_labels = list(self.pipeline.model.config.id2label.values())
 
-    def predict_image(self, image: np.ndarray) -> np.ndarray:
+    @property
+    def classification_labels(self):
+        """list of classification labels, where the position of the label corresponds to the class index"""
+        return self._classification_labels
+
+
+class SingleLabelImageClassificationHFModelWrapper(ImageClassificationHFModel):
+    """Hugging Face pipeline wrapper class that serves as a template for single label image classification predictions
+
+    Args:
+        model_id (str): Hugging Face model ID
+        name (Optional[str]): name of the model
+        device (str): device to run the model on
+
+    Attributes:
+        classification_labels: list of classification labels, where the position of the label corresponds to the class index
+    """
+
+    def predict_probas(self, image: np.ndarray) -> np.ndarray:
         """method that takes one image as input and outputs the prediction of probabilities for each class
 
         Args:
@@ -58,30 +76,11 @@ class ImageClassificationHFModel(HFPipelineModelBase):
 
         return np.array([_prediction[label] for label in self.classification_labels])
 
-    def predict(self, dataloader: DataIteratorBase, **kwargs) -> Types.prediction_result:
-        """main method to predict the labels
+    def predict_image(self, image) -> Types.label:
+        """method that takes one image as input and outputs one class label
 
         Args:
-            dataloader (dataloaderBase): dataloader
-            idx_range (Optional[List], optional): range of images to predict from the dataloader. Defaults to None.
-
-        Returns:
-            TypesBase.prediction_result
+            image (np.ndarray): input image
         """
-        ts = time()
-        predictions = []
-        prediction_fail_rate = 0
-
-        for images, labels, _ in dataloader:
-            batch_prediction = self.predict_batch(dataloader.idx, images)
-            prediction_fail_rate += np.sum(batch_prediction != labels)
-            predictions.append(batch_prediction)
-        prediction_fail_rate = prediction_fail_rate / dataloader.flat_len() if dataloader.flat_len() else 0
-        te = time()
-        predictions = np.concatenate(predictions)
-
-        return self.prediction_result_cls(
-            prediction=predictions,
-            prediction_fail_rate=prediction_fail_rate,
-            prediction_time=te - ts,
-        )
+        probas = self.predict_probas(image)
+        return np.array([self.classification_labels[np.argmax(probas)]])

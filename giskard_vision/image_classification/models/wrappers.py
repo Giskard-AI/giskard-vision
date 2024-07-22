@@ -1,11 +1,11 @@
 import numpy as np
 
 from giskard_vision.image_classification.models.base import (
-    ImageClassificationHFModel,
+    SingleLabelImageClassificationHFModelWrapper,
 )
 
 
-class SkinCancerHuggingFaceModel(ImageClassificationHFModel):
+class SkinCancerHuggingFaceModel(SingleLabelImageClassificationHFModelWrapper):
     """Wrapper class for Skin Cancer model on Hugging Face.
 
     Args:
@@ -20,12 +20,8 @@ class SkinCancerHuggingFaceModel(ImageClassificationHFModel):
             device=device,
         )
 
-    def predict_image(self, image) -> np.ndarray:
-        probas = super().predict_image(image)
-        return np.array([np.argmax(probas)])
 
-
-class MicrosoftResNetImageNet50HuggingFaceModel(ImageClassificationHFModel):
+class MicrosoftResNetImageNet50HuggingFaceModel(SingleLabelImageClassificationHFModelWrapper):
     """Wrapper class for Microsoft's ResNet model on Hugging Face.
 
     Args:
@@ -41,7 +37,7 @@ class MicrosoftResNetImageNet50HuggingFaceModel(ImageClassificationHFModel):
         )
 
 
-class Jsli96ResNetImageNetHuggingFaceModel(ImageClassificationHFModel):
+class Jsli96ResNetImageNetHuggingFaceModel(SingleLabelImageClassificationHFModelWrapper):
     """Wrapper class for Jsli96's ResNet model for tiny imagenet dataset on Hugging Face.
 
     Args:

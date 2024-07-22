@@ -10,17 +10,16 @@ from giskard_vision.core.types import (
     TypesBase,
 )
 
-CLASSIFICATION_LABEL_TYPE = np.ndarray  # Probabilities for each class
-
+CLASSIFICATION_LABELS_TYPE = np.ndarray  # An n-dimension array of class labels
 
 @dataclass
 class PredictionResult(PredictionResultBase):
-    prediction: CLASSIFICATION_LABEL_TYPE
+    prediction: CLASSIFICATION_LABELS_TYPE
 
 
 @dataclass
 class Types(TypesBase):
     prediction_result = PredictionResult
-    label = CLASSIFICATION_LABEL_TYPE
-    single_data = Tuple[IMAGE_TYPE, CLASSIFICATION_LABEL_TYPE, META_TYPE]
-    batched_data = Tuple[Tuple[IMAGE_TYPE], Tuple[CLASSIFICATION_LABEL_TYPE], Tuple[META_TYPE]]
+    label = CLASSIFICATION_LABELS_TYPE
+    single_data = Tuple[IMAGE_TYPE, CLASSIFICATION_LABELS_TYPE, META_TYPE]
+    batched_data = Tuple[Tuple[IMAGE_TYPE], CLASSIFICATION_LABELS_TYPE, Tuple[META_TYPE]]
