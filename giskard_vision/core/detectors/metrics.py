@@ -8,8 +8,7 @@ class MetricBase:
     type_task: str
 
     @abstractmethod
-    def get(self, pred, truth):
-        ...
+    def get(self, pred, truth): ...
 
 
 class NonSurrogateMetric(MetricBase):
