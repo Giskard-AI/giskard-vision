@@ -4,7 +4,7 @@ from giskard_vision.core.dataloaders.base import DataIteratorBase
 from giskard_vision.utils.errors import GiskardError, GiskardImportError
 
 
-class DataLoaderHuggingFaceDataset(DataIteratorBase):
+class HFDataLoader(DataIteratorBase):
     """
     A generic data loader for the HuggingFace Datasets, extending the DataIteratorBase class.
 

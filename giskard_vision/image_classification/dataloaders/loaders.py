@@ -2,7 +2,7 @@ from typing import Any, Optional
 
 import numpy as np
 
-from giskard_vision.core.dataloaders.hf import DataLoaderHuggingFaceDataset
+from giskard_vision.core.dataloaders.hf import HFDataLoader
 from giskard_vision.core.dataloaders.meta import MetaData
 from giskard_vision.core.dataloaders.tfds import DataLoaderTensorFlowDatasets
 from giskard_vision.core.dataloaders.utils import flatten_dict
@@ -99,9 +99,9 @@ class DataLoaderGeirhosConflictStimuli(DataLoaderTensorFlowDatasets):
         )
 
 
-class DataLoaderSkinCancerHuggingFaceDataset(DataLoaderHuggingFaceDataset):
+class DataLoaderSkinCancerHuggingFaceDataset(HFDataLoader):
     """
-    A data loader for the `marmal88/skin_cancer` dataset on HF, extending the DataLoaderHuggingFaceDatasets class.
+    A data loader for the `marmal88/skin_cancer` dataset on HF, extending the HFDataLoader class.
 
     Attributes:
         label_key (str): Key for labels in the dataset.
@@ -125,24 +125,6 @@ class DataLoaderSkinCancerHuggingFaceDataset(DataLoaderHuggingFaceDataset):
         "melanoma": 5,
         "dermatofibroma": 6,
     }
-
-    def __init__(
-        self, name: Optional[str] = None, dataset_config: Optional[str] = None, dataset_split: str = "train"
-    ) -> None:
-        """
-        Initializes the `marmal88/skin_cancer` instance.
-
-        Args:
-            name (Optional[str]): Name of the data loader instance.
-            dataset_config (str): Specifies the dataset config, defaulting to "train".
-            dataset_split (str): Specifies the dataset split, defaulting to "train".
-        """
-        super().__init__(
-            hf_id=self.dataset_id,
-            hf_config=dataset_config,
-            hf_split=dataset_split,
-            name=name,
-        )
 
     def get_image(self, idx: int) -> Any:
         """

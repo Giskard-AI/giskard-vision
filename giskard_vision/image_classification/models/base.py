@@ -5,13 +5,13 @@ import numpy as np
 
 from giskard_vision.core.dataloaders.base import DataIteratorBase
 from giskard_vision.core.models.hf_pipeline import (
-    HuggingFacePipelineModelBase,
-    HuggingFacePipelineTask,
+    HFPipelineModelBase,
+    HFPipelineTask,
 )
 from giskard_vision.image_classification.types import Types
 
 
-class ImageClassificationHuggingFaceModel(HuggingFacePipelineModelBase):
+class ImageClassificationHuggingFaceModel(HFPipelineModelBase):
     """Hugging Face pipeline wrapper class that serves as a template for image classification predictions
 
     Args:
@@ -37,7 +37,7 @@ class ImageClassificationHuggingFaceModel(HuggingFacePipelineModelBase):
 
         super().__init__(
             model_id=model_id,
-            pipeline_task=HuggingFacePipelineTask.IMAGE_CLASSIFICATION,
+            pipeline_task=HFPipelineTask.IMAGE_CLASSIFICATION,
             name=name,
             device=device,
         )

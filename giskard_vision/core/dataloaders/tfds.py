@@ -15,7 +15,6 @@ class DataLoaderTensorFlowDatasets(DataIteratorBase):
         dataset_split (str): Specifies the dataset split, defaulting to "train".
         ds (Any): The loaded dataset split.
         info (Any): Information about the loaded dataset.
-        meta_exclude_keys (List[str]): Keys to exclude from metadata.
         splits (Any): The dataset splits in the specified dataset.
 
     Args:
@@ -50,9 +49,6 @@ class DataLoaderTensorFlowDatasets(DataIteratorBase):
         except ImportError as e:
             raise GiskardImportError(["tensorflow", "tensorflow-datasets", "scipy"]) from e
 
-        # Exclude keys from metadata
-        self.meta_exclude_keys = []
-
         self.dataset_split = tfds_split
         self.splits, self.info = tfds.load(tfds_id, data_dir=data_dir, with_info=True)
         self.ds = self.splits[self.dataset_split]
@@ -75,25 +71,6 @@ class DataLoaderTensorFlowDatasets(DataIteratorBase):
             int: Total number of examples in the dataset split.
         """
         return self.ds.skip(idx).as_numpy_iterator().next()
-
-    def get_meta(self, idx: int) -> Optional[Types.meta]:
-        """
-        Returns metadata associated with the image at the specified index.
-
-        Args:
-            idx (int): Index of the image.
-
-        Returns:
-            Optional[Types.meta]: Metadata associated with the image, currently None.
-        """
-        row = self.get_row(idx)
-
-        flat_meta = flatten_dict(row, excludes=self.meta_exclude_keys, flat_np_array=True)
-
-        return MetaData(
-            data=flat_meta,
-            categories=flat_meta.keys(),
-        )
 
     @property
     def idx_sampler(self):
