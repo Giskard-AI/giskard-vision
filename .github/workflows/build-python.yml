@@ -63,8 +63,8 @@ jobs:
 
       - name: Ensure opencv contrib is working
         run: |
-          pip uninstall opencv-contrib-python
-          pip install opencv-contrib-python
+          pdm run pip uninstall -y opencv-contrib-python
+          pdm run pip install opencv-contrib-python
 
       - name: Verify linting, format
         run: pdm check-format
