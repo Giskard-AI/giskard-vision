@@ -50,29 +50,18 @@ class ModelBase(ABC):
 
         return res
 
-    def _postprocessing(self, batch_prediction: List[Optional[np.ndarray]], batch_size: int, **kwargs) -> np.ndarray:
+    def _postprocessing(
+        self, batch_prediction: List[Optional[np.ndarray]], batch_size: int, **kwargs
+    ) -> TypesBase.single_data:
         """method that performs postprocessing on single batch prediction
 
         Args:
             prediction (np.ndarray): batched image prediction
 
         Returns:
-            np.ndarray: single batch image prediction
+            Types.Base.single_data : single batch image prediction
         """
-        if all(elt is None for elt in batch_prediction):
-            res = np.empty((batch_size, self.n_landmarks, self.n_dimensions))
-            res[:, :, :] = np.nan
-        elif all([elt is not None for elt in batch_prediction]):
-            res = np.array(batch_prediction)
-        else:
-            res = np.empty((batch_size, self.n_landmarks, self.n_dimensions))
-            for i, elt in enumerate(batch_prediction):
-                res[i] = elt if elt is not None else np.nan
-        if res.shape[1:] != (self.n_landmarks, self.n_dimensions):
-            raise ValueError(
-                f"{self.__class__.__name__}: The array shape expected from predict_batch is ({batch_size}, {self.n_landmarks}, {self.n_dimensions}) but {res.shape} was found."
-            )
-        return res
+        return batch_prediction
 
     def predict(self, dataloader: DataIteratorBase, **kwargs) -> TypesBase.prediction_result:
         """main method to predict the landmarks
