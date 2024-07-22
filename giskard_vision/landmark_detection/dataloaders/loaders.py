@@ -13,11 +13,11 @@ from giskard_vision.core.detectors.base import IssueGroup
 from .base import DataLoaderBase
 
 EthicalIssueMeta = IssueGroup(
-    "Ethical Metadata",
+    "Ethical",
     description="The data are filtered by metadata like age, facial hair, or gender to detect ethical biases.",
 )
 PerformanceIssueMeta = IssueGroup(
-    "Performance Metadata",
+    "Performance",
     description="The data are filtered by metadata like emotion, head pose, or exposure value to detect performance issues.",
 )
 
@@ -203,7 +203,7 @@ class DataLoaderFFHQ(DataLoaderBase):
         emotion = None
         for current_emotion in emotions:
             if emotions[current_emotion] > max_value:
-                emotion = current_emotion
+                emotion = current_emotion.replace("faceAttributes_emotion_", "")
             del data[current_emotion]
 
         if emotion is not None:

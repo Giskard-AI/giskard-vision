@@ -167,14 +167,9 @@ class Scanner:
 
         # Filter vision detector classes
         vision_classes = DetectorRegistry.get_detector_classes(tags=["vision"])
-        keys_to_keep = set(vision_classes.keys()).intersection(classes.keys())
+        only_classes = DetectorRegistry.get_detector_classes(tags=self.only if self.only else [])
+        keys_to_keep = set(classes.keys()).intersection(vision_classes.keys()).intersection(only_classes)
         classes = {k: classes[k] for k in keys_to_keep}
-
-        # Filter detector classes
-        if self.only:
-            only_classes = DetectorRegistry.get_detector_classes(tags=self.only)
-            keys_to_keep = set(only_classes.keys()).intersection(classes.keys())
-            classes = {k: classes[k] for k in keys_to_keep}
 
         # Configure instances
         for name, detector_cls in classes.items():

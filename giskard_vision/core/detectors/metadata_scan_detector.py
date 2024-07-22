@@ -8,7 +8,7 @@ from giskard_vision.core.detectors.base import (
     IssueGroup,
     ScanResult,
 )
-from giskard_vision.core.detectors.metrics import MetricBase, NonSurrogateMetric
+from giskard_vision.core.tests.base import MetricBase
 from giskard_vision.utils.errors import GiskardImportError
 
 
@@ -26,13 +26,9 @@ class MetaDataScanDetector(DetectorVisionBase):
             Type of the task for the scan, ["regression", "classification"]
     """
 
-    @staticmethod
-    def no_surrogate(x, y):
-        return x
-
     type_task: str = "classification"
-    surrogate_function: Callable = no_surrogate
-    metric: MetricBase = NonSurrogateMetric(type_task)
+    surrogate_function: Callable = None
+    metric: MetricBase = None
     metric_type: str = "relative" if type_task == "regression" else "absolute"
     issue_group = IssueGroup(name="Metadata", description="Slices are found based on metadata")
 
@@ -119,8 +115,16 @@ class MetaDataScanDetector(DetectorVisionBase):
                 ground_truth = dataset.get_labels(i)
                 metadata = dataset.get_meta(i)
                 metric_value = self.metric.get(prediction_result, ground_truth)
-                prediction_surrogate = self.surrogate_function(prediction_result, image)
-                truth_surrogate = self.surrogate_function(ground_truth, image)
+                prediction_surrogate = (
+                    self.surrogate_function(prediction_result, image)
+                    if self.surrogate_function is not None
+                    else prediction_result
+                )
+                truth_surrogate = (
+                    self.surrogate_function(ground_truth, image)
+                    if self.surrogate_function is not None
+                    else ground_truth
+                )
 
                 for name_metadata in list_metadata:
                     try:
