@@ -1,9 +1,6 @@
 from typing import Optional
 
 from giskard_vision.core.dataloaders.base import DataIteratorBase
-from giskard_vision.core.dataloaders.meta import MetaData
-from giskard_vision.core.dataloaders.utils import flatten_dict
-from giskard_vision.core.types import TypesBase
 from giskard_vision.utils.errors import GiskardError, GiskardImportError
 
 
@@ -16,7 +13,6 @@ class DataLoaderHuggingFaceDataset(DataIteratorBase):
         dataset_config (Optional[str]): The configuration of the dataset, defaulting to None.
         ds (Any): The loaded dataset split.
         info (Any): Information about the loaded dataset.
-        meta_exclude_keys (List[str]): Keys to exclude from metadata.
         splits (Any): The dataset splits in the specified dataset.
 
     Args:
@@ -27,6 +23,7 @@ class DataLoaderHuggingFaceDataset(DataIteratorBase):
 
     Raises:
         GiskardImportError: If there are missing dependency - datasets.
+        GiskardError: If there is an error loading the dataset.
     """
 
     def __init__(
@@ -42,7 +39,8 @@ class DataLoaderHuggingFaceDataset(DataIteratorBase):
             name (Optional[str]): Name of the data loader instance.
 
         Raises:
-            GiskardImportError: If there are missing dependencies such as TensorFlow, TensorFlow-Datasets, or SciPy.
+            GiskardImportError: If there are missing dependency - datasets.
+            GiskardError: If there is an error loading the dataset.
         """
         super().__init__(name)
 
@@ -64,25 +62,6 @@ class DataLoaderHuggingFaceDataset(DataIteratorBase):
 
     def __len__(self):
         return len(self.ds)
-
-    def get_meta(self, idx: int) -> Optional[TypesBase.meta]:
-        """
-        Returns metadata associated with the image at the specified index.
-
-        Args:
-            idx (int): Index of the image.
-
-        Returns:
-            Optional[TypesBase.meta]: Metadata associated with the image, currently None.
-        """
-        row = self.ds[idx]
-
-        flat_meta = flatten_dict(row, excludes=self.meta_exclude_keys, flat_np_array=True)
-
-        return MetaData(
-            data=flat_meta,
-            categories=list(flat_meta.keys()),
-        )
 
     @property
     def idx_sampler(self):

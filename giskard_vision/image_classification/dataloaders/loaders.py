@@ -3,7 +3,10 @@ from typing import Any, Optional
 import numpy as np
 
 from giskard_vision.core.dataloaders.hf import DataLoaderHuggingFaceDataset
+from giskard_vision.core.dataloaders.meta import MetaData
 from giskard_vision.core.dataloaders.tfds import DataLoaderTensorFlowDatasets
+from giskard_vision.core.dataloaders.utils import flatten_dict
+from giskard_vision.image_classification.types import Types
 
 
 class DataLoaderGeirhosConflictStimuli(DataLoaderTensorFlowDatasets):
@@ -40,18 +43,6 @@ class DataLoaderGeirhosConflictStimuli(DataLoaderTensorFlowDatasets):
         """
         super().__init__("geirhos_conflict_stimuli", self.dataset_split, name, data_dir)
 
-        self.meta_exclude_keys.extend(
-            [
-                # Exclude input and output
-                self.image_key,
-                self.label_key,
-                # Exclude other info, see https://www.tensorflow.org/datasets/catalog/geirhos_conflict_stimuli
-                "file_name",
-                "shape_imagenet_labels",
-                "texture_imagenet_labels",
-            ]
-        )
-
     def get_image(self, idx: int) -> np.ndarray:
         """
         Retrieves the image at the specified index in the dataset.
@@ -77,6 +68,35 @@ class DataLoaderGeirhosConflictStimuli(DataLoaderTensorFlowDatasets):
         row = self.get_row(idx)
 
         return np.array([row[self.label_key]])
+
+    def get_meta(self, idx: int) -> Optional[Types.meta]:
+        """
+        Returns metadata associated with the image at the specified index.
+
+        Args:
+            idx (int): Index of the image.
+
+        Returns:
+            Optional[Types.meta]: Metadata associated with the image, currently None.
+        """
+        row = self.ds[idx]
+
+        meta_exclude_keys = [
+            # Exclude input and output
+            self.image_key,
+            self.label_key,
+            # Exclude other info, see https://www.tensorflow.org/datasets/catalog/geirhos_conflict_stimuli
+            "file_name",
+            "shape_imagenet_labels",
+            "texture_imagenet_labels",
+        ]
+        flat_meta = flatten_dict(row, excludes=meta_exclude_keys, flat_np_array=True)
+
+        return MetaData(
+            data=flat_meta,
+            categories=list(flat_meta.keys()),
+            # TODO: Add issue group
+        )
 
 
 class DataLoaderSkinCancerHuggingFaceDataset(DataLoaderHuggingFaceDataset):
@@ -124,18 +144,6 @@ class DataLoaderSkinCancerHuggingFaceDataset(DataLoaderHuggingFaceDataset):
             name=name,
         )
 
-        self.meta_exclude_keys.extend(
-            [
-                # Exclude input and output
-                self.image_key,
-                self.label_key,
-                # Exclude other info
-                "dx_type",
-                "image_id",
-                "lesion_id",
-            ]
-        )
-
     def get_image(self, idx: int) -> Any:
         """
         Retrieves the image at the specified index in the dataset.
@@ -159,3 +167,32 @@ class DataLoaderSkinCancerHuggingFaceDataset(DataLoaderHuggingFaceDataset):
             Optional[np.ndarray]: label.
         """
         return np.array([self.classification_label_mapping[self.ds[idx][self.label_key]]])
+
+    def get_meta(self, idx: int) -> Optional[Types.meta]:
+        """
+        Returns metadata associated with the image at the specified index.
+
+        Args:
+            idx (int): Index of the image.
+
+        Returns:
+            Optional[Types.meta]: Metadata associated with the image, currently None.
+        """
+        row = self.ds[idx]
+
+        meta_exclude_keys =[
+            # Exclude input and output
+            self.image_key,
+            self.label_key,
+            # Exclude other info
+            "dx_type",
+            "image_id",
+            "lesion_id",
+        ]
+        flat_meta = flatten_dict(row, excludes=meta_exclude_keys, flat_np_array=True)
+
+        return MetaData(
+            data=flat_meta,
+            categories=list(flat_meta.keys()),
+            # TODO: Add issue group
+        )
