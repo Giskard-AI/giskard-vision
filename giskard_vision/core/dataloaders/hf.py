@@ -18,7 +18,7 @@ class HFDataLoader(DataIteratorBase):
     Args:
         hf_id (str): The ID of the HuggingFace dataset.
         hf_config (Optional[str]): The configuration of the dataset.
-        hf_split (str): The dataset split to load, defaulting to "train".
+        hf_split (str): The dataset split to load, defaulting to "test".
         name (Optional[str]): Name of the data loader instance.
 
     Raises:
@@ -27,7 +27,7 @@ class HFDataLoader(DataIteratorBase):
     """
 
     def __init__(
-        self, hf_id: str, hf_config: Optional[str] = None, hf_split: str = "train", name: Optional[str] = None
+        self, hf_id: str, hf_config: Optional[str] = None, hf_split: str = "test", name: Optional[str] = None
     ) -> None:
         """
         Initializes the general HuggingFace Datasets instance.
@@ -35,7 +35,7 @@ class HFDataLoader(DataIteratorBase):
         Args:
             hf_id (str): The ID of the HuggingFace dataset.
             hf_config (Optional[str]): The configuration of the dataset.
-            hf_split (str): The dataset split to load, defaulting to "train".
+            hf_split (str): The dataset split to load, defaulting to "test".
             name (Optional[str]): Name of the data loader instance.
 
         Raises:
