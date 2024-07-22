@@ -71,6 +71,7 @@ class DetectorVisionBase:
     warning_messages: dict
     issue_level_threshold: float = 0.2
     deviation_threshold: float = 0.05
+    num_images: int = 0
 
     def run(
         self,
@@ -81,10 +82,9 @@ class DetectorVisionBase:
         embed: bool = True,
         num_images: int = 0,
     ) -> Sequence[Any]:
+        self.num_images = num_images
         results = self.get_results(model, dataset)
-        issues = self.get_issues(
-            model, dataset, results=results, issue_levels=issue_levels, embed=embed, num_images=num_images
-        )
+        issues = self.get_issues(model, dataset, results=results, issue_levels=issue_levels, embed=embed)
         return issues
 
     def get_issues(
@@ -132,7 +132,7 @@ class DetectorVisionBase:
                         slicing_fn=result.name,
                         group=result.issue_group if result.issue_group else self.issue_group,
                         meta=result.get_meta_required(),
-                        scan_examples=ImagesScanExamples(result.filename_examples[:num_images], embed=embed),
+                        scan_examples=ImagesScanExamples(result.filename_examples, embed=embed),
                         display_footer_info=False,
                     )
                 )

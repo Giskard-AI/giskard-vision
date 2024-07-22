@@ -155,6 +155,18 @@ class DataLoaderFFHQ(DataLoaderBase):
         """
         return np.array(self.landmarks[idx])
 
+    def get_image_path(self, idx: int) -> str:
+        """
+        Get the image path for a specific index
+
+        Args:
+            idx (int): Index of the image
+
+        Returns:
+            str: Image path
+        """
+        return self.image_paths[idx]
+
     @staticmethod
     def process_hair_color_data(data: Dict[str, Any]) -> Dict[str, Any]:
         # Extract hair color information

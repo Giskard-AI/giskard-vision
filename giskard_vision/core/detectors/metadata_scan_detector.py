@@ -78,8 +78,12 @@ class MetaDataScanDetector(DetectorVisionBase):
         # For each slice found, get appropriate scna results with the metric
         for issue in results.issues:
             current_data_slice = giskard_dataset.slice(issue.slicing_fn)
-            filenames = list(current_data_slice.df.sort_values(by="metric", ascending=False)["image_path"].values)
-            print(issue.features[0], meta.issue_group(issue.features[0]))
+            indices = list(current_data_slice.df.sort_values(by="metric", ascending=False)["index"].values)
+            filenames = (
+                [dataset.get_image_path(idx) for idx in indices[: self.num_images]]
+                if hasattr(dataset, "get_image_path")
+                else []
+            )
             list_scan_results.append(
                 self.get_scan_result(
                     metric_value=current_data_slice.df["metric"].mean(),
@@ -101,7 +105,6 @@ class MetaDataScanDetector(DetectorVisionBase):
         df["metric"] = []
         df["target"] = []
         df["prediction"] = []
-        df["image_path"] = []
         df["index"] = []
 
         # For now the DataFrame is built without a batch strategy because
@@ -128,7 +131,6 @@ class MetaDataScanDetector(DetectorVisionBase):
                 df["metric"].append(metric_value)
                 df["target"].append(truth_surrogate)
                 df["prediction"].append(prediction_surrogate)
-                df["image_path"].append(str(dataset.image_paths[i]))
                 df["index"].append(i)
             except (KeyboardInterrupt, SystemExit):
                 raise
