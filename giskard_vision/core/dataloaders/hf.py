@@ -4,7 +4,7 @@ from giskard_vision.core.dataloaders.base import DataIteratorBase
 from giskard_vision.core.dataloaders.meta import MetaData
 from giskard_vision.core.dataloaders.utils import flatten_dict
 from giskard_vision.core.types import TypesBase
-from giskard_vision.utils.errors import GiskardImportError
+from giskard_vision.utils.errors import GiskardError, GiskardImportError
 
 
 class DataLoaderHuggingFaceDataset(DataIteratorBase):
@@ -56,6 +56,8 @@ class DataLoaderHuggingFaceDataset(DataIteratorBase):
             self.ds = self.splits[self.dataset_split]
         except ImportError as e:
             raise GiskardImportError(["datasets"]) from e
+        except Exception as e:
+            raise GiskardError(f"Error loading dataset `{hf_id}` with config `{hf_config}`") from e
 
         self.meta_exclude_keys = []
         self._idx_sampler = list(range(len(self)))
