@@ -3,8 +3,6 @@ from pytest import mark
 
 from giskard_vision.landmark_detection.detectors import (
     CroppingDetectorLandmark,
-    EthnicityDetectorLandmark,
-    HeadPoseDetectorLandmark,
     MetaDataScanDetectorLanmdark,
     TransformationBlurringDetectorLandmark,
     TransformationColorDetectorLandmark,
@@ -17,8 +15,6 @@ from giskard_vision.landmark_detection.detectors.base import ScanResult
     "detector",
     [
         CroppingDetectorLandmark,
-        HeadPoseDetectorLandmark,
-        EthnicityDetectorLandmark,
         TransformationBlurringDetectorLandmark,
         TransformationColorDetectorLandmark,
         TransformationResizeDetectorLandmark,
