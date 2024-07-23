@@ -57,8 +57,8 @@ class DataLoaderGeirhosConflictStimuli(DataLoaderTensorFlowDatasets):
             Optional[np.ndarray]: shape label.
         """
         row = self.get_row(idx)
-
-        return np.array([row["shape_label"]])
+        label_class = self.info.features['shape_label'].names[row["shape_label"]]
+        return np.array([label_class])
 
     def get_meta(self, idx: int) -> Optional[Types.meta]:
         """
@@ -70,7 +70,7 @@ class DataLoaderGeirhosConflictStimuli(DataLoaderTensorFlowDatasets):
         Returns:
             Optional[Types.meta]: Metadata associated with the image, currently None.
         """
-        row = self.ds[idx]
+        row = self.get_row(idx)
 
         meta_exclude_keys = [
             # Exclude input and output
