@@ -1,8 +1,8 @@
 import numpy as np
-from giskard_vision.utils.errors import GiskardError
 import pytest
 
 from giskard_vision.core.dataloaders.hf import HFDataLoader
+from giskard_vision.utils.errors import GiskardError
 
 
 class TestHFDataLoader(HFDataLoader):
