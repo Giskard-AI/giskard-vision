@@ -80,7 +80,9 @@ class ModelBase(ABC):
         for images, _, _ in dataloader:
             batch_prediction = self.predict_batch(dataloader.idx, images)
             batch_prediction = self._postprocessing(batch_prediction, len(images), **kwargs)
-            prediction_fail_rate += calculate_fail_rate(batch_prediction)
+            if self.model_type == "landmark":
+                # FIXME: It seems that this function is also landmark specific
+                prediction_fail_rate += calculate_fail_rate(batch_prediction)
             predictions.append(batch_prediction)
         prediction_fail_rate = prediction_fail_rate / dataloader.flat_len() if dataloader.flat_len() else 0
         te = time()
