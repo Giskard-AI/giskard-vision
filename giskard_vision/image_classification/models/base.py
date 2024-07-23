@@ -1,13 +1,8 @@
-from time import time
 from typing import Optional
 
 import numpy as np
 
-from giskard_vision.core.dataloaders.base import DataIteratorBase
-from giskard_vision.core.models.hf_pipeline import (
-    HFPipelineModelBase,
-    HFPipelineTask,
-)
+from giskard_vision.core.models.hf_pipeline import HFPipelineModelBase, HFPipelineTask
 from giskard_vision.image_classification.types import Types
 
 

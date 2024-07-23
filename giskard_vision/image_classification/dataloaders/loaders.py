@@ -57,7 +57,7 @@ class DataLoaderGeirhosConflictStimuli(DataLoaderTensorFlowDatasets):
             Optional[np.ndarray]: shape label.
         """
         row = self.get_row(idx)
-        label_class = self.info.features['shape_label'].names[row["shape_label"]]
+        label_class = self.info.features["shape_label"].names[row["shape_label"]]
         return np.array([label_class])
 
     def get_meta(self, idx: int) -> Optional[Types.meta]:
@@ -100,7 +100,9 @@ class DataLoaderSkinCancerHuggingFaceDataset(HFDataLoader):
         dataset_split (str): Specifies the dataset split, defaulting to "test".
     """
 
-    def __init__(self, name: Optional[str] = None, dataset_config: Optional[str] = None, dataset_split: str = "test") -> None:
+    def __init__(
+        self, name: Optional[str] = None, dataset_config: Optional[str] = None, dataset_split: str = "test"
+    ) -> None:
         """
         Initializes the SkinCancerHuggingFaceDataset instance.
 
@@ -147,7 +149,7 @@ class DataLoaderSkinCancerHuggingFaceDataset(HFDataLoader):
         """
         row = self.ds[idx]
 
-        meta_exclude_keys =[
+        meta_exclude_keys = [
             # Exclude input and output
             "image",
             "dx",

@@ -1,5 +1,3 @@
-import numpy as np
-
 from giskard_vision.image_classification.models.base import (
     SingleLabelImageClassificationHFModelWrapper,
 )
