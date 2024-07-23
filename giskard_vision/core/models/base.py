@@ -11,10 +11,6 @@ from giskard_vision.core.types import TypesBase
 logger = getLogger(__name__)
 
 
-def calculate_fail_rate(prediction):
-    return (np.isnan(prediction).sum(axis=(1, 2)) / prediction[0].size).sum()
-
-
 class ModelBase(ABC):
     """Abstract class that serves as a template for all model predictions"""
 
@@ -63,6 +59,10 @@ class ModelBase(ABC):
         """
         return batch_prediction
 
+    def _calculate_fail_rate(self, prediction):
+        """method that calculates the fail rate of the prediction"""
+        return 0.0
+
     def predict(self, dataloader: DataIteratorBase, **kwargs) -> TypesBase.prediction_result:
         """main method to predict the landmarks
 
@@ -80,7 +80,7 @@ class ModelBase(ABC):
         for images, _, _ in dataloader:
             batch_prediction = self.predict_batch(dataloader.idx, images)
             batch_prediction = self._postprocessing(batch_prediction, len(images), **kwargs)
-            prediction_fail_rate += calculate_fail_rate(batch_prediction)
+            prediction_fail_rate += self._calculate_fail_rate(batch_prediction)
             predictions.append(batch_prediction)
         prediction_fail_rate = prediction_fail_rate / dataloader.flat_len() if dataloader.flat_len() else 0
         te = time()
