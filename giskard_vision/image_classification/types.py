@@ -12,6 +12,7 @@ from giskard_vision.core.types import (
 
 CLASSIFICATION_LABELS_TYPE = np.ndarray  # An n-dimension array of class labels
 
+
 @dataclass
 class PredictionResult(PredictionResultBase):
     prediction: CLASSIFICATION_LABELS_TYPE
