@@ -30,6 +30,7 @@ class MetaDataScanDetector(DetectorVisionBase):
     surrogate_function: Callable = None
     metric: MetricBase = None
     metric_type: str = "relative" if type_task == "regression" else "absolute"
+    metric_direction: str = "better_lower"
     issue_group = IssueGroup(name="Metadata", description="Slices are found based on metadata")
 
     def get_results(self, model: Any, dataset: Any) -> List[ScanResult]:
@@ -54,8 +55,25 @@ class MetaDataScanDetector(DetectorVisionBase):
 
         df_for_prediction = df_for_scan.copy()
 
-        def prediction_function(df: pd.DataFrame) -> np.ndarray:
-            return pd.merge(df, df_for_prediction, on="index", how="inner")["prediction"].values
+        if self.type_task == "regression":
+
+            def prediction_function(df: pd.DataFrame) -> np.ndarray:
+                return pd.merge(df, df_for_prediction, on="index", how="inner")["prediction"].values
+
+        elif self.type_task == "classification":
+
+            class_to_index = {label: index for index, label in enumerate(model.classification_labels)}
+            n_classes = len(model.classification_labels)
+
+            def prediction_function(df: pd.DataFrame) -> np.ndarray:
+                array = pd.merge(df, df_for_prediction, on="index", how="inner")["prediction"].values
+                one_hot_encoded = np.zeros((len(array), n_classes), dtype=float)
+
+                for i, label in enumerate(array):
+                    class_index = class_to_index[label]
+                    one_hot_encoded[i, class_index] = 1
+
+                return one_hot_encoded
 
         # Create Giskard dataset and model
         giskard_dataset = Dataset(df=df_for_scan.copy(), target="target", cat_columns=list_categories + ["index"])
@@ -64,6 +82,7 @@ class MetaDataScanDetector(DetectorVisionBase):
             model=prediction_function,
             model_type=self.type_task,
             feature_names=list_metadata + ["index"],
+            classification_labels=model.classification_labels if self.type_task == "classification" else None,
         )
 
         # Get scan results
@@ -76,7 +95,7 @@ class MetaDataScanDetector(DetectorVisionBase):
             current_data_slice = giskard_dataset.slice(issue.slicing_fn)
             indices = list(current_data_slice.df.sort_values(by="metric", ascending=False)["index"].values)
             filenames = (
-                [dataset.get_image_path(idx) for idx in indices[: self.num_images]]
+                [dataset.get_image_path(int(idx)) for idx in indices[: self.num_images]]
                 if hasattr(dataset, "get_image_path")
                 else []
             )
@@ -155,12 +174,17 @@ class MetaDataScanDetector(DetectorVisionBase):
         if self.metric_type == "relative":
             relative_delta /= metric_reference_value
 
-        if relative_delta > self.issue_level_threshold + self.deviation_threshold:
-            issue_level = IssueLevel.MAJOR
-        elif relative_delta > self.issue_level_threshold:
-            issue_level = IssueLevel.MEDIUM
-        else:
-            issue_level = IssueLevel.MINOR
+        issue_level = IssueLevel.MINOR
+        if self.metric_direction == "better_lower":
+            if relative_delta > self.issue_level_threshold + self.deviation_threshold:
+                issue_level = IssueLevel.MAJOR
+            elif relative_delta > self.issue_level_threshold:
+                issue_level = IssueLevel.MEDIUM
+        elif self.metric_direction == "better_higher":
+            if relative_delta < -(self.issue_level_threshold + self.deviation_threshold):
+                issue_level = IssueLevel.MAJOR
+            elif relative_delta < -self.issue_level_threshold:
+                issue_level = IssueLevel.MEDIUM
 
         return ScanResult(
             name=name,

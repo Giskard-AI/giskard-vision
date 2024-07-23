@@ -6,7 +6,17 @@ from giskard_vision.core.dataloaders.hf import HFDataLoader
 from giskard_vision.core.dataloaders.meta import MetaData
 from giskard_vision.core.dataloaders.tfds import DataLoaderTensorFlowDatasets
 from giskard_vision.core.dataloaders.utils import flatten_dict
+from giskard_vision.core.detectors.base import IssueGroup
 from giskard_vision.image_classification.types import Types
+
+EthicalIssueMeta = IssueGroup(
+    "Ethical",
+    description="The data are filtered by metadata like age, facial hair, or gender to detect ethical biases.",
+)
+PerformanceIssueMeta = IssueGroup(
+    "Performance",
+    description="The data are filtered by metadata like emotion, head pose, or exposure value to detect performance issues.",
+)
 
 
 class DataLoaderGeirhosConflictStimuli(DataLoaderTensorFlowDatasets):
@@ -160,8 +170,8 @@ class DataLoaderSkinCancerHuggingFaceDataset(HFDataLoader):
         ]
         flat_meta = flatten_dict(row, excludes=meta_exclude_keys, flat_np_array=True)
 
-        return MetaData(
-            data=flat_meta,
-            categories=list(flat_meta.keys()),
-            # TODO: Add issue group
-        )
+        issue_groups = {key: PerformanceIssueMeta for key in flat_meta}
+        issue_groups["age"] = EthicalIssueMeta
+        issue_groups["sex"] = EthicalIssueMeta
+
+        return MetaData(data=flat_meta, categories=["sex", "localization"], issue_groups=issue_groups)

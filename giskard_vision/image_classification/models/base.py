@@ -18,7 +18,7 @@ class ImageClassificationHFModel(HFPipelineModelBase):
         classification_labels: list of classification labels, where the position of the label corresponds to the class index
     """
 
-    model_type = "classification"
+    model_type = "image_classification"
     prediction_result_cls = Types.prediction_result
 
     def __init__(self, model_id: str, name: Optional[str] = None, device: str = "cpu"):
