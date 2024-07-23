@@ -1,10 +1,7 @@
 from typing import Any, Dict, Optional
 
 from giskard_vision.core.dataloaders.base import DataIteratorBase
-from giskard_vision.core.dataloaders.meta import MetaData
-from giskard_vision.core.dataloaders.utils import flatten_dict_exclude_wrapper
-from giskard_vision.landmark_detection.types import Types
-from giskard_vision.utils.errors import GiskardImportError
+from giskard_vision.utils.errors import GiskardError, GiskardImportError
 
 
 class DataLoaderTensorFlowDatasets(DataIteratorBase):
@@ -15,7 +12,6 @@ class DataLoaderTensorFlowDatasets(DataIteratorBase):
         dataset_split (str): Specifies the dataset split, defaulting to "train".
         ds (Any): The loaded dataset split.
         info (Any): Information about the loaded dataset.
-        meta_exclude_keys (List[str]): Keys to exclude from metadata.
         splits (Any): The dataset splits in the specified dataset.
 
     Args:
@@ -40,6 +36,7 @@ class DataLoaderTensorFlowDatasets(DataIteratorBase):
 
         Raises:
             GiskardImportError: If there are missing dependencies such as TensorFlow, TensorFlow-Datasets, or SciPy.
+            GiskardError: If there is an error loading the dataset.
         """
         super().__init__(name)
 
@@ -50,12 +47,12 @@ class DataLoaderTensorFlowDatasets(DataIteratorBase):
         except ImportError as e:
             raise GiskardImportError(["tensorflow", "tensorflow-datasets", "scipy"]) from e
 
-        # Exclude keys from metadata
-        self.meta_exclude_keys = []
-
         self.dataset_split = tfds_split
-        self.splits, self.info = tfds.load(tfds_id, data_dir=data_dir, with_info=True)
-        self.ds = self.splits[self.dataset_split]
+        try:
+            self.splits, self.info = tfds.load(tfds_id, data_dir=data_dir, with_info=True)
+            self.ds = self.splits[self.dataset_split]
+        except Exception as e:
+            raise GiskardError(f"Error loading {tfds_id} split {tfds_split} from tensorFlow-datasets") from e
         self._idx_sampler = list(range(len(self)))
 
     def __len__(self) -> int:
@@ -75,25 +72,6 @@ class DataLoaderTensorFlowDatasets(DataIteratorBase):
             int: Total number of examples in the dataset split.
         """
         return self.ds.skip(idx).as_numpy_iterator().next()
-
-    def get_meta(self, idx: int) -> Optional[Types.meta]:
-        """
-        Returns metadata associated with the image at the specified index.
-
-        Args:
-            idx (int): Index of the image.
-
-        Returns:
-            Optional[Types.meta]: Metadata associated with the image, currently None.
-        """
-        row = self.get_row(idx)
-
-        flat_meta = flatten_dict_exclude_wrapper(row, excludes=self.meta_exclude_keys, flat_np_array=True)
-
-        return MetaData(
-            data=flat_meta,
-            categories=flat_meta.keys(),
-        )
 
     @property
     def idx_sampler(self):
