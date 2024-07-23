@@ -54,3 +54,7 @@ class FaceLandmarksModelBase(ModelBase):
         if "facial_part" in kwargs and kwargs["facial_part"] is not None:
             res[:, ~kwargs["facial_part"].idx, :] = np.nan
         return res
+
+    def _calculate_fail_rate(self, prediction):
+        """method that calculates the fail rate of the prediction"""
+        return (np.isnan(prediction).sum(axis=(1, 2)) / prediction[0].size).sum()

@@ -14,3 +14,9 @@ class GiskardImportError(ImportError):
             raise ValueError(
                 f"{self.__class__.__name__}: takes only a list of strings, or a single string, instead {type(missing_packages)} was given"
             )
+
+
+class GiskardError(Exception):
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+        self.message = message
