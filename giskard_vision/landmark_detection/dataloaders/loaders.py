@@ -8,6 +8,7 @@ import numpy as np
 from giskard_vision.core.dataloaders.meta import MetaData
 from giskard_vision.core.dataloaders.tfds import DataLoaderTensorFlowDatasets
 from giskard_vision.core.dataloaders.utils import flatten_dict
+from giskard_vision.landmark_detection.types import Types
 
 from .base import DataLoaderBase
 
@@ -269,19 +270,6 @@ class DataLoader300WLP(DataLoaderTensorFlowDatasets):
         """
         super().__init__("the300w_lp", self.dataset_split, name, data_dir)
 
-        self.meta_exclude_keys.extend(
-            [
-                # Exclude input and output
-                self.image_key,
-                self.landmarks_key,
-                # Exclude other info, see https://www.tensorflow.org/datasets/catalog/the300w_lp
-                "landmarks_3d",
-                "landmarks_origin",
-                "shape_params",  # 199 shape parameters
-                "tex_params",  # 199 texture parameters
-            ]
-        )
-
     def get_image(self, idx: int) -> np.ndarray:
         """
         Retrieves the image at the specified index in the dataset.
@@ -311,3 +299,33 @@ class DataLoader300WLP(DataLoaderTensorFlowDatasets):
 
         # Compute the marks
         return normalized_marks * row[self.image_key].shape[:2]
+
+    def get_meta(self, idx: int) -> Optional[Types.meta]:
+        """
+        Returns metadata associated with the image at the specified index.
+
+        Args:
+            idx (int): Index of the image.
+
+        Returns:
+            Optional[Types.meta]: Metadata associated with the image, currently None.
+        """
+        row = self.get_row(idx)
+
+        meta_exclude_keys = [
+            # Exclude input and output
+            self.image_key,
+            self.landmarks_key,
+            # Exclude other info, see https://www.tensorflow.org/datasets/catalog/the300w_lp
+            "landmarks_3d",
+            "landmarks_origin",
+            "shape_params",  # 199 shape parameters
+            "tex_params",  # 199 texture parameters
+        ]
+        flat_meta = flatten_dict(row, excludes=meta_exclude_keys, flat_np_array=True)
+
+        return MetaData(
+            data=flat_meta,
+            categories=list(flat_meta.keys()),
+            # TODO: Add issue group
+        )
