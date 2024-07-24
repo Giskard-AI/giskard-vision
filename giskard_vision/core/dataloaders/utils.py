@@ -32,7 +32,7 @@ def _flatten_dict(
 
 
 def flatten_dict(
-    d: Dict[str, Any], exclude_keys: List[str] = [], parent_key: str = "", sep: str = "_", flat_np_array: bool = False
+    d: Dict[str, Any], excludes: List[str] = [], parent_key: str = "", sep: str = "_", flat_np_array: bool = False
 ) -> Dict[str, Any]:
     """
     Flattens a nested dictionary.
@@ -50,7 +50,7 @@ def flatten_dict(
 
     result = _flatten_dict(d, parent_key, sep, flat_np_array)
 
-    for key in exclude_keys:
+    for key in excludes:
         if key in result:
             result.pop(key)
 
