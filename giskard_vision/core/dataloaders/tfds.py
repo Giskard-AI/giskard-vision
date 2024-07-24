@@ -1,7 +1,7 @@
 from typing import Any, Dict, Optional
 
 from giskard_vision.core.dataloaders.base import DataIteratorBase
-from giskard_vision.utils.errors import GiskardImportError
+from giskard_vision.utils.errors import GiskardError, GiskardImportError
 
 
 class DataLoaderTensorFlowDatasets(DataIteratorBase):
@@ -36,6 +36,7 @@ class DataLoaderTensorFlowDatasets(DataIteratorBase):
 
         Raises:
             GiskardImportError: If there are missing dependencies such as TensorFlow, TensorFlow-Datasets, or SciPy.
+            GiskardError: If there is an error loading the dataset.
         """
         super().__init__(name)
 
@@ -47,8 +48,11 @@ class DataLoaderTensorFlowDatasets(DataIteratorBase):
             raise GiskardImportError(["tensorflow", "tensorflow-datasets", "scipy"]) from e
 
         self.dataset_split = tfds_split
-        self.splits, self.info = tfds.load(tfds_id, data_dir=data_dir, with_info=True)
-        self.ds = self.splits[self.dataset_split]
+        try:
+            self.splits, self.info = tfds.load(tfds_id, data_dir=data_dir, with_info=True)
+            self.ds = self.splits[self.dataset_split]
+        except Exception as e:
+            raise GiskardError(f"Error loading {tfds_id} split {tfds_split} from tensorFlow-datasets") from e
         self._idx_sampler = list(range(len(self)))
 
     def __len__(self) -> int:
