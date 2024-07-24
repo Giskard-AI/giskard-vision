@@ -68,7 +68,6 @@ class MetaDataScanDetector(DetectorVisionBase):
                 return pd.merge(df, df_for_prediction, on="index", how="inner")["prediction"].values
 
         elif self.type_task == "classification":
-
             class_to_index = {label: index for index, label in enumerate(model.classification_labels)}
             n_classes = len(model.classification_labels)
 
@@ -137,14 +136,12 @@ class MetaDataScanDetector(DetectorVisionBase):
         for i in range(len(dataset)):
             try:
                 image = dataset.get_image(i)
-                prediction_result = model.predict_image(image)
+                prediction = model.predict_batch(image)
                 ground_truth = dataset.get_labels(i)
                 metadata = dataset.get_meta(i)
-                metric_value = self.metric.get(prediction_result, ground_truth)
+                metric_value = self.metric.get(model.prediction_result_cls(prediction), [ground_truth])
                 prediction_surrogate = (
-                    self.surrogate_function(prediction_result, image)
-                    if self.surrogate_function is not None
-                    else prediction_result
+                    self.surrogate_function(prediction, image) if self.surrogate_function is not None else prediction
                 )
                 truth_surrogate = (
                     self.surrogate_function(ground_truth, image)
