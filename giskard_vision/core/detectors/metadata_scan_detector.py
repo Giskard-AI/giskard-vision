@@ -29,9 +29,16 @@ class MetaDataScanDetector(DetectorVisionBase):
     type_task: str = "classification"
     surrogate_function: Callable = None
     metric: MetricBase = None
-    metric_type: str = "relative" if type_task == "regression" else "absolute"
+    metric_type: str = None
     metric_direction: str = "better_lower"
-    issue_group = IssueGroup(name="Metadata", description="Slices are found based on metadata")
+    issue_group = IssueGroup(
+        name="Performance", description="The data are filtered by metadata to detect performance issues."
+    )
+
+    def __init__(self) -> None:
+        super().__init__()
+        if self.metric_type is None:
+            self.metric_type = "relative" if self.type_task == "regression" else "absolute"
 
     def get_results(self, model: Any, dataset: Any) -> List[ScanResult]:
         try:

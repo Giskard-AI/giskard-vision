@@ -128,7 +128,7 @@ class MetaData:
         Returns only the non-iterable items from the metadata.
 
         Returns:
-            Dict[str, Any]: A dictionary of non-iterable items from the metadata.
+            List[str]: A list of non-iterable items from the metadata.
         """
         return list({k: v for k, v in self.data.items() if self.is_scannable(v)}.keys())
 
