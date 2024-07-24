@@ -168,7 +168,7 @@ class DataLoaderSkinCancerHuggingFaceDataset(HFDataLoader):
             "image_id",
             "lesion_id",
         ]
-        flat_meta = flatten_dict(row, exclude_keys=meta_exclude_keys, flat_np_array=True)
+        flat_meta = flatten_dict(row, excludes=meta_exclude_keys, flat_np_array=True)
 
         issue_groups = {key: PerformanceIssueMeta for key in flat_meta}
         issue_groups["age"] = EthicalIssueMeta
