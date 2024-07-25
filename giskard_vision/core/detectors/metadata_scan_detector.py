@@ -69,8 +69,6 @@ class MetaDataScanDetector(DetectorVisionBase):
         # Get dataframe from metadata
         df_for_scan = self.get_df_for_scan(model, dataset, list_metadata)
 
-        df_for_prediction = df_for_scan.copy()
-
         list_scan_results = []
         current_slices = []
         for surrogate_name in self.surrogate_functions:
@@ -78,9 +76,7 @@ class MetaDataScanDetector(DetectorVisionBase):
             if self.type_task == "regression":
 
                 def prediction_function(df: pd.DataFrame) -> np.ndarray:
-                    return pd.merge(df, df_for_prediction, on="index", how="inner")[
-                        f"prediction_{surrogate_name}"
-                    ].values
+                    return pd.merge(df, df_for_scan, on="index", how="inner")[f"prediction_{surrogate_name}"].values
 
             elif self.type_task == "classification":
 
@@ -88,9 +84,7 @@ class MetaDataScanDetector(DetectorVisionBase):
                 n_classes = len(model.classification_labels)
 
                 def prediction_function(df: pd.DataFrame) -> np.ndarray:
-                    array = pd.merge(df, df_for_prediction, on="index", how="inner")[
-                        f"prediction_{surrogate_name}"
-                    ].values
+                    array = pd.merge(df, df_for_scan, on="index", how="inner")[f"prediction_{surrogate_name}"].values
                     one_hot_encoded = np.zeros((len(array), n_classes), dtype=float)
 
                     for i, label in enumerate(array):
@@ -101,7 +95,7 @@ class MetaDataScanDetector(DetectorVisionBase):
 
             # Create Giskard dataset and model
             giskard_dataset = Dataset(
-                df=df_for_scan.copy(), target=f"target_{surrogate_name}", cat_columns=list_categories + ["index"]
+                df=df_for_scan, target=f"target_{surrogate_name}", cat_columns=list_categories + ["index"]
             )
 
             giskard_model = Model(
@@ -179,10 +173,10 @@ class MetaDataScanDetector(DetectorVisionBase):
         for i in range(len(dataset)):
             try:
                 image = dataset.get_image(i)
-                prediction_result = model.predict_image(image)
-                ground_truth = dataset.get_labels(i)
+                prediction = np.array([model.predict_image(image)])  # batch of 1 prediction
+                ground_truth = np.array([dataset.get_labels(i)])  # batch of 1 ground truth
                 metadata = dataset.get_meta(i)
-                metric_value = self.metric.get(prediction_result, ground_truth)
+                metric_value = self.metric.get(model.prediction_result_cls(prediction), ground_truth)  # expect batches
 
                 for name_metadata in list_metadata:
                     try:
@@ -193,14 +187,14 @@ class MetaDataScanDetector(DetectorVisionBase):
                 for surrogate_name in self.surrogate_functions:
 
                     prediction_surrogate = (
-                        self.surrogate_functions[surrogate_name](prediction_result, image)
+                        self.surrogate_functions[surrogate_name](prediction, image)
                         if self.surrogate_functions[surrogate_name] is not None
-                        else prediction_result
+                        else prediction[0]
                     )
                     truth_surrogate = (
                         self.surrogate_functions[surrogate_name](ground_truth, image)
                         if self.surrogate_functions[surrogate_name] is not None
-                        else ground_truth
+                        else ground_truth[0]
                     )
 
                     df[f"target_{surrogate_name}"].append(truth_surrogate)
