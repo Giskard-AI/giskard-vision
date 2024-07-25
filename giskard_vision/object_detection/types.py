@@ -1,7 +1,5 @@
 from dataclasses import dataclass
-from typing import Tuple
-
-import numpy as np
+from typing import Dict, Iterable, Tuple
 
 from giskard_vision.core.types import (
     IMAGE_TYPE,
@@ -10,7 +8,7 @@ from giskard_vision.core.types import (
     TypesBase,
 )
 
-OBJECT_DETECTION_LABEL_TYPE = np.ndarray  # Just one face is supported
+OBJECT_DETECTION_LABEL_TYPE = Dict[str, Iterable[float]]  # typically: {"boxes": np.array([]), "labels": ""}
 
 
 @dataclass
@@ -23,4 +21,6 @@ class Types(TypesBase):
     prediction_result = PredictionResult
     label = OBJECT_DETECTION_LABEL_TYPE
     single_data = Tuple[IMAGE_TYPE, OBJECT_DETECTION_LABEL_TYPE, META_TYPE]
-    batched_data = Tuple[Tuple[IMAGE_TYPE], OBJECT_DETECTION_LABEL_TYPE, Tuple[META_TYPE]]
+    batched_data = Tuple[
+        Tuple[IMAGE_TYPE], Tuple[OBJECT_DETECTION_LABEL_TYPE], Tuple[META_TYPE]
+    ]  # the batching of the label could be optimised: stacking the arrays in a single np.array
