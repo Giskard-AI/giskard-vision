@@ -56,6 +56,8 @@ dev = [
     "tensorflow-io-gcs-filesystem==0.34; platform_machine == 'arm64' and sys_platform == 'darwin'", # The only wheel for ARM64 Mac
     "giskard>=2.7.0",
     "datasets>=2.20.0",
+    "pytorch-lightning>=2.3.3",
+    "albumentations==0.4.6",
 ]
 
 [tool.ruff]
