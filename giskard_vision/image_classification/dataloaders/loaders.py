@@ -68,7 +68,7 @@ class DataLoaderGeirhosConflictStimuli(DataLoaderTensorFlowDatasets):
         """
         row = self.get_row(idx)
         label_class = self.info.features["shape_label"].names[row["shape_label"]]
-        return np.array([label_class])
+        return str(label_class)
 
     def get_meta(self, idx: int) -> Optional[Types.meta]:
         """
@@ -145,7 +145,7 @@ class DataLoaderSkinCancerHuggingFaceDataset(HFDataLoader):
         Returns:
             Optional[np.ndarray]: label.
         """
-        return np.array([self.ds[idx]["dx"]])
+        return str(self.ds[idx]["dx"])
 
     def get_meta(self, idx: int) -> Optional[Types.meta]:
         """
@@ -224,7 +224,7 @@ class DataLoaderCifar100HuggingFaceDataset(HFDataLoader):
         """
         label_index = self.ds[idx]["fine_label"]
         label_string = self.ds.features["fine_label"].names[label_index]
-        return np.array([label_string])
+        return str(label_string)
 
     def get_meta(self, idx: int) -> Optional[Types.meta]:
         """
