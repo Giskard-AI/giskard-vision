@@ -56,10 +56,6 @@ class MetaDataScanDetector(DetectorVisionBase):
             self.metric_type = "relative" if self.type_task == "regression" else "absolute"
 
     def get_results(self, model: Any, dataset: Any) -> List[ScanResult]:
-        try:
-            from giskard import Dataset, Model, scan
-        except (ImportError, ModuleNotFoundError) as e:
-            raise GiskardImportError(["giskard"]) from e
 
         if hasattr(dataset, "get_meta"):
             meta = dataset.get_meta(0)
@@ -79,20 +75,13 @@ class MetaDataScanDetector(DetectorVisionBase):
         current_issues = []
         for surrogate in self.surrogates:
 
-            # Create prediction function
-            prediction_function = self.get_prediction_function(surrogate, model, df_for_scan)
-
-            # Create Giskard dataset and model, and get scan results
-            giskard_dataset = Dataset(
-                df=df_for_scan, target=f"target_{surrogate.name}", cat_columns=list_categories + ["index"]
+            giskard_dataset, results = self.get_giskard_results_from_surrogate(
+                surrogate=surrogate,
+                model=model,
+                df_for_scan=df_for_scan,
+                list_metadata=list_metadata,
+                list_categories=list_categories,
             )
-            giskard_model = Model(
-                model=prediction_function,
-                model_type=self.type_task,
-                feature_names=list_metadata + ["index"],
-                classification_labels=model.classification_labels if self.type_task == "classification" else None,
-            )
-            results = scan(giskard_model, giskard_dataset, max_issues_per_detector=None, verbose=False)
 
             # For each slice found, get appropriate scan results with the metric
             for issue in results.issues:
@@ -118,6 +107,42 @@ class MetaDataScanDetector(DetectorVisionBase):
                     )
 
         return list_scan_results
+
+    def get_giskard_results_from_surrogate(self, surrogate, model, df_for_scan, list_metadata, list_categories):
+        """
+        Get Giskard Dataset and results from scan for surrogate function
+
+        Args:
+            surrogate (Surrogate): Surrogate function
+            model (Any): Model to scan
+            df_for_scan (pd.DataFrame): Dataframe containing the data to analyze
+            list_metadata (list): List of metadata
+            list_categories (list): List of categorical metadata
+
+        Returns:
+            giskard.Dataset, giskard.ScanResult: Dataset and scan results
+        """
+        try:
+            from giskard import Dataset, Model, scan
+        except (ImportError, ModuleNotFoundError) as e:
+            raise GiskardImportError(["giskard"]) from e
+
+        # Create prediction function
+        prediction_function = self.get_prediction_function(surrogate, model, df_for_scan)
+
+        # Create Giskard dataset and model, and get scan results
+        giskard_dataset = Dataset(
+            df=df_for_scan, target=f"target_{surrogate.name}", cat_columns=list_categories + ["index"]
+        )
+        giskard_model = Model(
+            model=prediction_function,
+            model_type=self.type_task,
+            feature_names=list_metadata + ["index"],
+            classification_labels=model.classification_labels if self.type_task == "classification" else None,
+        )
+        results = scan(giskard_model, giskard_dataset, max_issues_per_detector=None, verbose=False)
+
+        return giskard_dataset, results
 
     def get_prediction_function(self, surrogate, model, df_for_scan):
         """
