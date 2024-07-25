@@ -26,8 +26,8 @@ class MetaDataScanDetector(DetectorVisionBase):
     Args:
         type_task: str
             Type of the task for the scan, ["regression", "classification"]
-        surrogate_functions: Dict[str, Callable]
-            Function to transform the output of the model and the ground truth into one value
+        surrogates: List[Surrogate]
+            Surrogate functions to transform the output of the model and the ground truth into one value
             that will be used by the scan
         metric: MetricBase
             Metric to evaluate the prediction with respect to the ground truth
