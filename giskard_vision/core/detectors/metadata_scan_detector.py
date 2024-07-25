@@ -82,6 +82,7 @@ class MetaDataScanDetector(DetectorVisionBase):
                 return one_hot_encoded
 
         # Create Giskard dataset and model
+        # TODO: remove extra copy
         giskard_dataset = Dataset(df=df_for_scan.copy(), target="target", cat_columns=list_categories + ["index"])
 
         giskard_model = Model(
@@ -136,17 +137,17 @@ class MetaDataScanDetector(DetectorVisionBase):
         for i in range(len(dataset)):
             try:
                 image = dataset.get_image(i)
-                prediction = model.predict_batch(image)
+                prediction = np.array([model.predict_image(image)])
                 ground_truth = dataset.get_labels(i)
                 metadata = dataset.get_meta(i)
                 metric_value = self.metric.get(model.prediction_result_cls(prediction), [ground_truth])
                 prediction_surrogate = (
-                    self.surrogate_function(prediction, image) if self.surrogate_function is not None else prediction
+                    self.surrogate_function(prediction, image) if self.surrogate_function is not None else prediction[0]
                 )
                 truth_surrogate = (
                     self.surrogate_function(ground_truth, image)
                     if self.surrogate_function is not None
-                    else ground_truth
+                    else ground_truth[0]
                 )
 
                 for name_metadata in list_metadata:
