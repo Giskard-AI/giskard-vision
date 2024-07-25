@@ -217,8 +217,10 @@ class MetaDataScanDetector(DetectorVisionBase):
         # we need the metadata, labels and image path on an individual basis,
         # and sometimes the model may fail on an image.
         # TODO: make this cleaner and more efficient with batch computations
+        from tqdm import tqdm
 
-        for i in range(len(dataset)):
+        total = min(len(dataset), 200)
+        for i in tqdm(range(total)):
             try:
                 metadata = dataset.get_meta(i)
 
