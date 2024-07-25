@@ -19,7 +19,21 @@ except ImportError:
 
 
 class TorchFasterRCNN(LightningModule):
+    """
+    A PyTorch Lightning Module for Faster R-CNN object detection using ResNet50 FPN backbone.
+
+    Attributes:
+        detector (torch.nn.Module): The Faster R-CNN model for object detection.
+        lr (float): Learning rate for training.
+    """
+
     def __init__(self, n_classes):
+        """
+        Initializes the TorchFasterRCNN model.
+
+        Args:
+            n_classes (int): Number of classes for the object detection model.
+        """
         super().__init__()
         self.detector = torchvision.models.detection.fasterrcnn_resnet50_fpn(
             weights=FasterRCNN_ResNet50_FPN_Weights.DEFAULT
@@ -29,28 +43,69 @@ class TorchFasterRCNN(LightningModule):
         self.lr = 1e-4
 
     def forward(self, imgs, targets=None):
-        # Torchvision FasterRCNN returns the loss during training
-        # and the boxes during eval
+        """
+        Forward pass of the model.
+
+        Args:
+            imgs (list of Tensors): List of input images.
+            targets (list of dicts, optional): List of target dicts for training.
+
+        Returns:
+            dict or list[dict]: The model output, either losses during training or detections during evaluation.
+        """
         self.detector.eval()
         return self.detector(imgs)
 
 
 class FasterRCNNBase(ModelBase):
+    """
+    Base class for Faster R-CNN object detection models.
+
+    Attributes:
+        model_type (str): The type of model, set to "object_detection".
+        prediction_result_cls (Type): The type for the prediction result.
+    """
+
     model_type: str = "object_detection"
     prediction_result_cls = Types.prediction_result
 
     def __init__(self, n_classes: int, device: str = "cpu", threshold: int = 0.5) -> None:
+        """
+        Initializes the FasterRCNNBase model.
+
+        Args:
+            n_classes (int): Number of classes for the object detection model.
+            device (str): Device to run the model on (default is "cpu").
+            threshold (float): Score threshold for filtering predictions (default is 0.5).
+        """
         self.model = TorchFasterRCNN(n_classes=n_classes)
         self.device = torch.device(device)
         self.threshold = threshold
 
     def to_numpy(self, prediction):
+        """
+        Converts prediction tensors to numpy arrays.
+
+        Args:
+            prediction (dict): Dictionary of prediction tensors.
+
+        Returns:
+            dict: Dictionary of prediction numpy arrays.
+        """
         for k in prediction:
             prediction[k] = prediction[k].detach().to(self.device).numpy()
         return prediction
 
     def object_score_filter(self, prediction):
-        """Get indices of predictions above threshold, if none above threshold, get the highest score"""
+        """
+        Filters predictions based on score threshold.
+
+        Args:
+            prediction (dict): Dictionary of prediction arrays.
+
+        Returns:
+            dict: Filtered predictions with scores above the threshold.
+        """
         scores = prediction["scores"]
         indices = [i for i, score in enumerate(scores) if score > self.threshold]
 
@@ -63,7 +118,15 @@ class FasterRCNNBase(ModelBase):
         return prediction
 
     def single_object_area_filter(self, prediction):
-        """filter predictions based on highest area"""
+        """
+        Filters predictions based on the highest area.
+
+        Args:
+            prediction (dict): Dictionary of prediction arrays.
+
+        Returns:
+            dict: Prediction with the largest area.
+        """
         boxes = prediction["boxes"]
         areas = (boxes[:, 2] - boxes[:, 0]) * (boxes[:, 3] - boxes[:, 1])
         idx = areas.argmax()
@@ -72,9 +135,27 @@ class FasterRCNNBase(ModelBase):
         return prediction
 
     def preprocessing(self, image):
+        """
+        Preprocesses the input image.
+
+        Args:
+            image (PIL.Image or ndarray): Input image.
+
+        Returns:
+            ndarray: Preprocessed image.
+        """
         return image
 
     def predict_image(self, image):
+        """
+        Predicts the objects in the input image.
+
+        Args:
+            image (ndarray): Input image.
+
+        Returns:
+            dict: Filtered prediction with the highest area.
+        """
         image = self.preprocessing(image)
         predictions = self.to_numpy(self.model(image.unsqueeze(dim=0))[0])
         best_predictions = self.object_score_filter(predictions)
@@ -83,7 +164,21 @@ class FasterRCNNBase(ModelBase):
 
 
 class FasterRCNNWheat(FasterRCNNBase):
+    """
+    Faster R-CNN model specifically for wheat detection.
+
+    Attributes:
+        transform (albumentations.Compose): Transformations to be applied to input images.
+    """
+
     def __init__(self, device: str = "cpu", threshold: int = 0.5) -> None:
+        """
+        Initializes the FasterRCNNWheat model.
+
+        Args:
+            device (str): Device to run the model on (default is "cpu").
+            threshold (float): Score threshold for filtering predictions (default is 0.5).
+        """
         super().__init__(n_classes=2, device=device, threshold=threshold)
         self.transform = A.Compose(
             [
@@ -96,5 +191,14 @@ class FasterRCNNWheat(FasterRCNNBase):
         )
 
     def preprocessing(self, image):
+        """
+        Preprocesses the input image with transformations.
+
+        Args:
+            image (PIL.Image or ndarray): Input image.
+
+        Returns:
+            ndarray: Transformed image.
+        """
         image = self.transform(image=image)["image"]
         return image
