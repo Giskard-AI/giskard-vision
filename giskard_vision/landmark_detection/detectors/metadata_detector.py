@@ -19,7 +19,7 @@ class NMEMeanMetric(NMEMean):
 
 
 @maybe_detector("metadata_landmark", tags=["vision", "face", "landmark", "metadata"])
-class MetaDataScanDetectorLanmdark(MetaDataScanDetector):
+class MetaDataScanDetectorLandmark(MetaDataScanDetector):
     surrogate_function = relative_volume_convex_hull
     metric = NMEMeanMetric
     type_task = "regression"
