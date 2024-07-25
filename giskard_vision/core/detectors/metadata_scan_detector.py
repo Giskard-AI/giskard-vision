@@ -60,19 +60,17 @@ class MetaDataScanDetector(DetectorVisionBase):
         # Get dataframe from metadata
         df_for_scan = self.get_df_for_scan(model, dataset, list_metadata)
 
-        df_for_prediction = df_for_scan.copy()
-
         if self.type_task == "regression":
 
             def prediction_function(df: pd.DataFrame) -> np.ndarray:
-                return pd.merge(df, df_for_prediction, on="index", how="inner")["prediction"].values
+                return pd.merge(df, df_for_scan, on="index", how="inner")["prediction"].values
 
         elif self.type_task == "classification":
             class_to_index = {label: index for index, label in enumerate(model.classification_labels)}
             n_classes = len(model.classification_labels)
 
             def prediction_function(df: pd.DataFrame) -> np.ndarray:
-                array = pd.merge(df, df_for_prediction, on="index", how="inner")["prediction"].values
+                array = pd.merge(df, df_for_scan, on="index", how="inner")["prediction"].values
                 one_hot_encoded = np.zeros((len(array), n_classes), dtype=float)
 
                 for i, label in enumerate(array):
@@ -82,8 +80,7 @@ class MetaDataScanDetector(DetectorVisionBase):
                 return one_hot_encoded
 
         # Create Giskard dataset and model
-        # TODO: remove extra copy
-        giskard_dataset = Dataset(df=df_for_scan.copy(), target="target", cat_columns=list_categories + ["index"])
+        giskard_dataset = Dataset(df=df_for_scan, target="target", cat_columns=list_categories + ["index"])
 
         giskard_model = Model(
             model=prediction_function,
