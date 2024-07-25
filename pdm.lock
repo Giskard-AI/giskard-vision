@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:0a7933f85381ae372f57de5a0695c7ad697bfd5846f27e24b6f847511fe748e9"
+content_hash = "sha256:55c6124acc1b2611df04ab87dc111e219e4f79caddd620a50f7436c783299c5c"
 
 [[package]]
 name = "absl-py"
@@ -1068,7 +1068,7 @@ files = [
 
 [[package]]
 name = "giskard"
-version = "2.14.2"
+version = "2.14.3"
 requires_python = "<3.12,>=3.9"
 summary = "The testing framework dedicated to ML models, from tabular to LLMs"
 groups = ["dev"]
@@ -1099,8 +1099,8 @@ dependencies = [
     "zstandard>=0.10.0",
 ]
 files = [
-    {file = "giskard-2.14.2-py3-none-any.whl", hash = "sha256:5ad014e5879ebcdb19e0ecc8d190632415a2c7f66712afe082c7b9c6fcdddca3"},
-    {file = "giskard-2.14.2.tar.gz", hash = "sha256:1e2acbfa2017eeb85b4eff41dc8e979fd6de01b145ec355b0718c0891dbebe81"},
+    {file = "giskard-2.14.3-py3-none-any.whl", hash = "sha256:a996177ce6c85965076c1c267425bda6daa2905f3b69282e43b00b230f46066b"},
+    {file = "giskard-2.14.3.tar.gz", hash = "sha256:5a1e77a270b64cfcd31e154b8ffea72babcd816260b6fc0c97f4771c77e901f1"},
 ]
 
 [[package]]
@@ -3023,20 +3023,6 @@ dependencies = [
     "torchmetrics>=0.7.0",
     "tqdm>=4.57.0",
     "typing-extensions>=4.4.0",
-]
-files = [
-    {file = "pytorch-lightning-2.3.3.tar.gz", hash = "sha256:5f974015425af6873b5689246c5495ca12686b446751479273c154b73aeea843"},
-    {file = "pytorch_lightning-2.3.3-py3-none-any.whl", hash = "sha256:4365e3f2874e223e63cb42628d24c88c2bdc8d1794453cac38c0619b31115fba"},
-]
-
-[[package]]
-name = "pytz"
-version = "2024.1"
-summary = "World timezone definitions, modern and historical"
-groups = ["dev"]
-files = [
-    {file = "pytz-2024.1-py2.py3-none-any.whl", hash = "sha256:328171f4e3623139da4983451950b28e95ac706e13f3f2630a879749e7a8b319"},
-    {file = "pytz-2024.1.tar.gz", hash = "sha256:2a29735ea9c18baf14b448846bde5a48030ed267578472d8955cd0e7443a9812"},
 ]
 
 [[package]]
