@@ -3,8 +3,7 @@ from pytest import mark
 
 from giskard_vision.landmark_detection.detectors import (
     CroppingDetectorLandmark,
-    EthnicityDetectorLandmark,
-    HeadPoseDetectorLandmark,
+    MetaDataScanDetectorLandmark,
     TransformationBlurringDetectorLandmark,
     TransformationColorDetectorLandmark,
     TransformationResizeDetectorLandmark,
@@ -16,8 +15,6 @@ from giskard_vision.landmark_detection.detectors.base import ScanResult
     "detector",
     [
         CroppingDetectorLandmark,
-        HeadPoseDetectorLandmark,
-        EthnicityDetectorLandmark,
         TransformationBlurringDetectorLandmark,
         TransformationColorDetectorLandmark,
         TransformationResizeDetectorLandmark,
@@ -35,3 +32,13 @@ def test_base_detector(opencv_model, dataset_300w, detector):
     assert isinstance(results, list)
     assert len(issues) > 0
     assert isinstance(issues[0], Issue)
+
+
+def test_meta_detector(opencv_model, dataset_ffhq):
+    results = MetaDataScanDetectorLandmark().get_results(opencv_model, dataset_ffhq)
+    assert isinstance(results, list)
+
+    issues = MetaDataScanDetectorLandmark().get_issues(
+        opencv_model, dataset_ffhq, results, (IssueLevel.MINOR, IssueLevel.MEDIUM, IssueLevel.MAJOR)
+    )
+    assert isinstance(issues, list)

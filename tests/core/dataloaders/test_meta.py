@@ -55,11 +55,8 @@ def test_meta():
     assert not MetaData.is_scannable({6, 7}), "is_scannable method test failed for set"
 
     # Test get_scannable method
-    expected_scannable = {
-        "key1": "value1",
-        "key2": 123,
-    }
-    assert meta.get_scannable() == expected_scannable, "get_scannable method test failed"
+    expected_scannable = ["key1", "key2"]
+    assert meta.get_scannables() == expected_scannable, "get_scannables method test failed"
 
     # Test get_categories method
     assert meta.get_categories() == categories, "get_categories method test failed"

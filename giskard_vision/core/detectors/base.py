@@ -37,6 +37,7 @@ class ScanResult:
     slice_size: int
     filename_examples: Optional[Sequence[str]]
     relative_delta: float
+    issue_group: Optional[IssueGroup] = None
 
     def get_meta_required(self) -> dict:
         # Get the meta required by the original scan API
@@ -70,6 +71,7 @@ class DetectorVisionBase:
     warning_messages: dict
     issue_level_threshold: float = 0.2
     deviation_threshold: float = 0.05
+    num_images: int = 0
 
     def run(
         self,
@@ -78,13 +80,21 @@ class DetectorVisionBase:
         features: Optional[Any] = None,
         issue_levels: Tuple[Any] = None,
         embed: bool = True,
+        num_images: int = 0,
     ) -> Sequence[Any]:
+        self.num_images = num_images
         results = self.get_results(model, dataset)
         issues = self.get_issues(model, dataset, results=results, issue_levels=issue_levels, embed=embed)
         return issues
 
     def get_issues(
-        self, model: Any, dataset: Any, results: List[ScanResult], issue_levels: Tuple[Any], embed: bool = True
+        self,
+        model: Any,
+        dataset: Any,
+        results: List[ScanResult],
+        issue_levels: Tuple[Any],
+        embed: bool = True,
+        num_images: int = 0,
     ) -> Sequence[Any]:
         """
         Returns a list of giskard Issue from results output by get_results
@@ -120,7 +130,7 @@ class DetectorVisionBase:
                         dataset,
                         level=result.issue_level,
                         slicing_fn=result.name,
-                        group=self.issue_group,
+                        group=result.issue_group if result.issue_group else self.issue_group,
                         meta=result.get_meta_required(),
                         scan_examples=ImagesScanExamples(result.filename_examples, embed=embed),
                         display_footer_info=False,

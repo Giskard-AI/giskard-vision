@@ -18,7 +18,7 @@ class ImageClassificationHFModel(HFPipelineModelBase):
         classification_labels: list of classification labels, where the position of the label corresponds to the class index
     """
 
-    model_type = "classification"
+    model_type = "image_classification"
     prediction_result_cls = Types.prediction_result
 
     def __init__(self, model_id: str, name: Optional[str] = None, device: str = "cpu"):
@@ -78,4 +78,4 @@ class SingleLabelImageClassificationHFModelWrapper(ImageClassificationHFModel):
             image (np.ndarray): input image
         """
         probas = self.predict_probas(image)
-        return np.array([self.classification_labels[np.argmax(probas)]])
+        return self.classification_labels[np.argmax(probas)]
