@@ -8,9 +8,19 @@ import numpy as np
 from giskard_vision.core.dataloaders.meta import MetaData
 from giskard_vision.core.dataloaders.tfds import DataLoaderTensorFlowDatasets
 from giskard_vision.core.dataloaders.utils import flatten_dict
+from giskard_vision.core.detectors.base import IssueGroup
 from giskard_vision.landmark_detection.types import Types
 
 from .base import DataLoaderBase
+
+EthicalIssueMeta = IssueGroup(
+    "Ethical",
+    description="The data are filtered by metadata like age, facial hair, or gender to detect ethical biases.",
+)
+PerformanceIssueMeta = IssueGroup(
+    "Performance",
+    description="The data are filtered by metadata like emotion, head pose, or exposure value to detect performance issues.",
+)
 
 
 class DataLoader300W(DataLoaderBase):
@@ -146,6 +156,18 @@ class DataLoaderFFHQ(DataLoaderBase):
         """
         return np.array(self.landmarks[idx])
 
+    def get_image_path(self, idx: int) -> str:
+        """
+        Get the image path for a specific index
+
+        Args:
+            idx (int): Index of the image
+
+        Returns:
+            str: Image path
+        """
+        return self.image_paths[idx]
+
     @staticmethod
     def process_hair_color_data(data: Dict[str, Any]) -> Dict[str, Any]:
         # Extract hair color information
@@ -173,6 +195,23 @@ class DataLoaderFFHQ(DataLoaderBase):
 
         return data
 
+    @staticmethod
+    def process_emotions_data(data: Dict[str, Any]) -> Dict[str, Any]:
+        emotions = {k: v for k, v in data.items() if "faceAttributes_emotion" in k}
+        # Find the emotion with the highest value
+
+        max_value = 0
+        emotion = None
+        for current_emotion in emotions:
+            if emotions[current_emotion] > max_value:
+                emotion = current_emotion.replace("faceAttributes_emotion_", "")
+            del data[current_emotion]
+
+        if emotion is not None:
+            data["emotion"] = emotion
+
+        return data
+
     def get_meta(self, idx: int) -> Optional[Dict[str, Any]]:
         """
         Gets metadata for a specific index and flattens it.
@@ -187,21 +226,56 @@ class DataLoaderFFHQ(DataLoaderBase):
             with Path(self.images_dir_path / f"{idx:05d}.json").open(encoding="utf-8") as fp:
                 meta = json.load(fp)
             flat_meta = self.process_hair_color_data(flatten_dict(meta[0]))
+            flat_meta = self.process_emotions_data(flat_meta)
+            flat_meta_without_prefix = {key.replace("faceAttributes_", ""): value for key, value in flat_meta.items()}
+            flat_meta_without_prefix.pop("confidence")
             return MetaData(
-                data=flat_meta,
+                data=flat_meta_without_prefix,
                 categories=[
-                    "faceAttributes_gender",
-                    "faceAttributes_glasses",
-                    "faceAttributes_exposure_exposureLevel",
-                    "faceAttributes_noise_noiseLevel",
-                    "faceAttributes_makeup_eyeMakeup",
-                    "faceAttributes_makeup_lipMakeup",
-                    "faceAttributes_occlusion_foreheadOccluded",
-                    "faceAttributes_occlusion_eyeOccluded",
-                    "faceAttributes_occlusion_mouthOccluded",
-                    "faceAttributes_hair_invisible",
+                    "gender",
+                    "glasses",
+                    "exposure_exposureLevel",
+                    "noise_noiseLevel",
+                    "makeup_eyeMakeup",
+                    "makeup_lipMakeup",
+                    "occlusion_foreheadOccluded",
+                    "occlusion_eyeOccluded",
+                    "occlusion_mouthOccluded",
+                    "hair_invisible",
                     "hairColor",
+                    "emotion",
                 ],
+                issue_groups={
+                    "faceRectangle_top": PerformanceIssueMeta,
+                    "faceRectangle_left": PerformanceIssueMeta,
+                    "faceRectangle_width": PerformanceIssueMeta,
+                    "faceRectangle_height": PerformanceIssueMeta,
+                    "smile": PerformanceIssueMeta,
+                    "headPose_pitch": PerformanceIssueMeta,
+                    "headPose_roll": PerformanceIssueMeta,
+                    "headPose_yaw": PerformanceIssueMeta,
+                    "gender": EthicalIssueMeta,
+                    "age": EthicalIssueMeta,
+                    "facialHair_moustache": EthicalIssueMeta,
+                    "facialHair_beard": EthicalIssueMeta,
+                    "facialHair_sideburns": EthicalIssueMeta,
+                    "glasses": EthicalIssueMeta,
+                    "emotion": PerformanceIssueMeta,
+                    "blur_blurLevel": PerformanceIssueMeta,
+                    "blur_value": PerformanceIssueMeta,
+                    "exposure_exposureLevel": PerformanceIssueMeta,
+                    "exposure_value": PerformanceIssueMeta,
+                    "noise_noiseLevel": PerformanceIssueMeta,
+                    "noise_value": PerformanceIssueMeta,
+                    "makeup_eyeMakeup": EthicalIssueMeta,
+                    "makeup_lipMakeup": EthicalIssueMeta,
+                    "occlusion_foreheadOccluded": PerformanceIssueMeta,
+                    "occlusion_eyeOccluded": PerformanceIssueMeta,
+                    "occlusion_mouthOccluded": PerformanceIssueMeta,
+                    "hair_bald": EthicalIssueMeta,
+                    "hair_invisible": PerformanceIssueMeta,
+                    "hairColor": EthicalIssueMeta,
+                },
             )
         except FileNotFoundError:
             return None

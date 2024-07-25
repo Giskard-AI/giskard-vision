@@ -1,3 +1,7 @@
+import atexit
+import os
+import shutil
+import tempfile
 from typing import Optional
 
 from giskard_vision.core.dataloaders.base import DataIteratorBase
@@ -46,6 +50,8 @@ class HFDataLoader(DataIteratorBase):
 
         self.dataset_split = hf_split
         self.dataset_config = hf_config
+        self.temp_folder = tempfile.mkdtemp()
+        atexit.register(self.cleanup)
 
         try:
             import datasets
@@ -72,3 +78,26 @@ class HFDataLoader(DataIteratorBase):
             List: List of image indices for data loading.
         """
         return self._idx_sampler
+
+    def get_image_path(self, idx: int) -> str:
+        """
+        Gets the image path given an image index
+
+        Args:
+            idx (int): Image index
+
+        Returns:
+            str: Image path
+        """
+
+        image = self.ds[idx]["image"]
+        image_path = os.path.join(self.temp_folder, f"image_{idx}.png")
+        image.save(image_path)
+
+        return image_path
+
+    def cleanup(self):
+        """
+        Clean the temporary folder
+        """
+        shutil.rmtree(self.temp_folder)

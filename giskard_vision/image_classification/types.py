@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from typing import Tuple
 
-import numpy as np
-
 from giskard_vision.core.types import (
     IMAGE_TYPE,
     META_TYPE,
@@ -10,7 +8,7 @@ from giskard_vision.core.types import (
     TypesBase,
 )
 
-CLASSIFICATION_LABELS_TYPE = np.ndarray  # An n-dimension array of class labels
+CLASSIFICATION_LABELS_TYPE = str
 
 
 @dataclass

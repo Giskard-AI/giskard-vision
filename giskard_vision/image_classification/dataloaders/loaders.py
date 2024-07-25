@@ -6,7 +6,17 @@ from giskard_vision.core.dataloaders.hf import HFDataLoader
 from giskard_vision.core.dataloaders.meta import MetaData
 from giskard_vision.core.dataloaders.tfds import DataLoaderTensorFlowDatasets
 from giskard_vision.core.dataloaders.utils import flatten_dict
+from giskard_vision.core.detectors.base import IssueGroup
 from giskard_vision.image_classification.types import Types
+
+EthicalIssueMeta = IssueGroup(
+    "Ethical",
+    description="The data are filtered by metadata like age, facial hair, or gender to detect ethical biases.",
+)
+PerformanceIssueMeta = IssueGroup(
+    "Performance",
+    description="The data are filtered by metadata like emotion, head pose, or exposure value to detect performance issues.",
+)
 
 
 class DataLoaderGeirhosConflictStimuli(DataLoaderTensorFlowDatasets):
@@ -58,7 +68,7 @@ class DataLoaderGeirhosConflictStimuli(DataLoaderTensorFlowDatasets):
         """
         row = self.get_row(idx)
         label_class = self.info.features["shape_label"].names[row["shape_label"]]
-        return np.array([label_class])
+        return str(label_class)
 
     def get_meta(self, idx: int) -> Optional[Types.meta]:
         """
@@ -135,7 +145,7 @@ class DataLoaderSkinCancerHuggingFaceDataset(HFDataLoader):
         Returns:
             Optional[np.ndarray]: label.
         """
-        return np.array([self.ds[idx]["dx"]])
+        return str(self.ds[idx]["dx"])
 
     def get_meta(self, idx: int) -> Optional[Types.meta]:
         """
@@ -160,8 +170,83 @@ class DataLoaderSkinCancerHuggingFaceDataset(HFDataLoader):
         ]
         flat_meta = flatten_dict(row, excludes=meta_exclude_keys, flat_np_array=True)
 
-        return MetaData(
-            data=flat_meta,
-            categories=list(flat_meta.keys()),
-            # TODO: Add issue group
-        )
+        issue_groups = {key: PerformanceIssueMeta for key in flat_meta}
+        issue_groups["age"] = EthicalIssueMeta
+        issue_groups["sex"] = EthicalIssueMeta
+
+        return MetaData(data=flat_meta, categories=["sex", "localization"], issue_groups=issue_groups)
+
+
+class DataLoaderCifar100HuggingFaceDataset(HFDataLoader):
+    """
+    A data loader for the `uoft-cs/cifar100` dataset on HF, extending the HFDataLoader class.
+
+    Args:
+        name (Optional[str]): Name of the data loader instance.
+        dataset_config (Optional[str]): Specifies the dataset config, defaulting to None.
+        dataset_split (str): Specifies the dataset split, defaulting to "test".
+    """
+
+    def __init__(
+        self, name: Optional[str] = None, dataset_config: Optional[str] = None, dataset_split: str = "test"
+    ) -> None:
+        """
+        Initializes the DataLoaderCifar100HuggingFaceDataset instance.
+
+        Args:
+            name (Optional[str]): Name of the data loader instance.
+            dataset_config (Optional[str]): Specifies the dataset config, defaulting to None.
+            dataset_split (str): Specifies the dataset split, defaulting to "test".
+        """
+        super().__init__("uoft-cs/cifar100", dataset_config, dataset_split, name)
+
+    def get_image(self, idx: int) -> Any:
+        """
+        Retrieves the image at the specified index in the dataset.
+
+        Args:
+            idx (int): Index of the image to retrieve.
+
+        Returns:
+            np.ndarray: The image data.
+        """
+        return self.ds[idx]["img"]
+
+    def get_labels(self, idx: int) -> Optional[np.ndarray]:
+        """
+        Retrieves label of the image at the specified index.
+
+        Args:
+            idx (int): Index of the image.
+
+        Returns:
+            Optional[np.ndarray]: label.
+        """
+        label_index = self.ds[idx]["fine_label"]
+        label_string = self.ds.features["fine_label"].names[label_index]
+        return str(label_string)
+
+    def get_meta(self, idx: int) -> Optional[Types.meta]:
+        """
+        Returns metadata associated with the image at the specified index.
+
+        Args:
+            idx (int): Index of the image.
+
+        Returns:
+            Optional[Types.meta]: Metadata associated with the image, currently None.
+        """
+        row = self.ds[idx]
+
+        meta_exclude_keys = [
+            # Exclude input and output
+            "img",
+            "fine_label",
+        ]
+        flat_meta = flatten_dict(row, excludes=meta_exclude_keys, flat_np_array=True)
+        # Update the label to be human-readable
+        flat_meta["coarse_label"] = self.ds.features["coarse_label"].names[row["coarse_label"]]
+
+        issue_groups = {key: PerformanceIssueMeta for key in flat_meta}
+
+        return MetaData(data=flat_meta, categories=["coarse_label"], issue_groups=issue_groups)

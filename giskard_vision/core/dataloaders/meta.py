@@ -1,5 +1,7 @@
 from typing import Any, Dict, List, Optional
 
+from giskard_vision.core.detectors.base import IssueGroup
+
 
 class MetaData:
     """
@@ -16,10 +18,12 @@ class MetaData:
         get_categories() -> Optional[List[str]]: Returns the categories of the metadata.
     """
 
-    data: Dict[str, Any]
-    categories: Optional[List[str]]
-
-    def __init__(self, data: Dict[str, Any], categories: Optional[List[str]] = None):
+    def __init__(
+        self,
+        data: Dict[str, Any],
+        categories: Optional[List[str]] = None,
+        issue_groups: Optional[Dict[str, IssueGroup]] = None,
+    ):
         """
         Constructs all the necessary attributes for the MetaData object.
 
@@ -29,6 +33,7 @@ class MetaData:
         """
         self._data = data
         self._categories = categories
+        self._issue_groups = issue_groups
 
     @property
     def data(self) -> Dict[str, Any]:
@@ -49,6 +54,25 @@ class MetaData:
             Optional[List[str]]: The categorical keys.
         """
         return self._categories
+
+    @property
+    def issue_groups(self) -> Optional[Dict[str, IssueGroup]]:
+        """
+        Returns the IssueGroup map
+
+        Returns:
+            Optional[Dict[str, IssueGroup]]: IssueGroups of the metadata.
+        """
+        return self._issue_groups
+
+    def issue_group(self, key: str) -> IssueGroup:
+        """
+        Returns the IssueGroup for a specific metadata.
+
+        Returns:
+            IssueGroup: IssueGroup of the metadata.
+        """
+        return self._issue_groups[key] if (self._issue_groups and key in self._issue_groups) else None
 
     def get(self, key: str) -> Any:
         """
@@ -99,14 +123,14 @@ class MetaData:
         """
         return not isinstance(value, (list, tuple, dict, set))
 
-    def get_scannable(self) -> Dict[str, Any]:
+    def get_scannables(self) -> List[str]:
         """
         Returns only the non-iterable items from the metadata.
 
         Returns:
-            Dict[str, Any]: A dictionary of non-iterable items from the metadata.
+            List[str]: A list of non-iterable items from the metadata.
         """
-        return {k: v for k, v in self.data.items() if self.is_scannable(v)}
+        return list({k: v for k, v in self.data.items() if self.is_scannable(v)}.keys())
 
     def get_categories(self) -> Optional[List[str]]:
         """

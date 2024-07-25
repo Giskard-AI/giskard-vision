@@ -16,9 +16,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-MAX_ISSUES_PER_DETECTOR = 15
-
-
 class Scanner:
     def __init__(self, params: Optional[dict] = None, only=None):
         """Scanner for model issues & vulnerabilities.
@@ -40,7 +37,9 @@ class Scanner:
         self.only = only
         self.uuid = uuid.uuid4()
 
-    def analyze(self, model, dataset, verbose=True, raise_exceptions=False, embed=True):
+    def analyze(
+        self, model, dataset, verbose=True, raise_exceptions=False, embed=True, num_images=0, max_issues_per_group=15
+    ):
         """Runs the analysis of a model and dataset, detecting issues.
         Parameters
         ----------
@@ -55,6 +54,11 @@ class Scanner:
             handled gracefully, without interrupting the scan.
         embed : bool
             Whether to embed images into html
+        num_images : int
+            Number of images to display per issue in the html report
+        max_issues_per_group : int
+            Maximal number of issues per issue group
+
         Returns
         -------
         ScanReport
@@ -76,7 +80,14 @@ class Scanner:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             issues, errors = self._run_detectors(
-                detectors, model, dataset, verbose=verbose, raise_exceptions=raise_exceptions, embed=embed
+                detectors,
+                model,
+                dataset,
+                verbose=verbose,
+                raise_exceptions=raise_exceptions,
+                embed=embed,
+                num_images=num_images,
+                max_issues_per_group=max_issues_per_group,
             )
 
         # Scan completed
@@ -87,7 +98,17 @@ class Scanner:
 
         return ScanReport(issues, model=model, dataset=dataset)
 
-    def _run_detectors(self, detectors, model, dataset, verbose=True, raise_exceptions=False, embed=True):
+    def _run_detectors(
+        self,
+        detectors,
+        model,
+        dataset,
+        verbose=True,
+        raise_exceptions=False,
+        embed=True,
+        num_images=0,
+        max_issues_per_group=15,
+    ):
         if not detectors:
             raise RuntimeError("No issue detectors available. Scan will not be performed.")
 
@@ -99,7 +120,7 @@ class Scanner:
             maybe_print(f"Running detector {detector.__class__.__name__}…", verbose=verbose)
             detector_start = perf_counter()
             try:
-                detected_issues = detector.run(model, dataset, embed=embed)
+                detected_issues = detector.run(model, dataset, embed=embed, num_images=num_images)
             except Exception as err:
                 logger.error(f"Detector {detector.__class__.__name__} failed with error: {err}")
                 errors.append((detector, err))
@@ -107,14 +128,29 @@ class Scanner:
                     raise err
 
                 detected_issues = []
-            detected_issues = sorted(detected_issues, key=lambda i: -i.importance)[:MAX_ISSUES_PER_DETECTOR]
             detector_elapsed = perf_counter() - detector_start
+
+            # The number of detected issues here is inflated for now
             maybe_print(
                 f"{detector.__class__.__name__}: {len(detected_issues)} issue{'s' if len(detected_issues) > 1 else ''} detected. (Took {datetime.timedelta(seconds=detector_elapsed)})",
                 verbose=verbose,
             )
 
             issues.extend(detected_issues)
+
+        # Group issues by their issue group
+        issue_groups = {issue.group for issue in issues}
+
+        # For each group, sort the issues by importance (descending) and limit to max_issues_per_group
+        grouped_issues = [
+            sorted([issue for issue in issues if issue.group == group], key=lambda issue: -issue.importance)[
+                :max_issues_per_group
+            ]
+            for group in issue_groups
+        ]
+
+        # Flatten the list of grouped issues into a single list
+        issues = [issue for group in grouped_issues for issue in group]
 
         return issues, errors
 
@@ -129,11 +165,12 @@ class Scanner:
         detectors = []
         classes = DetectorRegistry.get_detector_classes(tags=tags)
 
-        # Filter detector classes
-        if self.only:
-            only_classes = DetectorRegistry.get_detector_classes(tags=self.only)
-            keys_to_keep = set(only_classes.keys()).intersection(classes.keys())
-            classes = {k: classes[k] for k in keys_to_keep}
+        # Filter vision detector classes
+        vision_classes = DetectorRegistry.get_detector_classes(tags=["vision"])
+        keys_to_keep = set(classes.keys()).intersection(vision_classes.keys())
+        if self.only is not None:
+            keys_to_keep = keys_to_keep.intersection(DetectorRegistry.get_detector_classes(tags=self.only))
+        classes = {k: classes[k] for k in keys_to_keep}
 
         # Configure instances
         for name, detector_cls in classes.items():
