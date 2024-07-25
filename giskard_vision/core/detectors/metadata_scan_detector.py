@@ -133,6 +133,11 @@ class MetaDataScanDetector(DetectorVisionBase):
 
         for i in range(len(dataset)):
             try:
+                metadata = dataset.get_meta(i)
+
+                if not metadata or not metadata.data:
+                    continue  # Skip if metadata is empty
+
                 image = dataset.get_image(i)
                 prediction = np.array([model.predict_image(image)])  # batch of 1 prediction
                 ground_truth = np.array([dataset.get_labels(i)])  # batch of 1 ground truth
