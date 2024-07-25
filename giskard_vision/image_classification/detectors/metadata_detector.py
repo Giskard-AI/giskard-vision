@@ -22,7 +22,7 @@ class AccuracyMetric(Accuracy):
 
 @maybe_detector("metadata_classification", tags=["vision", "image_classification", "metadata"])
 class MetaDataScanDetectorClassification(MetaDataScanDetector):
-    surrogate_function = convert_prediction
+    surrogate_functions = {"convert_prediction": convert_prediction}
     metric = AccuracyMetric
     type_task = "classification"
     metric_type = "absolute"
