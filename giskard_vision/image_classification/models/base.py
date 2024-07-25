@@ -78,4 +78,4 @@ class SingleLabelImageClassificationHFModelWrapper(ImageClassificationHFModel):
             image (np.ndarray): input image
         """
         probas = self.predict_probas(image)
-        return np.array([self.classification_labels[np.argmax(probas)]])
+        return self.classification_labels[np.argmax(probas)]
