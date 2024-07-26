@@ -143,7 +143,9 @@ class MetaDataScanDetector(DetectorVisionBase):
             feature_names=list_metadata + ["index"],
             classification_labels=model.classification_labels if self.type_task == "classification" else None,
         )
-        results = scan(giskard_model, giskard_dataset, max_issues_per_detector=None, verbose=False)
+        results = scan(
+            giskard_model, giskard_dataset, max_issues_per_detector=None, verbose=False, raise_exceptions=True
+        )
 
         return giskard_dataset, results
 

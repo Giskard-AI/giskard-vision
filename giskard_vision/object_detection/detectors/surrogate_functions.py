@@ -136,6 +136,8 @@ SurrogateDistanceFromCenter = Surrogate("distance_from_center", distance_from_ce
 @staticmethod
 def mean_intensity(result, image):
     x_min, y_min, x_max, y_max = result[0]["boxes"]
+    y_min = max(0, y_min)
+    x_min = max(0, x_min)
     roi = image[int(y_min) : int(y_max), int(x_min) : int(x_max)]
     mean_intensity = roi.mean()
     return mean_intensity
@@ -147,6 +149,8 @@ SurrogateMeanIntensity = Surrogate("mean_intensity", mean_intensity)
 @staticmethod
 def std_intensity(result, image):
     x_min, y_min, x_max, y_max = result[0]["boxes"]
+    y_min = max(0, y_min)
+    x_min = max(0, x_min)
     roi = image[int(y_min) : int(y_max), int(x_min) : int(x_max)]
     std_intensity = roi.std()
     return std_intensity
