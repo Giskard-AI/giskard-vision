@@ -1,4 +1,9 @@
+from typing import Any
+
+import numpy as np
+
 from giskard_vision.core.models.base import ModelBase
+from giskard_vision.object_detection.models.base import ObjectDetectionHFModel
 from giskard_vision.utils.errors import GiskardImportError
 
 from ..types import Types
@@ -202,3 +207,34 @@ class FasterRCNNWheat(FasterRCNNBase):
         """
         image = self.transform(image=image)["image"]
         return image
+
+
+class DetrFinetunedFaceDetectionHuggingFaceModel(ObjectDetectionHFModel):
+    """Wrapper class for goshiv's detr finetuned face detection model on Hugging Face.
+
+    Args:
+        name (str): The name of the model.
+        device (str): The device to run the model on.
+    """
+
+    def __init__(self, name: str = None, device: str = "cpu"):
+        super().__init__(
+            model_id="goshiv/detr-finetuned-face",
+            name=name,
+            device=device,
+        )
+
+    def predict_image(self, image: np.ndarray) -> Any:
+        raw_predictions = super().predict_raw(image)
+
+        # Filter out predictions with a highest score
+        best_prediction = max(raw_predictions, key=lambda x: x["score"])
+
+        return np.array(
+            [
+                best_prediction["box"]["xmin"],
+                best_prediction["box"]["ymin"],
+                best_prediction["box"]["xmax"],
+                best_prediction["box"]["ymax"],
+            ]
+        )

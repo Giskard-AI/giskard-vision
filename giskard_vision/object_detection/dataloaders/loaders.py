@@ -1,8 +1,11 @@
+from typing import Dict, Optional
+
 import numpy as np
 from numpy import ndarray
 
 from giskard_vision.core.dataloaders.hf import HFDataLoader
 from giskard_vision.core.dataloaders.meta import MetaData
+from giskard_vision.landmark_detection.dataloaders.loaders import DataLoader300W
 
 
 class WheatDataset(HFDataLoader):
@@ -112,3 +115,27 @@ class WheatDataset(HFDataLoader):
         data = {self.ds[idx][elt] for elt in meta_list}
 
         return MetaData(data, categories=meta_list)
+
+
+class DataLoader300WFaceDetection(DataLoader300W):
+    """Data loader for the 300W dataset for face detection. Ref: https://ibug.doc.ic.ac.uk/resources/300-W/"""
+
+    def get_labels(self, idx: int) -> Optional[Dict[str, np.ndarray]]:
+        """
+        Gets marks for a specific index after validation.
+
+        Args:
+            idx (int): Index of the data.
+
+        Returns:
+            Optional[np.ndarray]: Marks for the given index.
+        """
+        landmarks = super().get_labels(idx)
+
+        if landmarks is None:
+            return None
+
+        min_point = np.min(landmarks, axis=0)
+        max_point = np.max(landmarks, axis=0)
+
+        return np.array([min_point[0], min_point[1], max_point[0], max_point[1]])
