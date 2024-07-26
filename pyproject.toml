@@ -56,7 +56,8 @@ dev = [
     "tensorflow-io-gcs-filesystem==0.34; platform_machine == 'arm64' and sys_platform == 'darwin'", # The only wheel for ARM64 Mac
     "giskard>=2.14.3",
     "datasets>=2.20.0",
-    "tomli>=2.0.1", # needed for black
+    "tomli>=2.0.1", # needed for black in py3.10
+    "exceptiongroup>=1.2.2", # needed for pdm test in py3.10
 ]
 
 [tool.ruff]
