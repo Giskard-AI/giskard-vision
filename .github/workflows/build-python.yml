@@ -66,6 +66,10 @@ jobs:
           pdm run pip uninstall -y opencv-contrib-python
           pdm run pip install opencv-contrib-python
 
+      - name: Ensure torch is installed correctly on gh runner
+        run: |
+          pdm run pip install -U torch==2.1.0+cu121 torchvision==0.16.0+cu121 --index-url https://download.pytorch.org/whl/cu121
+
       - name: Verify linting, format
         run: pdm check-format
 

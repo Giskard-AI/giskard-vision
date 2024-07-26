@@ -341,6 +341,9 @@ class RacoonDetection(ModelBase):
 
         return np.array([x0, y0, x1, y1])
 
+    def positive_constraint(self, boxes):
+        np.clip(boxes, 0, None)
+
     def predict_image(self, image: np.ndarray):
         try:
             from keras.applications.mobilenet import preprocess_input
@@ -350,4 +353,4 @@ class RacoonDetection(ModelBase):
         resized_image = cv2.resize(image, (self.image_size, self.image_size))
         feat_scaled = preprocess_input(np.array(resized_image, dtype=np.float32))
         boxes = self.model.predict(x=np.array([feat_scaled]))[0]
-        return {"boxes": self.shape_rescale(image, boxes), "labels": "racoon"}
+        return {"boxes": self.positive_constraint(self.shape_rescale(image, boxes)), "labels": "racoon"}
