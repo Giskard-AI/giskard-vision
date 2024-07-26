@@ -323,18 +323,6 @@ class RacoonDataLoader(DataIteratorBase):
 class DataLoader300WFaceDetection(DataLoader300W):
     """Data loader for the 300W dataset for face detection. Ref: https://ibug.doc.ic.ac.uk/resources/300-W/"""
 
-    def get_image(self, idx: int) -> np.ndarray:
-        """
-        Retrieves the image at the specified index in the dataset.
-
-        Args:
-            idx (int): Index of the image to retrieve.
-
-        Returns:
-            np.ndarray: The image data.
-        """
-        return self.get_row(idx)[self.image_key]
-
     def get_labels(self, idx: int) -> Optional[np.ndarray]:
         """
         Gets marks for a specific index after validation.
