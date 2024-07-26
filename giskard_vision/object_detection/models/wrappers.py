@@ -213,6 +213,7 @@ class FasterRCNNWheat(FasterRCNNBase):
 
 class RacoonDetection(ModelBase):
     model_weights: str = "racoon_detection.h5"
+    model_type: str = "object_detection"
     image_size: int = 128
     alpha: float = 1.0
 

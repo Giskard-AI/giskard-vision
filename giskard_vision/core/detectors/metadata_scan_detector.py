@@ -85,26 +85,27 @@ class MetaDataScanDetector(DetectorVisionBase):
 
             # For each slice found, get appropriate scan results with the metric
             for issue in results.issues:
-                current_data_slice = giskard_dataset.slice(issue.slicing_fn)
-                indices = list(current_data_slice.df.sort_values(by="metric", ascending=False)["index"].values)
-                if not self.check_slice_already_selected(issue.slicing_fn.meta.display_name, current_issues):
-                    current_issues.append(issue.slicing_fn.meta.display_name)
-                    filenames = (
-                        [dataset.get_image_path(int(idx)) for idx in indices[: self.num_images]]
-                        if hasattr(dataset, "get_image_path")
-                        else []
-                    )
-                    list_scan_results.append(
-                        self.get_scan_result(
-                            metric_value=current_data_slice.df["metric"].mean(),
-                            metric_reference_value=giskard_dataset.df["metric"].mean(),
-                            metric_name=self.metric.name,
-                            filename_examples=filenames,
-                            name=issue.slicing_fn.meta.display_name,
-                            size_data=len(current_data_slice.df),
-                            issue_group=meta.issue_group(issue.features[0]),
+                if issue.slicing_fn is not None:
+                    current_data_slice = giskard_dataset.slice(issue.slicing_fn)
+                    indices = list(current_data_slice.df.sort_values(by="metric", ascending=False)["index"].values)
+                    if not self.check_slice_already_selected(issue.slicing_fn.meta.display_name, current_issues):
+                        current_issues.append(issue.slicing_fn.meta.display_name)
+                        filenames = (
+                            [dataset.get_image_path(int(idx)) for idx in indices[: self.num_images]]
+                            if hasattr(dataset, "get_image_path")
+                            else []
                         )
-                    )
+                        list_scan_results.append(
+                            self.get_scan_result(
+                                metric_value=current_data_slice.df["metric"].mean(),
+                                metric_reference_value=giskard_dataset.df["metric"].mean(),
+                                metric_name=self.metric.name,
+                                filename_examples=filenames,
+                                name=issue.slicing_fn.meta.display_name,
+                                size_data=len(current_data_slice.df),
+                                issue_group=meta.issue_group(issue.features[0]),
+                            )
+                        )
 
         return list_scan_results
 
@@ -131,6 +132,8 @@ class MetaDataScanDetector(DetectorVisionBase):
         prediction_function = self.get_prediction_function(surrogate, model, df_for_scan)
 
         # Create Giskard dataset and model, and get scan results
+        if list_categories is None:
+            list_categories = []
         giskard_dataset = Dataset(
             df=df_for_scan, target=f"target_{surrogate.name}", cat_columns=list_categories + ["index"]
         )

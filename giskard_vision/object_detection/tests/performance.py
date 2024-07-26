@@ -14,8 +14,8 @@ class IoU(Metric):
     @staticmethod
     def definition(prediction_result: Types.prediction_result, ground_truth: Types.label):
 
-        if prediction_result.prediction.item().get("labels") != ground_truth.item().get("labels"):
-            return 0
+        # if prediction_result.prediction.item().get("labels") != ground_truth.item().get("labels"):
+        #     return 0
 
         gt_box = prediction_result.prediction.item().get("boxes")
         pred_box = ground_truth.item().get("boxes")
