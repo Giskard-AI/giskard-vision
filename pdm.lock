@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:d811c854f3ae039cce5930f1a248c556c2c20845a0910b7149b7873bbef8eaeb"
+content_hash = "sha256:90af620382d94999be3574e046c2a054b520fbad84db82dce10ea58f4ffc2947"
 
 [[package]]
 name = "absl-py"
@@ -3333,6 +3333,20 @@ dependencies = [
     "torchmetrics>=0.7.0",
     "tqdm>=4.57.0",
     "typing-extensions>=4.4.0",
+]
+files = [
+    {file = "pytorch-lightning-2.3.3.tar.gz", hash = "sha256:5f974015425af6873b5689246c5495ca12686b446751479273c154b73aeea843"},
+    {file = "pytorch_lightning-2.3.3-py3-none-any.whl", hash = "sha256:4365e3f2874e223e63cb42628d24c88c2bdc8d1794453cac38c0619b31115fba"},
+]
+
+[[package]]
+name = "pytz"
+version = "2024.1"
+summary = "World timezone definitions, modern and historical"
+groups = ["dev"]
+files = [
+    {file = "pytz-2024.1-py2.py3-none-any.whl", hash = "sha256:328171f4e3623139da4983451950b28e95ac706e13f3f2630a879749e7a8b319"},
+    {file = "pytz-2024.1.tar.gz", hash = "sha256:2a29735ea9c18baf14b448846bde5a48030ed267578472d8955cd0e7443a9812"},
 ]
 
 [[package]]
