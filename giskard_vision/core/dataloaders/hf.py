@@ -5,6 +5,9 @@ import tempfile
 from typing import Optional
 
 from giskard_vision.core.dataloaders.base import DataIteratorBase
+from giskard_vision.core.dataloaders.meta import MetaData, get_pil_image_depth
+from giskard_vision.core.types import TypesBase
+from giskard_vision.image_classification.dataloaders.loaders import PerformanceIssueMeta
 from giskard_vision.utils.errors import GiskardError, GiskardImportError
 
 
@@ -101,3 +104,25 @@ class HFDataLoader(DataIteratorBase):
         Clean the temporary folder
         """
         shutil.rmtree(self.temp_folder)
+
+    def meta_auto(self, idx: int) -> TypesBase.meta:
+        """
+        Returns auto-retrieved meta data for image.
+
+        Returns:
+            Optional[TypesBase.meta]: Default for meta data.
+        """
+        meta = super().meta_auto(idx)
+        img = self.get_image(idx)
+
+        return MetaData(
+            data={
+                **meta.data,
+                "depth": get_pil_image_depth(img),
+            },
+            categories=["depth"] + meta.categories,
+            issue_groups={
+                **meta.issue_groups,
+                "depth": PerformanceIssueMeta,
+            },
+        )

@@ -4,6 +4,13 @@ from typing import List, Optional
 
 import numpy as np
 
+from giskard_vision.core.dataloaders.meta import (
+    MetaData,
+    get_image_channel_number,
+    get_image_size,
+)
+from giskard_vision.image_classification.dataloaders.loaders import PerformanceIssueMeta
+
 from ..types import TypesBase
 
 
@@ -108,9 +115,34 @@ class DataIteratorBase(ABC):
         Returns default for meta data if it is None.
 
         Returns:
-            Optional[np.ndarray]: Default for meta data.
+            Optional[TypesBase.meta]: Default for meta data.
         """
         return None
+
+    def meta_auto(self, idx: int) -> TypesBase.meta:
+        """
+        Returns auto-retrieved meta data for image.
+
+        Returns:
+            Optional[TypesBase.meta]: Default for meta data.
+        """
+        img = self.get_image(idx)
+        size = get_image_size(img)
+        nb_channels = get_image_channel_number(img)
+
+        return MetaData(
+            data={
+                "width": size[0],
+                "height": size[1],
+                "nb_channels": nb_channels,
+            },
+            categories=["nb_channels"],
+            issue_groups={
+                "width": PerformanceIssueMeta,
+                "height": PerformanceIssueMeta,
+                "nb_channels": PerformanceIssueMeta,
+            },
+        )
 
     def get_labels(self, idx: int) -> Optional[np.ndarray]:
         """
