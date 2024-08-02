@@ -1,4 +1,7 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
+
+import numpy as np
+import PIL.Image.Image as PILImage
 
 from giskard_vision.core.detectors.base import IssueGroup
 
@@ -140,3 +143,66 @@ class MetaData:
             Optional[List[str]]: The categories of the metadata, or None if no categories were provided.
         """
         return self.categories
+
+
+def get_image_size(image: np.ndarray) -> Tuple[int, int]:
+    """
+    Utitlity to create metadata with image size.
+
+    Args:
+        image (np.ndarray): The numpy ndarray representation of an image.
+
+    Returns:
+        Tuple[int, int]: The image size, width and height.
+    """
+    return image.shape[:2]
+
+
+def get_image_channel_number(image: np.ndarray) -> int:
+    """
+    Utitlity to create metadata with image channel number.
+
+    Args:
+        image (np.ndarray): The numpy ndarray representation of an image.
+
+    Returns:
+        int: The image channel number.
+    """
+    shape = image.shape
+    return shape[2] if len(shape) > 2 else 1
+
+
+def get_pil_image_depth(image: PILImage) -> int:
+    """
+    Utitlity to create metadata with image depth.
+
+    Args:
+        image (PILImage): The PIL Image object.
+
+    Returns:
+        int: The image depth.
+    """
+    mode = image.mode
+    if mode == "1":
+        return 1
+    elif mode == "L":
+        return 8
+    elif mode == "P":
+        return 8
+    elif mode == "RGB":
+        return 24
+    elif mode == "RGBA":
+        return 32
+    elif mode == "CMYK":
+        return 32
+    elif mode == "YCbCr":
+        return 24
+    elif mode == "LAB":
+        return 24
+    elif mode == "HSV":
+        return 24
+    elif mode == "I":
+        return 32
+    elif mode == "F":
+        return 32
+    return 0
