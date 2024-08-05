@@ -115,7 +115,7 @@ class WheatDataset(HFDataLoader):
             MetaData | None: Metadata associated with the image.
         """
         meta_list = ["domain", "country", "location", "development_stage"]
-        data = {self.ds[idx][elt] for elt in meta_list}
+        data = {elt: self.ds[idx][elt] for elt in meta_list}
 
         return MetaData(data, categories=meta_list)
 
