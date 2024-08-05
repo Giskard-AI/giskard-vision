@@ -9,7 +9,7 @@ from giskard_vision.core.dataloaders.meta import (
     get_image_channel_number,
     get_image_size,
 )
-from giskard_vision.image_classification.dataloaders.loaders import PerformanceIssueMeta
+from giskard_vision.core.detectors.base import PerformanceIssueMeta
 
 from ..types import TypesBase
 

@@ -2,21 +2,14 @@ from typing import Any, Optional
 
 import numpy as np
 
+from PIL.Image import Image as PILImage
+
 from giskard_vision.core.dataloaders.hf import HFDataLoader
 from giskard_vision.core.dataloaders.meta import MetaData
 from giskard_vision.core.dataloaders.tfds import DataLoaderTensorFlowDatasets
 from giskard_vision.core.dataloaders.utils import flatten_dict
-from giskard_vision.core.detectors.base import IssueGroup
+from giskard_vision.core.detectors.base import EthicalIssueMeta, PerformanceIssueMeta
 from giskard_vision.image_classification.types import Types
-
-EthicalIssueMeta = IssueGroup(
-    "Ethical",
-    description="The data are filtered by metadata like age, facial hair, or gender to detect ethical biases.",
-)
-PerformanceIssueMeta = IssueGroup(
-    "Performance",
-    description="The data are filtered by metadata like emotion, head pose, or exposure value to detect performance issues.",
-)
 
 
 class DataLoaderGeirhosConflictStimuli(DataLoaderTensorFlowDatasets):
@@ -123,7 +116,19 @@ class DataLoaderSkinCancerHuggingFaceDataset(HFDataLoader):
         """
         super().__init__("marmal88/skin_cancer", dataset_config, dataset_split, name)
 
-    def get_image(self, idx: int) -> Any:
+    def get_raw_hf_image(self, idx: int) -> PILImage:
+        """
+        Retrieves the image at the specified index in the HF dataset.
+
+        Args:
+            idx (int): Index of the image to retrieve.
+
+        Returns:
+            PIL.Image.Image: The image instance.
+        """
+        return self.ds[idx]["image"]
+
+    def get_image(self, idx: int) -> np.ndarray:
         """
         Retrieves the image at the specified index in the dataset.
 
@@ -133,7 +138,9 @@ class DataLoaderSkinCancerHuggingFaceDataset(HFDataLoader):
         Returns:
             np.ndarray: The image data.
         """
-        return self.ds[idx]["image"]
+        raw_img = self.get_raw_hf_image(idx)
+
+        return np.array(raw_img)
 
     def get_labels(self, idx: int) -> Optional[np.ndarray]:
         """
@@ -200,7 +207,19 @@ class DataLoaderCifar100HuggingFaceDataset(HFDataLoader):
         """
         super().__init__("uoft-cs/cifar100", dataset_config, dataset_split, name)
 
-    def get_image(self, idx: int) -> Any:
+    def get_raw_hf_image(self, idx: int) -> PILImage:
+        """
+        Retrieves the image at the specified index in the HF dataset.
+
+        Args:
+            idx (int): Index of the image to retrieve.
+
+        Returns:
+            PIL.Image.Image: The image instance.
+        """
+        return self.ds[idx]["img"]
+
+    def get_image(self, idx: int) -> np.ndarray:
         """
         Retrieves the image at the specified index in the dataset.
 
@@ -210,7 +229,9 @@ class DataLoaderCifar100HuggingFaceDataset(HFDataLoader):
         Returns:
             np.ndarray: The image data.
         """
-        return self.ds[idx]["img"]
+        raw_img = self.get_raw_hf_image(idx)
+
+        return np.array(raw_img)
 
     def get_labels(self, idx: int) -> Optional[np.ndarray]:
         """

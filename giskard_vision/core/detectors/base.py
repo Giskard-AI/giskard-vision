@@ -169,3 +169,13 @@ class DetectorVisionBase:
             List of ScanResult objects containing evaluation results
         """
         ...
+
+
+EthicalIssueMeta = IssueGroup(
+    "Ethical",
+    description="The data are filtered by metadata like age, facial hair, or gender to detect ethical biases.",
+)
+PerformanceIssueMeta = IssueGroup(
+    "Performance",
+    description="The data are filtered by metadata like emotion, head pose, or exposure value to detect performance issues.",
+)

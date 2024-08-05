@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
-import PIL.Image.Image as PILImage
+from PIL.Image import Image as PILImage
 
 from giskard_vision.core.detectors.base import IssueGroup
 

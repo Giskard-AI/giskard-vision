@@ -1,3 +1,4 @@
+from abc import abstractmethod
 import atexit
 import os
 import shutil
@@ -6,9 +7,11 @@ from typing import Optional
 
 from giskard_vision.core.dataloaders.base import DataIteratorBase
 from giskard_vision.core.dataloaders.meta import MetaData, get_pil_image_depth
+from giskard_vision.core.detectors.base import PerformanceIssueMeta
 from giskard_vision.core.types import TypesBase
-from giskard_vision.image_classification.dataloaders.loaders import PerformanceIssueMeta
 from giskard_vision.utils.errors import GiskardError, GiskardImportError
+
+from PIL.Image import Image as PILImage
 
 
 class HFDataLoader(DataIteratorBase):
@@ -105,6 +108,18 @@ class HFDataLoader(DataIteratorBase):
         """
         shutil.rmtree(self.temp_folder)
 
+    @abstractmethod
+    def get_raw_hf_image(self, idx: int) -> PILImage:
+        """
+        Retrieves the raw image at the specified index in the HF dataset.
+        Args:
+            idx (int): Index of the image
+
+        Returns:
+            PIL.Image.Image: The image instance.
+        """
+        ...
+
     def meta_auto(self, idx: int) -> TypesBase.meta:
         """
         Returns auto-retrieved meta data for image.
@@ -113,7 +128,7 @@ class HFDataLoader(DataIteratorBase):
             Optional[TypesBase.meta]: Default for meta data.
         """
         meta = super().meta_auto(idx)
-        img = self.get_image(idx)
+        img = self.get_raw_hf_image(idx)
 
         return MetaData(
             data={
