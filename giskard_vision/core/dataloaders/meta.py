@@ -1,8 +1,8 @@
 from typing import Any, Dict, List, Optional, Tuple
 
+import cv2
 import numpy as np
 from PIL.Image import Image as PILImage
-import cv2
 
 from giskard_vision.core.detectors.base import IssueGroup
 
@@ -221,3 +221,19 @@ def get_brightness(image: np.ndarray) -> float:
     """
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     return np.mean(hsv[:, :, 2]) / 255
+
+
+def get_entropy(image: np.ndarray) -> float:
+    """
+    Utitlity to create metadata with image entropy.
+
+    Args:
+        image (np.ndarray): The numpy ndarray representation of an image.
+
+    Returns:
+        float: The image entropy.
+    """
+    hist = cv2.calcHist([image], [0], None, [256], [0, 256])
+    hist /= hist.sum()
+    # Add eps to avoid log(0)
+    return -np.sum(hist * np.log2(hist + np.finfo(float).eps))

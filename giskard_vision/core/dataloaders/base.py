@@ -8,6 +8,7 @@ import numpy as np
 from giskard_vision.core.dataloaders.meta import (
     MetaData,
     get_brightness,
+    get_entropy,
     get_image_channel_number,
     get_image_size,
 )
@@ -144,6 +145,7 @@ class DataIteratorBase(ABC):
                 "average_color_g": avg_color[1] if avg_color.shape[0] > 0 else avg_color[0],
                 "average_color_b": avg_color[2] if avg_color.shape[0] > 0 else avg_color[0],
                 "contrast": np.max(gray_img) - np.min(gray_img),
+                "entropy": get_entropy(img),
             },
             categories=["nb_channels"],
             issue_groups={
@@ -154,6 +156,7 @@ class DataIteratorBase(ABC):
                 "average_color_g": PerformanceIssueMeta,
                 "average_color_b": PerformanceIssueMeta,
                 "contrast": PerformanceIssueMeta,
+                "entropy": PerformanceIssueMeta,
             },
         )
 
