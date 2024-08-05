@@ -2,6 +2,7 @@ import math
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
+import cv2
 import numpy as np
 
 from giskard_vision.core.dataloaders.meta import (
@@ -128,8 +129,10 @@ class DataIteratorBase(ABC):
             Optional[TypesBase.meta]: Default for meta data.
         """
         img = self.get_image(idx)
+        gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         size = get_image_size(img)
         nb_channels = get_image_channel_number(img)
+        avg_color = np.mean(img, axis=(0, 1))
 
         return MetaData(
             data={
@@ -137,12 +140,20 @@ class DataIteratorBase(ABC):
                 "width": size[1],
                 "nb_channels": nb_channels,
                 "brightness": get_brightness(img),
+                "average_color_r": avg_color[0],
+                "average_color_g": avg_color[1] if avg_color.shape[0] > 0 else avg_color[0],
+                "average_color_b": avg_color[2] if avg_color.shape[0] > 0 else avg_color[0],
+                "contrast": np.max(gray_img) - np.min(gray_img),
             },
             categories=["nb_channels"],
             issue_groups={
                 "width": PerformanceIssueMeta,
                 "height": PerformanceIssueMeta,
                 "nb_channels": PerformanceIssueMeta,
+                "average_color_r": PerformanceIssueMeta,
+                "average_color_g": PerformanceIssueMeta,
+                "average_color_b": PerformanceIssueMeta,
+                "contrast": PerformanceIssueMeta,
             },
         )
 
