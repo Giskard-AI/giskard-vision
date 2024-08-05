@@ -37,7 +37,11 @@ class HFDataLoader(DataIteratorBase):
     """
 
     def __init__(
-        self, hf_id: str, hf_config: Optional[str] = None, hf_split: str = "test", name: Optional[str] = None
+        self,
+        hf_id: str,
+        hf_config: Optional[str] = None,
+        hf_split: str = "test",
+        name: Optional[str] = None,
     ) -> None:
         """
         Initializes the general HuggingFace Datasets instance.
