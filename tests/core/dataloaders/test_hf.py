@@ -1,5 +1,7 @@
 import numpy as np
+import PIL
 import pytest
+from PIL.Image import Image as PILImage
 
 from giskard_vision.core.dataloaders.hf import HFDataLoader
 from giskard_vision.utils.errors import GiskardError
@@ -8,6 +10,9 @@ from giskard_vision.utils.errors import GiskardError
 class TestHFDataLoader(HFDataLoader):
     def __init__(self, split):
         super().__init__(hf_id="giskard-bot/evaluator-leaderboard", hf_split=split)
+
+    def get_raw_hf_image(self, idx: int) -> PILImage:
+        return PIL.Image.fromarray(self.get_image(idx), "RGB")
 
     def get_image(self, idx: int) -> np.ndarray:
         # Fake image data
