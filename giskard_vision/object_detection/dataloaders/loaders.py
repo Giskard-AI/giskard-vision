@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import cv2
 import numpy as np
