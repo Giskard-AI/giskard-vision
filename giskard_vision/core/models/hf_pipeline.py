@@ -19,9 +19,9 @@ class HFPipelineModelBase(ModelBase):
         """init method that accepts a model object, number of landmarks and dimensions
 
         Args:
-            model_id (str): Hugging Face model ID
-            name (Optional[str]): name of the model
-            pipeline_task (HFPipelineTask): HuggingFace pipeline task
+            model_id (str): Hugging Face model ID.
+            name (Optional[str]): name of the model.
+            pipeline_task (HFPipelineTask): HuggingFace pipeline task.
 
         Raises:
             GiskardImportError: If there are missing Hugging Face dependencies.
