@@ -2,6 +2,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 from PIL.Image import Image as PILImage
+import cv2
 
 from giskard_vision.core.detectors.base import IssueGroup
 
@@ -206,3 +207,17 @@ def get_pil_image_depth(image: PILImage) -> int:
     elif mode == "F":
         return 32
     return 0
+
+
+def get_brightness(image: np.ndarray) -> float:
+    """
+    Utitlity to create metadata with image brightness.
+
+    Args:
+        image (np.ndarray): The numpy ndarray representation of an image.
+
+    Returns:
+        float: The image brightness normalized to 1.
+    """
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    return np.mean(hsv[:, :, 2]) / 255

@@ -6,6 +6,7 @@ import numpy as np
 
 from giskard_vision.core.dataloaders.meta import (
     MetaData,
+    get_brightness,
     get_image_channel_number,
     get_image_size,
 )
@@ -135,6 +136,7 @@ class DataIteratorBase(ABC):
                 "height": size[0],
                 "width": size[1],
                 "nb_channels": nb_channels,
+                "brightness": get_brightness(img),
             },
             categories=["nb_channels"],
             issue_groups={
