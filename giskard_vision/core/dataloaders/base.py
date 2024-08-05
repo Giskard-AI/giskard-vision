@@ -132,8 +132,8 @@ class DataIteratorBase(ABC):
 
         return MetaData(
             data={
-                "width": size[0],
-                "height": size[1],
+                "height": size[0],
+                "width": size[1],
                 "nb_channels": nb_channels,
             },
             categories=["nb_channels"],
