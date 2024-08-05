@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional, Union
 
 import cv2
 import numpy as np
@@ -152,13 +152,13 @@ class RacoonDataLoader(DataIteratorBase):
         images_dir_path = dir_path + "/Racoon Images/images/"
 
         self.data = pd.read_csv(dir_path + "/train_labels_.csv")
-        self.data = self.data[["width", "height", "xmin", "ymin", "xmax", "ymax"]]
+        self.data = self.data.sort_values("filename")
+        self.data = self.data[["filename", "width", "height", "xmin", "ymin", "xmax", "ymax"]]
 
         self.data = self._normalize_data(self.data)
 
         self._idx_sampler = list(range(len(self.data)))
         self.images_dir_path = self._get_absolute_local_path(images_dir_path)
-        self.image_paths = self._get_all_paths_based_on_suffix(self.images_dir_path, self.image_suffix)
 
     def _normalize_data(self, data: pd.DataFrame) -> pd.DataFrame:
         """
@@ -190,26 +190,6 @@ class RacoonDataLoader(DataIteratorBase):
         if not local_path.is_dir():
             raise ValueError(f"{self.__class__.__name__}: {local_path} does not exist or is not a directory")
         return local_path
-
-    @classmethod
-    def _get_all_paths_based_on_suffix(cls, dir_path: Path, suffix: str) -> List[Path]:
-        """
-        Gets all paths in a directory based on a specified suffix.
-
-        Args:
-            dir_path (Path): Path to the directory.
-            suffix (str): Suffix for filtering files.
-
-        Returns:
-            List[Path]: List of paths with the specified suffix.
-        """
-        all_paths_with_suffix = list(sorted([p for p in dir_path.iterdir() if p.suffix == suffix], key=str))
-        if len(all_paths_with_suffix) == 0:
-            raise ValueError(
-                f"{cls.__class__.__name__}: Labels with suffix {suffix}"
-                f" requested but no labels found in {dir_path}."
-            )
-        return all_paths_with_suffix
 
     def get_boxes_shape_rescale(self, idx: int) -> ndarray:
         image_height, image_width, _ = self.get_image(idx).shape
@@ -256,7 +236,8 @@ class RacoonDataLoader(DataIteratorBase):
         Returns:
             str: Image path
         """
-        return self.image_paths[idx]
+
+        return self.images_dir_path / self.data.iloc[idx]["filename"]
 
     def get_meta(self, idx: int) -> Optional[Dict[str, Any]]:
         """
@@ -309,4 +290,4 @@ class RacoonDataLoader(DataIteratorBase):
         Returns:
             np.ndarray: Image data.
         """
-        return self.load_image_from_file(self.image_paths[idx])
+        return self.load_image_from_file(self.get_image_path(idx))
