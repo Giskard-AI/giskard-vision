@@ -1,6 +1,7 @@
 from typing import Optional
 
 import numpy as np
+from PIL import Image
 
 from giskard_vision.core.models.hf_pipeline import HFPipelineModelBase, HFPipelineTask
 from giskard_vision.image_classification.types import Types
@@ -57,25 +58,30 @@ class SingleLabelImageClassificationHFModelWrapper(ImageClassificationHFModel):
         classification_labels: list of classification labels, where the position of the label corresponds to the class index
     """
 
-    def predict_probas(self, image: np.ndarray) -> np.ndarray:
+    def predict_probas(self, image: np.ndarray, mode="RGB") -> np.ndarray:
         """method that takes one image as input and outputs the prediction of probabilities for each class
 
         Args:
             image (np.ndarray): input image
+            mode (str): mode of the image
         """
+        pil_image = Image.fromarray(image, mode=mode)
+
+        # Pipeline takes a PIL image as input
         _raw_prediction = self.pipeline(
-            image,
+            pil_image,
             top_k=len(self.classification_labels),  # Get probabilities for all labels
         )
         _prediction = {p["label"]: p["score"] for p in _raw_prediction}
 
         return np.array([_prediction[label] for label in self.classification_labels])
 
-    def predict_image(self, image) -> Types.label:
+    def predict_image(self, image, mode="RGB") -> Types.label:
         """method that takes one image as input and outputs one class label
 
         Args:
             image (np.ndarray): input image
+            mode (str): mode of the image
         """
-        probas = self.predict_probas(image)
+        probas = self.predict_probas(image, mode=mode)
         return self.classification_labels[np.argmax(probas)]

@@ -1,7 +1,6 @@
-from typing import Any, Optional
+from typing import Optional
 
 import numpy as np
-
 from PIL.Image import Image as PILImage
 
 from giskard_vision.core.dataloaders.hf import HFDataLoader
