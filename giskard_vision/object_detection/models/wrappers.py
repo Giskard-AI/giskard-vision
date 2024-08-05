@@ -343,7 +343,7 @@ class RacoonDetection(ModelBase):
         return np.array([x0, y0, x1, y1])
 
     def positive_constraint(self, boxes):
-        np.clip(boxes, 0, None)
+        return np.clip(boxes, 0, None)
 
     def predict_image(self, image: np.ndarray):
         try:
