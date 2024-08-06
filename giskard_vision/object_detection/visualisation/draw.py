@@ -2,7 +2,7 @@ import cv2
 import matplotlib.pyplot as plt
 
 
-def draw_boxes(image_idx, dataset, model):
+def draw_boxes(image_idx, dataset, model=None):
     """
     Draws predicted and ground truth bounding boxes on the image.
 
@@ -19,17 +19,18 @@ def draw_boxes(image_idx, dataset, model):
     pboxes_gt = labels[0]["boxes"]
 
     # Get predictions from the model
-    predictions = model.predict_image(img[0])
-    pboxes = predictions["boxes"]
+    if model:
+        predictions = model.predict_image(img[0])
+        pboxes = predictions["boxes"]
 
-    # Draw predicted bounding box (in blue)
-    cv2.rectangle(
-        img[0],
-        (int(pboxes[0].item()), int(pboxes[1].item())),
-        (int(pboxes[2].item()), int(pboxes[3].item())),
-        (255, 0, 0),
-        2,
-    )
+        # Draw predicted bounding box (in blue)
+        cv2.rectangle(
+            img[0],
+            (int(pboxes[0].item()), int(pboxes[1].item())),
+            (int(pboxes[2].item()), int(pboxes[3].item())),
+            (255, 0, 0),
+            2,
+        )
 
     # Draw ground truth bounding box (in green)
     cv2.rectangle(

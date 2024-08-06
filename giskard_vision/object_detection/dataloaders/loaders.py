@@ -6,118 +6,11 @@ import numpy as np
 import pandas as pd
 from numpy import ndarray
 
-from giskard_vision.core.dataloaders.base import DataIteratorBase
+from giskard_vision.core.dataloaders.base import DataIteratorBase, PerformanceIssueMeta
 from giskard_vision.core.dataloaders.hf import HFDataLoader
 from giskard_vision.core.dataloaders.meta import MetaData
 
-
-class WheatDataset(HFDataLoader):
-    """
-    A dataset example for GWC 2021 competition.
-    Inherits from HFDataLoader to handle dataset loading and processing.
-
-    Attributes:
-        hf_id (str): The Hugging Face dataset identifier.
-        hf_config (str | None): The configuration name for the dataset.
-        hf_split (str): The dataset split (e.g., 'train', 'test').
-        name (str | None): An optional name for the dataset.
-    """
-
-    def __init__(self, hf_config: str | None = None, hf_split: str = "test", name: str | None = None) -> None:
-        """
-        Initializes the WheatDataset.
-
-        Args:
-            hf_config (str | None): The configuration name for the dataset.
-            hf_split (str): The dataset split (default is 'test').
-            name (str | None): An optional name for the dataset.
-        """
-        super().__init__(
-            hf_id="Etienne-David/GlobalWheatHeadDataset2021", hf_config=hf_config, hf_split=hf_split, name=name
-        )
-
-    @staticmethod
-    def format_bbox(boxes):
-        """
-        Formats bounding boxes from [x,y,w,h] to [x_min,y_min,x_max,y_max].
-
-        Args:
-            boxes (ndarray): Array of bounding boxes in [x, y, w, h] format.
-
-        Returns:
-            ndarray: Array of bounding boxes in [x_min, y_min, x_max, y_max] format.
-        """
-        boxes[:, 2] = boxes[:, 0] + boxes[:, 2]
-        boxes[:, 3] = boxes[:, 1] + boxes[:, 3]
-
-        return boxes
-
-    def single_object_area_filter(self, boxes):
-        """
-        Filters bounding boxes based on the highest area.
-
-        Args:
-            boxes (ndarray): Array of bounding boxes.
-
-        Returns:
-            int: Index of the bounding box with the largest area.
-        """
-        areas = (boxes[:, 2] - boxes[:, 0]) * (boxes[:, 3] - boxes[:, 1])
-        return areas.argmax()
-
-    def get_image(self, idx: int) -> ndarray:
-        """
-        Retrieves an image from the dataset.
-
-        Args:
-            idx (int): Index of the image in the dataset.
-
-        Returns:
-            ndarray: The image as a numpy array.
-        """
-        return np.array(self.ds[idx]["image"])
-
-    def get_labels(self, idx: int) -> ndarray | None:
-        """
-        Retrieves the labels (bounding boxes and categories) for an image in the dataset.
-
-        Args:
-            idx (int): Index of the image in the dataset.
-
-        Returns:
-            dict: A dictionary containing 'boxes' and 'labels'.
-        """
-        boxes = self.ds[idx]["objects"]["boxes"]
-        labels = self.ds[idx]["objects"]["categories"]
-
-        boxes = np.array(boxes) if boxes else np.zeros((0, 4))
-        boxes = self.format_bbox(boxes)
-
-        filter = self.single_object_area_filter(boxes)
-        boxes = boxes[filter]
-        labels = labels[filter]
-
-        if len(boxes) > 0:
-            boxes = np.stack([item for item in boxes])
-        else:
-            boxes = np.zeros((0, 4))
-
-        return {"boxes": boxes, "labels": labels}
-
-    def get_meta(self, idx: int) -> MetaData | None:
-        """
-        Retrieves the metadata for an image in the dataset.
-
-        Args:
-            idx (int): Index of the image in the dataset.
-
-        Returns:
-            MetaData | None: Metadata associated with the image.
-        """
-        meta_list = ["domain", "country", "location", "development_stage"]
-        data = {elt: self.ds[idx][elt] for elt in meta_list}
-
-        return MetaData(data, categories=meta_list)
+from ..types import Types
 
 
 class RacoonDataLoader(DataIteratorBase):
@@ -291,3 +184,98 @@ class RacoonDataLoader(DataIteratorBase):
             np.ndarray: Image data.
         """
         return self.load_image_from_file(self.get_image_path(idx))
+
+
+class DataLoaderFurnitureHuggingFaceDataset(HFDataLoader):
+    """
+    A data loader for the `Nfiniteai/living-room-passes` dataset on HF, extending the HFDataLoader class.
+
+    Args:
+        name (Optional[str]): Name of the data loader instance.
+        dataset_config (Optional[str]): Specifies the dataset config, defaulting to None.
+        dataset_split (str): Specifies the dataset split, defaulting to "test".
+    """
+
+    def __init__(
+        self, name: Optional[str] = None, dataset_config: Optional[str] = None, dataset_split: str = "train"
+    ) -> None:
+        """
+        Initializes the DataLoaderFurnitureHuggingFaceDataset instance.
+
+        Args:
+            name (Optional[str]): Name of the data loader instance.
+            dataset_config (Optional[str]): Specifies the dataset config, defaulting to None.
+            dataset_split (str): Specifies the dataset split, defaulting to "test".
+        """
+        super().__init__("Nfiniteai/living-room-passes", dataset_config, dataset_split, name)
+
+    def get_image(self, idx: int) -> Any:
+        """
+        Retrieves the image at the specified index in the dataset.
+
+        Args:
+            idx (int): Index of the image to retrieve.
+
+        Returns:
+            np.ndarray: The image data.
+        """
+        return np.array(self.ds[idx]["realtime_u"])
+
+    def get_boxes_shape_rescale(self, idx: int) -> ndarray:
+        image_height, image_width, _ = 1.0, 1.0, 1.0  # self.get_image(idx).shape
+
+        xmin = self.ds[idx]["bbox.x1"]
+        ymin = self.ds[idx]["bbox.y1"]
+        xmax = self.ds[idx]["bbox.x1"] + self.ds[idx]["bbox.width"]
+        ymax = self.ds[idx]["bbox.y1"] + self.ds[idx]["bbox.height"]
+
+        xmin *= image_width
+        xmax *= image_width
+        ymin *= image_height
+        ymax *= image_height
+
+        return np.array([xmin, ymin, xmax, ymax])
+
+    def get_labels(self, idx: int) -> Optional[np.ndarray]:
+        """
+        Gets landmark coordinates for a specific index.
+
+        Args:
+            idx (int): Index of the image.
+
+        Returns:
+            Optional[np.ndarray]: Landmark coordinates for the given index.
+        """
+
+        return {"boxes": self.get_boxes_shape_rescale(idx), "labels": str(self.ds[idx]["category"])}
+
+    def get_meta(self, idx: int) -> Optional[Types.meta]:
+        """
+        Returns metadata associated with the image at the specified index.
+
+        Args:
+            idx (int): Index of the image.
+
+        Returns:
+            Optional[Types.meta]: Metadata associated with the image, currently None.
+        """
+        row = self.ds[idx]
+
+        flat_meta = {
+            "depth": float(row["dimensions.depth"]),
+            "style": str(row["general_information.style"]),
+            "shape": str(row["general_information.shape"]),
+            "pattern": str(row["general_information.pattern"]),
+            "room": str(row["general_information.room"][0]),
+            "primary_material": str(row["materials_and_colors.primary_material"]),
+            "primary_color": str(row["materials_and_colors.primary_color"]),
+            "secondary_material": str(row["materials_and_colors.secondary_material"]),
+            "secondary_color": str(row["materials_and_colors.secondary_color"]),
+        }
+
+        categories = None  # list(flat_meta.keys())
+        # categories.remove("depth")
+
+        issue_groups = {key: PerformanceIssueMeta for key in flat_meta}
+
+        return MetaData(data=flat_meta, categories=categories, issue_groups=issue_groups)
