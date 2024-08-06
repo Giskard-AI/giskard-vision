@@ -56,7 +56,6 @@ class MetaDataScanDetector(DetectorVisionBase):
             self.metric_type = "relative" if self.type_task == "regression" else "absolute"
 
     def get_results(self, model: Any, dataset: Any) -> List[ScanResult]:
-
         if hasattr(dataset, "get_meta"):
             meta = dataset.get_meta(0)
         else:
@@ -74,7 +73,6 @@ class MetaDataScanDetector(DetectorVisionBase):
         list_scan_results = []
         current_issues = []
         for surrogate in self.surrogates:
-
             giskard_dataset, results = self.get_giskard_results_from_surrogate(
                 surrogate=surrogate,
                 model=model,
@@ -143,8 +141,12 @@ class MetaDataScanDetector(DetectorVisionBase):
             feature_names=list_metadata + ["index"],
             classification_labels=model.classification_labels if self.type_task == "classification" else None,
         )
+
         results = scan(
-            giskard_model, giskard_dataset, max_issues_per_detector=None, verbose=False, raise_exceptions=True
+            giskard_model,
+            giskard_dataset,
+            max_issues_per_detector=None,
+            verbose=False,  # raise_exceptions=True
         )
 
         return giskard_dataset, results
@@ -168,7 +170,6 @@ class MetaDataScanDetector(DetectorVisionBase):
                 return pd.merge(df, df_for_scan, on="index", how="inner")[f"prediction_{surrogate.name}"].values
 
         elif self.type_task == "classification":
-
             class_to_index = {label: index for index, label in enumerate(model.classification_labels)}
             n_classes = len(model.classification_labels)
 
@@ -224,7 +225,7 @@ class MetaDataScanDetector(DetectorVisionBase):
         # TODO: make this cleaner and more efficient with batch computations
         from tqdm import tqdm
 
-        for i in tqdm(range(len(dataset))):
+        for i in tqdm(range(min(200, len(dataset)))):
             try:
                 metadata = dataset.get_meta(i)
 
@@ -244,7 +245,6 @@ class MetaDataScanDetector(DetectorVisionBase):
                         df[name_metadata].append(None)
 
                 for surrogate in self.surrogates:
-
                     prediction_surrogate = (
                         surrogate.surrogate(prediction, image) if surrogate.surrogate is not None else prediction[0]
                     )

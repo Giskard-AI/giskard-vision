@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
@@ -262,7 +263,7 @@ class DataLoaderFurnitureHuggingFaceDataset(HFDataLoader):
         row = self.ds[idx]
 
         flat_meta = {
-            "depth": float(row["dimensions.depth"]),
+            # "depth": float(row["dimensions.depth"]),
             "style": str(row["general_information.style"]),
             "shape": str(row["general_information.shape"]),
             "pattern": str(row["general_information.pattern"]),
@@ -273,9 +274,29 @@ class DataLoaderFurnitureHuggingFaceDataset(HFDataLoader):
             "secondary_color": str(row["materials_and_colors.secondary_color"]),
         }
 
-        categories = None  # list(flat_meta.keys())
+        # Replace empty strings with "None"
+        flat_meta = {k: v if v != "" else "None" for k, v in flat_meta.items()}
+
+        categories = list(flat_meta.keys())
         # categories.remove("depth")
 
         issue_groups = {key: PerformanceIssueMeta for key in flat_meta}
 
         return MetaData(data=flat_meta, categories=categories, issue_groups=issue_groups)
+
+    def get_image_path(self, idx: int) -> str:
+        """
+        Gets the image path given an image index
+
+        Args:
+            idx (int): Image index
+
+        Returns:
+            str: Image path
+        """
+
+        image = self.ds[idx]["realtime_u"]
+        image_path = os.path.join(self.temp_folder, f"image_{idx}.png")
+        image.save(image_path)
+
+        return image_path
