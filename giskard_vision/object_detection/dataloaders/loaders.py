@@ -8,15 +8,17 @@ import numpy as np
 import pandas as pd
 from numpy import ndarray
 
-from giskard_vision.core.dataloaders.base import DataIteratorBase, PerformanceIssueMeta
+from giskard_vision.core.dataloaders.base import (
+    DataIteratorBase,
+    EthicalIssueMeta,
+    PerformanceIssueMeta,
+)
 from giskard_vision.core.dataloaders.hf import HFDataLoader
 from giskard_vision.core.dataloaders.meta import MetaData
 from giskard_vision.core.dataloaders.utils import flatten_dict
 from giskard_vision.landmark_detection.dataloaders.loaders import (
     DataLoader300W,
     DataLoaderFFHQ,
-    EthicalIssueMeta,
-    PerformanceIssueMeta,
 )
 
 from ..types import Types
@@ -220,8 +222,33 @@ class DataLoader300WFaceDetection(DataLoader300W):
         }
 
 
-class DataLoaderFFHQFaceDetection(DataLoaderFFHQ):
-    """Data loader for the FFHQ (Flickr-Faces-HQ) dataset for face detection."""
+class DataLoaderFFHQFaceDetectionLandmark(DataLoaderFFHQ):
+    """Data loader for the FFHQ (Flickr-Faces-HQ) dataset for face detection, using the boundary boxes around landmarks."""
+
+    def get_labels(self, idx: int) -> Optional[np.ndarray]:
+        """
+        Gets marks for a specific index after validation.
+        Args:
+            idx (int): Index of the data.
+        Returns:
+            Optional[np.ndarray]: Marks for the given index.
+        """
+        landmarks = super().get_labels(idx)
+
+        if landmarks is None:
+            return None
+
+        min_point = np.min(landmarks, axis=0)
+        max_point = np.max(landmarks, axis=0)
+
+        return {
+            "boxes": np.array([min_point[0], min_point[1], max_point[0], max_point[1]]),
+            "labels": "face",
+        }
+
+
+class DataLoaderFFHQFaceDetection(DataLoaderFFHQFaceDetectionLandmark):
+    """Data loader for the FFHQ (Flickr-Faces-HQ) dataset for face detection, using the annotated bourdary boxes."""
 
     def __init__(
         self,
@@ -272,104 +299,8 @@ class DataLoaderFFHQFaceDetection(DataLoaderFFHQ):
 
     def get_meta(self, idx: int) -> Optional[Dict[str, Any]]:
         """
-        Gets metadata for a specific index and flattens it.
-        Args:
-            idx (int): Index of the image.
-        Returns:
-            Optional[Dict[str, Any]]: Flattened metadata for the given index.
-        """
-        try:
-            with Path(self.images_dir_path / f"{idx:05d}.json").open(encoding="utf-8") as fp:
-                meta = json.load(fp)
-            flat_meta = self.process_hair_color_data(
-                flatten_dict(
-                    meta[0],
-                    excludes=[
-                        "faceRectangle_top",
-                        "faceRectangle_left",
-                        "faceRectangle_width",
-                        "faceRectangle_height",
-                    ],
-                )
-            )
-            flat_meta = self.process_emotions_data(flat_meta)
-            flat_meta_without_prefix = {key.replace("faceAttributes_", ""): value for key, value in flat_meta.items()}
-            flat_meta_without_prefix.pop("confidence")
-            return MetaData(
-                data=flat_meta_without_prefix,
-                categories=[
-                    "gender",
-                    "glasses",
-                    "exposure_exposureLevel",
-                    "noise_noiseLevel",
-                    "makeup_eyeMakeup",
-                    "makeup_lipMakeup",
-                    "occlusion_foreheadOccluded",
-                    "occlusion_eyeOccluded",
-                    "occlusion_mouthOccluded",
-                    "hair_invisible",
-                    "hairColor",
-                    "emotion",
-                ],
-                issue_groups={
-                    "smile": PerformanceIssueMeta,
-                    "headPose_pitch": PerformanceIssueMeta,
-                    "headPose_roll": PerformanceIssueMeta,
-                    "headPose_yaw": PerformanceIssueMeta,
-                    "gender": EthicalIssueMeta,
-                    "age": EthicalIssueMeta,
-                    "facialHair_moustache": EthicalIssueMeta,
-                    "facialHair_beard": EthicalIssueMeta,
-                    "facialHair_sideburns": EthicalIssueMeta,
-                    "glasses": EthicalIssueMeta,
-                    "emotion": PerformanceIssueMeta,
-                    "blur_blurLevel": PerformanceIssueMeta,
-                    "blur_value": PerformanceIssueMeta,
-                    "exposure_exposureLevel": PerformanceIssueMeta,
-                    "exposure_value": PerformanceIssueMeta,
-                    "noise_noiseLevel": PerformanceIssueMeta,
-                    "noise_value": PerformanceIssueMeta,
-                    "makeup_eyeMakeup": EthicalIssueMeta,
-                    "makeup_lipMakeup": EthicalIssueMeta,
-                    "occlusion_foreheadOccluded": PerformanceIssueMeta,
-                    "occlusion_eyeOccluded": PerformanceIssueMeta,
-                    "occlusion_mouthOccluded": PerformanceIssueMeta,
-                    "hair_bald": EthicalIssueMeta,
-                    "hair_invisible": PerformanceIssueMeta,
-                    "hairColor": EthicalIssueMeta,
-                },
-            )
-        except FileNotFoundError:
-            return None
+        Gets metadata for a specific index and flattens it. Exclude faceRectangle data.
 
-
-class DataLoaderFFHQFaceDetectionLandmark(DataLoaderFFHQ):
-    """Data loader for the FFHQ (Flickr-Faces-HQ) dataset for face detection."""
-
-    def get_labels(self, idx: int) -> Optional[np.ndarray]:
-        """
-        Gets marks for a specific index after validation.
-        Args:
-            idx (int): Index of the data.
-        Returns:
-            Optional[np.ndarray]: Marks for the given index.
-        """
-        landmarks = super().get_labels(idx)
-
-        if landmarks is None:
-            return None
-
-        min_point = np.min(landmarks, axis=0)
-        max_point = np.max(landmarks, axis=0)
-
-        return {
-            "boxes": np.array([min_point[0], min_point[1], max_point[0], max_point[1]]),
-            "labels": "face",
-        }
-
-    def get_meta(self, idx: int) -> Optional[Dict[str, Any]]:
-        """
-        Gets metadata for a specific index and flattens it.
         Args:
             idx (int): Index of the image.
         Returns:
