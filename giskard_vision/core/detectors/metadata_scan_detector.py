@@ -56,7 +56,6 @@ class MetaDataScanDetector(DetectorVisionBase):
             self.metric_type = "relative" if self.type_task == "regression" else "absolute"
 
     def get_results(self, model: Any, dataset: Any) -> List[ScanResult]:
-
         if hasattr(dataset, "get_meta"):
             meta = dataset.get_meta(0)
         else:
@@ -74,7 +73,6 @@ class MetaDataScanDetector(DetectorVisionBase):
         list_scan_results = []
         current_issues = []
         for surrogate in self.surrogates:
-
             giskard_dataset, results = self.get_giskard_results_from_surrogate(
                 surrogate=surrogate,
                 model=model,
@@ -85,26 +83,27 @@ class MetaDataScanDetector(DetectorVisionBase):
 
             # For each slice found, get appropriate scan results with the metric
             for issue in results.issues:
-                current_data_slice = giskard_dataset.slice(issue.slicing_fn)
-                indices = list(current_data_slice.df.sort_values(by="metric", ascending=False)["index"].values)
-                if not self.check_slice_already_selected(issue.slicing_fn.meta.display_name, current_issues):
-                    current_issues.append(issue.slicing_fn.meta.display_name)
-                    filenames = (
-                        [dataset.get_image_path(int(idx)) for idx in indices[: self.num_images]]
-                        if hasattr(dataset, "get_image_path")
-                        else []
-                    )
-                    list_scan_results.append(
-                        self.get_scan_result(
-                            metric_value=current_data_slice.df["metric"].mean(),
-                            metric_reference_value=giskard_dataset.df["metric"].mean(),
-                            metric_name=self.metric.name,
-                            filename_examples=filenames,
-                            name=issue.slicing_fn.meta.display_name,
-                            size_data=len(current_data_slice.df),
-                            issue_group=meta.issue_group(issue.features[0]),
+                if issue.slicing_fn is not None:
+                    current_data_slice = giskard_dataset.slice(issue.slicing_fn)
+                    indices = list(current_data_slice.df.sort_values(by="metric", ascending=False)["index"].values)
+                    if not self.check_slice_already_selected(issue.slicing_fn.meta.display_name, current_issues):
+                        current_issues.append(issue.slicing_fn.meta.display_name)
+                        filenames = (
+                            [dataset.get_image_path(int(idx)) for idx in indices[: self.num_images]]
+                            if hasattr(dataset, "get_image_path")
+                            else []
                         )
-                    )
+                        list_scan_results.append(
+                            self.get_scan_result(
+                                metric_value=current_data_slice.df["metric"].mean(),
+                                metric_reference_value=giskard_dataset.df["metric"].mean(),
+                                metric_name=self.metric.name,
+                                filename_examples=filenames,
+                                name=issue.slicing_fn.meta.display_name,
+                                size_data=len(current_data_slice.df),
+                                issue_group=meta.issue_group(issue.features[0]),
+                            )
+                        )
 
         return list_scan_results
 
@@ -131,6 +130,8 @@ class MetaDataScanDetector(DetectorVisionBase):
         prediction_function = self.get_prediction_function(surrogate, model, df_for_scan)
 
         # Create Giskard dataset and model, and get scan results
+        if list_categories is None:
+            list_categories = []
         giskard_dataset = Dataset(
             df=df_for_scan, target=f"target_{surrogate.name}", cat_columns=list_categories + ["index"]
         )
@@ -140,7 +141,13 @@ class MetaDataScanDetector(DetectorVisionBase):
             feature_names=list_metadata + ["index"],
             classification_labels=model.classification_labels if self.type_task == "classification" else None,
         )
-        results = scan(giskard_model, giskard_dataset, max_issues_per_detector=None, verbose=False)
+
+        results = scan(
+            giskard_model,
+            giskard_dataset,
+            max_issues_per_detector=None,
+            verbose=False,  # raise_exceptions=True
+        )
 
         return giskard_dataset, results
 
@@ -163,7 +170,6 @@ class MetaDataScanDetector(DetectorVisionBase):
                 return pd.merge(df, df_for_scan, on="index", how="inner")[f"prediction_{surrogate.name}"].values
 
         elif self.type_task == "classification":
-
             class_to_index = {label: index for index, label in enumerate(model.classification_labels)}
             n_classes = len(model.classification_labels)
 
@@ -217,8 +223,9 @@ class MetaDataScanDetector(DetectorVisionBase):
         # we need the metadata, labels and image path on an individual basis,
         # and sometimes the model may fail on an image.
         # TODO: make this cleaner and more efficient with batch computations
+        from tqdm import tqdm
 
-        for i in range(len(dataset)):
+        for i in tqdm(range(min(200, len(dataset)))):
             try:
                 metadata = dataset.get_meta(i)
 
@@ -238,7 +245,6 @@ class MetaDataScanDetector(DetectorVisionBase):
                         df[name_metadata].append(None)
 
                 for surrogate in self.surrogates:
-
                     prediction_surrogate = (
                         surrogate.surrogate(prediction, image) if surrogate.surrogate is not None else prediction[0]
                     )
