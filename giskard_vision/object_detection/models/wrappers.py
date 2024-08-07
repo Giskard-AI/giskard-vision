@@ -137,19 +137,20 @@ class FurnitureDetection(MobileNetBase):
 
         data = []
         batch_images = np.zeros((train_len, self.image_size, self.image_size, 3), dtype=np.float32)
-        for i in tqdm(range(train_len)):
+        for i, idx in enumerate(tqdm(range(len(ds) - 1, len(ds) - train_len - 1, -1))):  # starting from the end of ds
+            img = ds[i]["realtime_u"]
+
             data.append(
                 {
-                    "width": ds[i]["bbox.width"],
-                    "height": ds[i]["bbox.height"],
-                    "xmin": ds[i]["bbox.x1"],
-                    "ymin": ds[i]["bbox.y1"],
-                    "xmax": ds[i]["bbox.x1"] + ds[i]["bbox.width"],
-                    "ymax": ds[i]["bbox.y1"] + ds[i]["bbox.height"],
+                    "width": np.array(img).shape[0],  # ds[i]["bbox.width"] / ds[i]["dimensions.width"],
+                    "height": np.array(img).shape[1],  # ds[i]["bbox.height"] / ds[i]["dimensions.height"],
+                    "xmin": ds[idx]["bbox.x1"],
+                    "ymin": ds[idx]["bbox.y1"],
+                    "xmax": ds[idx]["bbox.x1"] + ds[idx]["bbox.width"],
+                    "ymax": ds[idx]["bbox.y1"] + ds[idx]["bbox.height"],
                 }
             )
 
-            img = ds[i]["realtime_u"]
             img = img.resize((self.image_size, self.image_size))
             img = img.convert("RGB")
             batch_images[i] = preprocess_input(np.array(img, dtype=np.float32))
@@ -171,13 +172,13 @@ class FurnitureDetection(MobileNetBase):
 
         PATIENCE = 10
 
-        self.model.compile(optimizer="Adam", loss="mse", metrics=[self.IoU])
+        self.model.compile(optimizer="Adam", loss="mse", metrics=[super().IoU])
 
         stop = EarlyStopping(monitor="IoU", patience=PATIENCE, mode="max")
 
         reduce_lr = ReduceLROnPlateau(monitor="IoU", factor=0.2, patience=PATIENCE, min_lr=1e-7, verbose=1, mode="max")
 
-        self.model.fit(batch_images, ground_truth_df, epochs=100, callbacks=[stop, reduce_lr], verbose=2)
+        self.model.fit(batch_images, ground_truth_df, epochs=500, callbacks=[stop, reduce_lr], verbose=2)
 
 
 class RacoonDetection(MobileNetBase):
@@ -234,7 +235,7 @@ class RacoonDetection(MobileNetBase):
 
         PATIENCE = 10
 
-        self.model.compile(optimizer="Adam", loss="mse", metrics=[self.IoU])
+        self.model.compile(optimizer="Adam", loss="mse", metrics=[super().IoU])
 
         stop = EarlyStopping(monitor="IoU", patience=PATIENCE, mode="max")
 
