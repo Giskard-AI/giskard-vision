@@ -8,14 +8,9 @@ import numpy as np
 import pandas as pd
 from numpy import ndarray
 
-from giskard_vision.core.dataloaders.base import (
-    DataIteratorBase,
-    EthicalIssueMeta,
-    PerformanceIssueMeta,
-)
+from giskard_vision.core.dataloaders.base import DataIteratorBase, PerformanceIssueMeta
 from giskard_vision.core.dataloaders.hf import HFDataLoader
 from giskard_vision.core.dataloaders.meta import MetaData
-from giskard_vision.core.dataloaders.utils import flatten_dict
 from giskard_vision.landmark_detection.dataloaders.loaders import (
     DataLoader300W,
     DataLoaderFFHQ,
@@ -306,69 +301,21 @@ class DataLoaderFFHQFaceDetection(DataLoaderFFHQFaceDetectionLandmark):
         Returns:
             Optional[Dict[str, Any]]: Flattened metadata for the given index.
         """
-        try:
-            with Path(self.images_dir_path / f"{idx:05d}.json").open(encoding="utf-8") as fp:
-                meta = json.load(fp)
-            flat_meta = self.process_hair_color_data(
-                flatten_dict(
-                    meta[0],
-                    excludes=[
-                        "faceRectangle_top",
-                        "faceRectangle_left",
-                        "faceRectangle_width",
-                        "faceRectangle_height",
-                    ],
-                )
-            )
-            flat_meta = self.process_emotions_data(flat_meta)
-            flat_meta_without_prefix = {key.replace("faceAttributes_", ""): value for key, value in flat_meta.items()}
-            flat_meta_without_prefix.pop("confidence")
-            return MetaData(
-                data=flat_meta_without_prefix,
-                categories=[
-                    "gender",
-                    "glasses",
-                    "exposure_exposureLevel",
-                    "noise_noiseLevel",
-                    "makeup_eyeMakeup",
-                    "makeup_lipMakeup",
-                    "occlusion_foreheadOccluded",
-                    "occlusion_eyeOccluded",
-                    "occlusion_mouthOccluded",
-                    "hair_invisible",
-                    "hairColor",
-                    "emotion",
-                ],
-                issue_groups={
-                    "smile": PerformanceIssueMeta,
-                    "headPose_pitch": PerformanceIssueMeta,
-                    "headPose_roll": PerformanceIssueMeta,
-                    "headPose_yaw": PerformanceIssueMeta,
-                    "gender": EthicalIssueMeta,
-                    "age": EthicalIssueMeta,
-                    "facialHair_moustache": EthicalIssueMeta,
-                    "facialHair_beard": EthicalIssueMeta,
-                    "facialHair_sideburns": EthicalIssueMeta,
-                    "glasses": EthicalIssueMeta,
-                    "emotion": PerformanceIssueMeta,
-                    "blur_blurLevel": PerformanceIssueMeta,
-                    "blur_value": PerformanceIssueMeta,
-                    "exposure_exposureLevel": PerformanceIssueMeta,
-                    "exposure_value": PerformanceIssueMeta,
-                    "noise_noiseLevel": PerformanceIssueMeta,
-                    "noise_value": PerformanceIssueMeta,
-                    "makeup_eyeMakeup": EthicalIssueMeta,
-                    "makeup_lipMakeup": EthicalIssueMeta,
-                    "occlusion_foreheadOccluded": PerformanceIssueMeta,
-                    "occlusion_eyeOccluded": PerformanceIssueMeta,
-                    "occlusion_mouthOccluded": PerformanceIssueMeta,
-                    "hair_bald": EthicalIssueMeta,
-                    "hair_invisible": PerformanceIssueMeta,
-                    "hairColor": EthicalIssueMeta,
-                },
-            )
-        except FileNotFoundError:
+        meta = super().get_meta(idx)
+        if meta is None:
             return None
+
+        excludes = [
+            "faceRectangle_top",
+            "faceRectangle_left",
+            "faceRectangle_width",
+            "faceRectangle_height",
+        ]
+        return MetaData(
+            data={k: v for k, v in meta.data.items() if k not in excludes},
+            categories=[c for c in meta.categories if c not in excludes],
+            issue_groups={k: v for k, v in meta.issue_groups.items() if k not in excludes},
+        )
 
 
 class DataLoaderFurnitureHuggingFaceDataset(HFDataLoader):
