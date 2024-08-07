@@ -89,7 +89,7 @@ class MetaDataScanDetector(DetectorVisionBase):
                     if not self.check_slice_already_selected(issue.slicing_fn.meta.display_name, current_issues):
                         current_issues.append(issue.slicing_fn.meta.display_name)
                         filenames = (
-                            [dataset.get_image_path(int(idx)) for idx in indices[: self.num_images]]
+                            [dataset.get_image_path(int(idx)) for idx in indices[: min(self.num_images, len(indices))]]
                             if hasattr(dataset, "get_image_path")
                             else []
                         )

@@ -29,7 +29,7 @@ def scan(
     only: Optional[List[str]] = None,
     verbose: bool = True,
     raise_exceptions: bool = False,
-    num_images: int = 0,
+    num_images: int = 5,
     max_issues_per_group: int = 15,
 ):
     """Automatically detects model vulnerabilities.
