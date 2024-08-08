@@ -222,7 +222,7 @@ class DataLoaderFFHQ(DataLoaderBase):
         Returns:
             Optional[Dict[str, Any]]: Flattened metadata for the given index.
         """
-        meta = super().get_meta(idx)
+        parent_meta = super().get_meta(idx)
 
         try:
             with Path(self.images_dir_path / f"{idx:05d}.json").open(encoding="utf-8") as fp:
@@ -233,10 +233,10 @@ class DataLoaderFFHQ(DataLoaderBase):
             flat_meta_without_prefix.pop("confidence")
             return MetaData(
                 data={
-                    **meta.data,
+                    **parent_meta.data,
                     **flat_meta_without_prefix,
                 },
-                categories=meta.categories
+                categories=parent_meta.categories
                 + [
                     "gender",
                     "glasses",
@@ -252,7 +252,7 @@ class DataLoaderFFHQ(DataLoaderBase):
                     "emotion",
                 ],
                 issue_groups={
-                    **meta.data,
+                    **parent_meta.data,
                     "faceRectangle_top": PerformanceIssueMeta,
                     "faceRectangle_left": PerformanceIssueMeta,
                     "faceRectangle_width": PerformanceIssueMeta,
@@ -285,7 +285,7 @@ class DataLoaderFFHQ(DataLoaderBase):
                 },
             )
         except FileNotFoundError:
-            return meta
+            return parent_meta
 
     @classmethod
     def load_image_from_file(cls, image_file: Path) -> np.ndarray:
