@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Any, Optional
 
 import cv2
 import numpy as np
@@ -7,6 +7,7 @@ import pandas as pd
 from tqdm.notebook import tqdm
 
 from giskard_vision.core.models.base import ModelBase
+from giskard_vision.object_detection.models.base import ObjectDetectionHFModel
 from giskard_vision.utils.errors import GiskardImportError
 
 
@@ -242,3 +243,36 @@ class RacoonDetection(MobileNetBase):
         reduce_lr = ReduceLROnPlateau(monitor="IoU", factor=0.2, patience=PATIENCE, min_lr=1e-7, verbose=1, mode="max")
 
         self.model.fit(batch_images, gt, epochs=100, callbacks=[stop, reduce_lr], verbose=2)
+
+
+class DetrFinetunedFaceDetectionHuggingFaceModel(ObjectDetectionHFModel):
+    """Wrapper class for goshiv's detr finetuned face detection model on Hugging Face.
+    Args:
+        name (str): The name of the model.
+        device (str): The device to run the model on.
+    """
+
+    def __init__(self, name: str = None, device: str = "cpu"):
+        super().__init__(
+            model_id="goshiv/detr-finetuned-face",
+            name=name,
+            device=device,
+        )
+
+    def predict_image(self, image: np.ndarray) -> Any:
+        raw_predictions = super().predict_raw(image)
+
+        # Filter out predictions with a highest score
+        best_prediction = max(raw_predictions, key=lambda x: x["score"])
+
+        return {
+            "boxes": np.array(
+                [
+                    best_prediction["box"]["xmin"],
+                    best_prediction["box"]["ymin"],
+                    best_prediction["box"]["xmax"],
+                    best_prediction["box"]["ymax"],
+                ]
+            ),
+            "labels": "face",
+        }
