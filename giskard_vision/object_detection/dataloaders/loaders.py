@@ -7,6 +7,7 @@ import cv2
 import numpy as np
 import pandas as pd
 from numpy import ndarray
+from PIL.Image import Image as PILImage
 
 from giskard_vision.core.dataloaders.base import DataIteratorBase, PerformanceIssueMeta
 from giskard_vision.core.dataloaders.hf import HFDataLoader
@@ -341,6 +342,18 @@ class DataLoaderFurnitureHuggingFaceDataset(HFDataLoader):
         """
         super().__init__("Nfiniteai/living-room-passes", dataset_config, dataset_split, name)
 
+    def get_raw_hf_image(self, idx: int) -> PILImage:
+        """
+        Retrieves the image at the specified index in the HF dataset.
+
+        Args:
+            idx (int): Index of the image to retrieve.
+
+        Returns:
+            PIL.Image.Image: The image instance.
+        """
+        return self.ds[idx]["realtime_u"]
+
     def get_image(self, idx: int) -> Any:
         """
         Retrieves the image at the specified index in the dataset.
@@ -351,7 +364,7 @@ class DataLoaderFurnitureHuggingFaceDataset(HFDataLoader):
         Returns:
             np.ndarray: The image data.
         """
-        return np.array(self.ds[idx]["realtime_u"])
+        return np.array(self.get_raw_hf_image(idx))
 
     def get_boxes_shape_rescale(self, idx: int) -> ndarray:
         image_height, image_width, _ = 1.0, 1.0, 1.0  # self.get_image(idx).shape

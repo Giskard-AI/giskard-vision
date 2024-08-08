@@ -80,7 +80,7 @@ class SingleLabelImageClassificationHFModelWrapper(ImageClassificationHFModel):
 
         return np.array([_prediction[label] for label in self.classification_labels])
 
-    def predict_image(self, image, mode=None) -> Types.label:
+    def predict_image(self, image: np.ndarray, mode=None) -> Types.label:
         """method that takes one image as input and outputs one class label
 
         Args:

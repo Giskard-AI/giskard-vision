@@ -259,8 +259,8 @@ class DetrFinetunedFaceDetectionHuggingFaceModel(ObjectDetectionHFModel):
             device=device,
         )
 
-    def predict_image(self, image: np.ndarray) -> Any:
-        raw_predictions = super().predict_raw(image)
+    def predict_image(self, image: np.ndarray, mode=None) -> Any:
+        raw_predictions = super().predict_raw(image, mode)
 
         # Filter out predictions with a highest score
         best_prediction = max(raw_predictions, key=lambda x: x["score"])
