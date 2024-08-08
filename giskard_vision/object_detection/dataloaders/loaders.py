@@ -283,8 +283,8 @@ class DataLoaderFFHQFaceDetection(DataLoaderFFHQFaceDetectionLandmark):
                         [
                             meta[0]["faceRectangle"]["left"] * w / thumbnail_w,
                             meta[0]["faceRectangle"]["top"] * h / thumbnail_h,
-                            (meta[0]["faceRectangle"]["left"] + meta["faceRectangle"]["width"]) * w / thumbnail_w,
-                            (meta[0]["faceRectangle"]["top"] + meta["faceRectangle"]["height"]) * h / thumbnail_h,
+                            (meta[0]["faceRectangle"]["left"] + meta[0]["faceRectangle"]["width"]) * w / thumbnail_w,
+                            (meta[0]["faceRectangle"]["top"] + meta[0]["faceRectangle"]["height"]) * h / thumbnail_h,
                         ]
                     ),
                     "labels": "face",
