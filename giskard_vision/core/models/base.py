@@ -40,7 +40,7 @@ class ModelBase(ABC):
             except Exception:
                 res.append(None)
                 logger.warning(
-                    f"{self.__class__.__name__}: Face not detected in processed image of batch {idx} and index {i}."
+                    f"{self.__class__.__name__}: Prediction failed in processed image of batch {idx} and index {i}."
                 )
                 # logger.warning(e) # OpenCV's exception is very misleading
 

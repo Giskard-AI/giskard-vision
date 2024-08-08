@@ -45,7 +45,7 @@ class DataLoaderGeirhosConflictStimuli(DataLoaderTensorFlowDatasets):
         Returns:
             np.ndarray: The image data.
         """
-        return self.get_row(idx)["image"]
+        return np.array(self.get_row(idx)["image"])
 
     def get_labels(self, idx: int) -> Optional[np.ndarray]:
         """
@@ -124,7 +124,7 @@ class DataLoaderSkinCancerHuggingFaceDataset(HFDataLoader):
         Returns:
             np.ndarray: The image data.
         """
-        return self.ds[idx]["image"]
+        return np.array(self.ds[idx]["image"])
 
     def get_labels(self, idx: int) -> Optional[np.ndarray]:
         """
@@ -201,7 +201,7 @@ class DataLoaderCifar100HuggingFaceDataset(HFDataLoader):
         Returns:
             np.ndarray: The image data.
         """
-        return self.ds[idx]["img"]
+        return np.array(self.ds[idx]["img"])
 
     def get_labels(self, idx: int) -> Optional[np.ndarray]:
         """
