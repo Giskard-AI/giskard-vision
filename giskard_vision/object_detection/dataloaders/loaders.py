@@ -1,6 +1,7 @@
+import json
 import os
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import cv2
 import numpy as np
@@ -10,6 +11,10 @@ from numpy import ndarray
 from giskard_vision.core.dataloaders.base import DataIteratorBase, PerformanceIssueMeta
 from giskard_vision.core.dataloaders.hf import HFDataLoader
 from giskard_vision.core.dataloaders.meta import MetaData
+from giskard_vision.landmark_detection.dataloaders.loaders import (
+    DataLoader300W,
+    DataLoaderFFHQ,
+)
 
 from ..types import Types
 
@@ -185,6 +190,132 @@ class RacoonDataLoader(DataIteratorBase):
             np.ndarray: Image data.
         """
         return self.load_image_from_file(self.get_image_path(idx))
+
+
+class DataLoader300WFaceDetection(DataLoader300W):
+    """Data loader for the 300W dataset for face detection. Ref: https://ibug.doc.ic.ac.uk/resources/300-W/"""
+
+    def get_labels(self, idx: int) -> Optional[np.ndarray]:
+        """
+        Gets marks for a specific index after validation.
+        Args:
+            idx (int): Index of the data.
+        Returns:
+            Optional[np.ndarray]: Marks for the given index.
+        """
+        landmarks = super().get_labels(idx)
+
+        if landmarks is None:
+            return None
+
+        min_point = np.min(landmarks, axis=0)
+        max_point = np.max(landmarks, axis=0)
+
+        return {
+            "boxes": np.array([min_point[0], min_point[1], max_point[0], max_point[1]]),
+            "labels": "face",
+        }
+
+
+class DataLoaderFFHQFaceDetectionLandmark(DataLoaderFFHQ):
+    """Data loader for the FFHQ (Flickr-Faces-HQ) dataset for face detection, using the boundary boxes around landmarks."""
+
+    def get_labels(self, idx: int) -> Optional[np.ndarray]:
+        """
+        Gets marks for a specific index after validation.
+        Args:
+            idx (int): Index of the data.
+        Returns:
+            Optional[np.ndarray]: Marks for the given index.
+        """
+        landmarks = super().get_labels(idx)
+
+        if landmarks is None:
+            return None
+
+        min_point = np.min(landmarks, axis=0)
+        max_point = np.max(landmarks, axis=0)
+
+        return {
+            "boxes": np.array([min_point[0], min_point[1], max_point[0], max_point[1]]),
+            "labels": "face",
+        }
+
+
+class DataLoaderFFHQFaceDetection(DataLoaderFFHQFaceDetectionLandmark):
+    """Data loader for the FFHQ (Flickr-Faces-HQ) dataset for face detection, using the annotated bourdary boxes."""
+
+    def __init__(
+        self,
+        dir_path: Union[str, Path],
+        batch_size: Optional[int] = 1,
+        shuffle: Optional[bool] = False,
+        rng_seed: Optional[int] = None,
+    ) -> None:
+        super().__init__(dir_path, batch_size, shuffle, rng_seed)
+
+        # Load face bbox data
+        with (Path(dir_path) / "ffhq-dataset-meta.json").open(encoding="utf-8") as fp:
+            self.bboxes: Dict[int, List[float]] = {
+                int(k): [e for e in v["in_the_wild"]["face_rect"]]
+                + v["in_the_wild"]["pixel_size"]
+                + v["thumbnail"]["pixel_size"]
+                + v["image"]["pixel_size"]
+                for k, v in json.load(fp).items()
+            }
+
+    def get_labels(self, idx: int) -> Optional[np.ndarray]:
+        """
+        Gets marks for a specific index after validation.
+        Args:
+            idx (int): Index of the data.
+        Returns:
+            Optional[np.ndarray]: Marks for the given index.
+        """
+        original_bbox = self.bboxes.get(idx, None)
+        try:
+            with Path(self.images_dir_path / f"{idx:05d}.json").open(encoding="utf-8") as fp:
+                meta = json.load(fp)
+                w, h = original_bbox[8], original_bbox[9]
+                thumbnail_w, thumbnail_h = original_bbox[6], original_bbox[7]
+                return {
+                    "boxes": np.array(
+                        [
+                            meta[0]["faceRectangle"]["left"] * w / thumbnail_w,
+                            meta[0]["faceRectangle"]["top"] * h / thumbnail_h,
+                            (meta[0]["faceRectangle"]["left"] + meta[0]["faceRectangle"]["width"]) * w / thumbnail_w,
+                            (meta[0]["faceRectangle"]["top"] + meta[0]["faceRectangle"]["height"]) * h / thumbnail_h,
+                        ]
+                    ),
+                    "labels": "face",
+                }
+        except FileNotFoundError:
+            return np.array(original_bbox)
+
+    def get_meta(self, idx: int) -> Optional[Dict[str, Any]]:
+        """
+        Gets metadata for a specific index and flattens it. Exclude faceRectangle data.
+
+        Args:
+            idx (int): Index of the image.
+        Returns:
+            Optional[Dict[str, Any]]: Flattened metadata for the given index.
+        """
+        meta = super().get_meta(idx)
+        if meta is None:
+            return None
+
+        excludes = [
+            "faceRectangle_top",
+            "faceRectangle_left",
+            "faceRectangle_width",
+            "faceRectangle_height",
+        ]
+        return MetaData(
+            data={k: v for k, v in meta.data.items() if k not in excludes},
+            categories=[c for c in meta.categories if c not in excludes],
+            issue_groups={k: v for k, v in meta.issue_groups.items() if k not in excludes},
+        )
 
 
 class DataLoaderFurnitureHuggingFaceDataset(HFDataLoader):
