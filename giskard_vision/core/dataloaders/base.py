@@ -185,7 +185,7 @@ class DataIteratorBase(ABC):
             TypesBase.single_data: Tuple containing image, labels, and meta information.
         """
         metadata = self.get_meta_with_default(idx)
-        return self.get_image(idx), self.get_labels_with_default(idx), [metadata.data if metadata else None]
+        return self.get_image(idx), self.get_labels_with_default(idx), metadata.data
 
     def __getitem__(self, idx: int) -> TypesBase.batched_data:
         """
@@ -256,7 +256,7 @@ class DataIteratorBase(ABC):
             TypesBase.batched_data: Batched data containing images, labels, and meta information.
         """
         batched_elements = list(zip(*elements, strict=True))
-        return batched_elements[0], np.array(batched_elements[1]), batched_elements[2]
+        return batched_elements[0], np.array(batched_elements[1]), np.array(batched_elements[2])
 
 
 class DataLoaderWrapper(DataIteratorBase):
