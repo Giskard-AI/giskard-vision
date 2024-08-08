@@ -324,9 +324,15 @@ class DataLoaderFFHQFaceDetection(DataLoaderFFHQFaceDetectionLandmark):
             "faceRectangle_height",
         ]
         return MetaData(
-            data=meta.data + {k: v for k, v in meta.data.items() if k not in excludes},
+            data={
+                **meta.data,
+                **{k: v for k, v in meta.data.items() if k not in excludes},
+            },
             categories=meta.categories + [c for c in meta.categories if c not in excludes],
-            issue_groups=meta.issue_groups + {k: v for k, v in meta.issue_groups.items() if k not in excludes},
+            issue_groups={
+                **meta.issue_groups,
+                **{k: v for k, v in meta.issue_groups.items() if k not in excludes},
+            },
         )
 
 
