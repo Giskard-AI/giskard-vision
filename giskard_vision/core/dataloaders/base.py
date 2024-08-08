@@ -185,7 +185,7 @@ class DataIteratorBase(ABC):
             TypesBase.single_data: Tuple containing image, labels, and meta information.
         """
         metadata = self.get_meta_with_default(idx)
-        return self.get_image(idx), self.get_labels_with_default(idx), metadata.data if metadata is not None else {}
+        return self.get_image(idx), self.get_labels_with_default(idx), metadata if metadata is not None else MetaData({})
 
     def __getitem__(self, idx: int) -> TypesBase.batched_data:
         """
