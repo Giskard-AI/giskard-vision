@@ -9,9 +9,10 @@ import pandas as pd
 from numpy import ndarray
 from PIL.Image import Image as PILImage
 
-from giskard_vision.core.dataloaders.base import DataIteratorBase, PerformanceIssueMeta
+from giskard_vision.core.dataloaders.base import DataIteratorBase
 from giskard_vision.core.dataloaders.hf import HFDataLoader
 from giskard_vision.core.dataloaders.meta import MetaData
+from giskard_vision.core.detectors.base import PerformanceIssueMeta
 from giskard_vision.landmark_detection.dataloaders.loaders import (
     DataLoader300W,
     DataLoaderFFHQ,
