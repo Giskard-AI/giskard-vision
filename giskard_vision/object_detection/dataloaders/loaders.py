@@ -281,10 +281,10 @@ class DataLoaderFFHQFaceDetection(DataLoaderFFHQFaceDetectionLandmark):
                 return {
                     "boxes": np.array(
                         [
-                            meta[0]["faceRectangle"]["left"] * w / thumbnail_w,
-                            meta[0]["faceRectangle"]["top"] * h / thumbnail_h,
-                            (meta[0]["faceRectangle"]["left"] + meta[0]["faceRectangle"]["width"]) * w / thumbnail_w,
-                            (meta[0]["faceRectangle"]["top"] + meta[0]["faceRectangle"]["height"]) * h / thumbnail_h,
+                            meta[0]["faceRectangle_left"] * w / thumbnail_w,
+                            meta[0]["faceRectangle_top"] * h / thumbnail_h,
+                            (meta[0]["faceRectangle_left"] + meta["faceRectangle_width"]) * w / thumbnail_w,
+                            (meta[0]["faceRectangle_top"] + meta["faceRectangle_height"]) * h / thumbnail_h,
                         ]
                     ),
                     "labels": "face",
