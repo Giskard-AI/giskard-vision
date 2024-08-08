@@ -29,7 +29,7 @@ class FaceAlignmentWrapper(FaceLandmarksModelBase):
         super().__init__(n_landmarks=68, n_dimensions=2, name="FaceAlignment")
         self.model = model
 
-    def predict_image(self, image):
+    def predict_rgb_image(self, image):
         """
         Predict facial landmarks for a given image using the wrapped face alignment model.
 
@@ -100,7 +100,7 @@ class OpenCVWrapper(FaceLandmarksModelBase):
         self.landmark_detector = cv2.face.createFacemarkLBF()
         self.landmark_detector.loadModel(LBFmodel)
 
-    def predict_image(self, image):
+    def predict_rgb_image(self, image):
         """
         Predict facial landmarks for a given image using the wrapped OpenCV face landmarks model.
 

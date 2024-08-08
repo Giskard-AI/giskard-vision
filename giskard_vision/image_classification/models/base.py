@@ -80,14 +80,10 @@ class SingleLabelImageClassificationHFModelWrapper(ImageClassificationHFModel):
 
         return np.array([_prediction[label] for label in self.classification_labels])
 
-    def predict_image(self, image, mode=None) -> Types.label:
-        """method that takes one image as input and outputs one class label
+    def predict_rgb_image(self, image: np.ndarray) -> Types.label:
+        probas = self.predict_probas(image, mode=None)
+        return self.classification_labels[np.argmax(probas)]
 
-        Args:
-            image (np.ndarray): input image
-            mode (str): mode of the image
-        """
-        if len(image.shape) == 2:
-            mode = "L"  # Grayscale - Needed to run the color robustness detector
-        probas = self.predict_probas(image, mode=mode)
+    def predict_gray_image(self, image: np.ndarray) -> Types.label:
+        probas = self.predict_probas(image, mode="L")
         return self.classification_labels[np.argmax(probas)]

@@ -96,7 +96,7 @@ class MobileNetBase(ModelBase):
     def positive_constraint(self, boxes):
         return np.clip(boxes, 0, None)
 
-    def predict_image(self, image: np.ndarray):
+    def predict_rgb_image(self, image: np.ndarray):
         try:
             from keras.applications.mobilenet import preprocess_input
         except ImportError:
