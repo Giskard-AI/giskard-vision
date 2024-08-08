@@ -122,12 +122,27 @@ class DataIteratorBase(ABC):
         """
         return None
 
-    def meta_auto(self, idx: int) -> TypesBase.meta:
+    def get_labels(self, idx: int) -> Optional[np.ndarray]:
         """
-        Returns auto-retrieved meta data for image.
+        Gets labels (for a single image) for a specific index.
+
+        Args:
+            idx (int): Index of the image.
 
         Returns:
-            Optional[TypesBase.meta]: Default for meta data.
+            Optional[np.ndarray]: Labels for the given index.
+        """
+        return None
+
+    def get_meta(self, idx: int) -> Optional[TypesBase.meta]:
+        """
+        Gets meta information (for a single image) for a specific index.
+
+        Args:
+            idx (int): Index of the image.
+
+        Returns:
+            Optional[TypesBase.meta]: Meta information for the given index.
         """
         img = self.get_image(idx)
         gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -159,30 +174,6 @@ class DataIteratorBase(ABC):
                 "entropy": PerformanceIssueMeta,
             },
         )
-
-    def get_labels(self, idx: int) -> Optional[np.ndarray]:
-        """
-        Gets labels (for a single image) for a specific index.
-
-        Args:
-            idx (int): Index of the image.
-
-        Returns:
-            Optional[np.ndarray]: Labels for the given index.
-        """
-        return None
-
-    def get_meta(self, idx: int) -> Optional[TypesBase.meta]:
-        """
-        Gets meta information (for a single image) for a specific index.
-
-        Args:
-            idx (int): Index of the image.
-
-        Returns:
-            Optional[TypesBase.meta]: Meta information for the given index.
-        """
-        return None
 
     def get_labels_with_default(self, idx: int) -> np.ndarray:
         """

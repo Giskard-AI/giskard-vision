@@ -72,6 +72,8 @@ class DataLoaderGeirhosConflictStimuli(DataLoaderTensorFlowDatasets):
         Returns:
             Optional[Types.meta]: Metadata associated with the image, currently None.
         """
+        meta = super().get_meta(idx)
+
         row = self.get_row(idx)
 
         meta_exclude_keys = [
@@ -86,9 +88,15 @@ class DataLoaderGeirhosConflictStimuli(DataLoaderTensorFlowDatasets):
         flat_meta = flatten_dict(row, excludes=meta_exclude_keys, flat_np_array=True)
 
         return MetaData(
-            data=flat_meta,
-            categories=list(flat_meta.keys()),
-            # TODO: Add issue group
+            data={
+                **meta.data,
+                **flat_meta,
+            },
+            categories=meta.categories + ["texture_label"],
+            issue_groups={
+                **meta.issue_groups,
+                "texture_label": PerformanceIssueMeta,
+            },
         )
 
 
@@ -163,6 +171,8 @@ class DataLoaderSkinCancerHuggingFaceDataset(HFDataLoader):
         Returns:
             Optional[Types.meta]: Metadata associated with the image, currently None.
         """
+        meta = super().get_meta(idx)
+
         row = self.ds[idx]
 
         meta_exclude_keys = [
@@ -180,7 +190,17 @@ class DataLoaderSkinCancerHuggingFaceDataset(HFDataLoader):
         issue_groups["age"] = EthicalIssueMeta
         issue_groups["sex"] = EthicalIssueMeta
 
-        return MetaData(data=flat_meta, categories=["sex", "localization"], issue_groups=issue_groups)
+        return MetaData(
+            data={
+                **meta.data,
+                **flat_meta,
+            },
+            categories=meta.categories + ["sex", "localization"],
+            issue_groups={
+                **meta.issue_groups,
+                **issue_groups,
+            },
+        )
 
 
 class DataLoaderCifar100HuggingFaceDataset(HFDataLoader):
@@ -256,6 +276,8 @@ class DataLoaderCifar100HuggingFaceDataset(HFDataLoader):
         Returns:
             Optional[Types.meta]: Metadata associated with the image, currently None.
         """
+        meta = super().get_meta(idx)
+
         row = self.ds[idx]
 
         meta_exclude_keys = [
@@ -269,4 +291,14 @@ class DataLoaderCifar100HuggingFaceDataset(HFDataLoader):
 
         issue_groups = {key: PerformanceIssueMeta for key in flat_meta}
 
-        return MetaData(data=flat_meta, categories=["coarse_label"], issue_groups=issue_groups)
+        return MetaData(
+            data={
+                **meta.data,
+                **flat_meta,
+            },
+            categories=meta.categories + ["coarse_label"],
+            issue_groups={
+                **meta.issue_groups,
+                **issue_groups,
+            },
+        )

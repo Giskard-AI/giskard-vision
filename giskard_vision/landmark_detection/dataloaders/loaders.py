@@ -222,6 +222,8 @@ class DataLoaderFFHQ(DataLoaderBase):
         Returns:
             Optional[Dict[str, Any]]: Flattened metadata for the given index.
         """
+        meta = super().get_meta(idx)
+
         try:
             with Path(self.images_dir_path / f"{idx:05d}.json").open(encoding="utf-8") as fp:
                 meta = json.load(fp)
@@ -230,8 +232,12 @@ class DataLoaderFFHQ(DataLoaderBase):
             flat_meta_without_prefix = {key.replace("faceAttributes_", ""): value for key, value in flat_meta.items()}
             flat_meta_without_prefix.pop("confidence")
             return MetaData(
-                data=flat_meta_without_prefix,
-                categories=[
+                data={
+                    **meta.data,
+                    **flat_meta_without_prefix,
+                },
+                categories=meta.categories
+                + [
                     "gender",
                     "glasses",
                     "exposure_exposureLevel",
@@ -246,6 +252,7 @@ class DataLoaderFFHQ(DataLoaderBase):
                     "emotion",
                 ],
                 issue_groups={
+                    **meta.data,
                     "faceRectangle_top": PerformanceIssueMeta,
                     "faceRectangle_left": PerformanceIssueMeta,
                     "faceRectangle_width": PerformanceIssueMeta,
@@ -278,7 +285,7 @@ class DataLoaderFFHQ(DataLoaderBase):
                 },
             )
         except FileNotFoundError:
-            return None
+            return meta
 
     @classmethod
     def load_image_from_file(cls, image_file: Path) -> np.ndarray:
@@ -384,6 +391,8 @@ class DataLoader300WLP(DataLoaderTensorFlowDatasets):
         Returns:
             Optional[Types.meta]: Metadata associated with the image, currently None.
         """
+        meta = super().get_meta(idx)
+
         row = self.get_row(idx)
 
         meta_exclude_keys = [
@@ -399,7 +408,10 @@ class DataLoader300WLP(DataLoaderTensorFlowDatasets):
         flat_meta = flatten_dict(row, excludes=meta_exclude_keys, flat_np_array=True)
 
         return MetaData(
-            data=flat_meta,
-            categories=list(flat_meta.keys()),
-            # TODO: Add issue group
+            data={
+                **meta.data,
+                **flat_meta,
+            },
+            categories=meta.categories,
+            issue_groups=meta.issue_groups,
         )

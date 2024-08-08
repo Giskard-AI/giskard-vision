@@ -10,7 +10,6 @@ from PIL.Image import Image as PILImage
 from giskard_vision.core.dataloaders.base import DataIteratorBase
 from giskard_vision.core.dataloaders.meta import MetaData, get_pil_image_depth
 from giskard_vision.core.detectors.base import PerformanceIssueMeta
-from giskard_vision.core.types import TypesBase
 from giskard_vision.utils.errors import GiskardError, GiskardImportError
 
 
@@ -124,14 +123,8 @@ class HFDataLoader(DataIteratorBase):
         """
         ...
 
-    def meta_auto(self, idx: int) -> TypesBase.meta:
-        """
-        Returns auto-retrieved meta data for image.
-
-        Returns:
-            Optional[TypesBase.meta]: Default for meta data.
-        """
-        meta = super().meta_auto(idx)
+    def get_meta(self, idx: int) -> MetaData:
+        meta = super().get_meta(idx)
         img = self.get_raw_hf_image(idx)
 
         return MetaData(

@@ -149,7 +149,17 @@ class RacoonDataLoader(DataIteratorBase):
         Returns:
             Optional[Dict[str, Any]]: Flattened metadata for the given index.
         """
-        return MetaData(data={"width": self.data.iloc[idx]["width"], "height": self.data.iloc[idx]["height"]})
+        meta = super().get_meta(idx)
+
+        return MetaData(
+            data={
+                **meta.data,
+                "width": self.data.iloc[idx]["width"],
+                "height": self.data.iloc[idx]["height"],
+            },
+            categories=meta.categories,
+            issue_groups=meta.issue_groups,
+        )
 
     @classmethod
     def load_image_from_file(cls, image_file: Path) -> np.ndarray:
@@ -313,9 +323,9 @@ class DataLoaderFFHQFaceDetection(DataLoaderFFHQFaceDetectionLandmark):
             "faceRectangle_height",
         ]
         return MetaData(
-            data={k: v for k, v in meta.data.items() if k not in excludes},
-            categories=[c for c in meta.categories if c not in excludes],
-            issue_groups={k: v for k, v in meta.issue_groups.items() if k not in excludes},
+            data=meta.data + {k: v for k, v in meta.data.items() if k not in excludes},
+            categories=meta.categories + [c for c in meta.categories if c not in excludes],
+            issue_groups=meta.issue_groups + {k: v for k, v in meta.issue_groups.items() if k not in excludes},
         )
 
 
@@ -404,6 +414,7 @@ class DataLoaderFurnitureHuggingFaceDataset(HFDataLoader):
         Returns:
             Optional[Types.meta]: Metadata associated with the image, currently None.
         """
+        meta = super().get_meta(idx)
         row = self.ds[idx]
 
         flat_meta = {
@@ -426,7 +437,11 @@ class DataLoaderFurnitureHuggingFaceDataset(HFDataLoader):
 
         issue_groups = {key: PerformanceIssueMeta for key in flat_meta}
 
-        return MetaData(data=flat_meta, categories=categories, issue_groups=issue_groups)
+        return MetaData(
+            data={**meta.data, **flat_meta},
+            categories=meta.categories + categories,
+            issue_groups={**meta.issue_groups, **issue_groups},
+        )
 
     def get_image_path(self, idx: int) -> str:
         """
