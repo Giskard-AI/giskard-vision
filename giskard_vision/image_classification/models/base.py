@@ -87,5 +87,7 @@ class SingleLabelImageClassificationHFModelWrapper(ImageClassificationHFModel):
             image (np.ndarray): input image
             mode (str): mode of the image
         """
+        if len(image.shape) == 2:
+            mode = "L"  # Grayscale - Needed to run the color robustness detector
         probas = self.predict_probas(image, mode=mode)
         return self.classification_labels[np.argmax(probas)]
