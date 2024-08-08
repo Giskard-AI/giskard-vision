@@ -61,6 +61,7 @@ dev = [
     "tomli>=2.0.1", # needed for black in py3.10
     "exceptiongroup>=1.2.2", # needed for pdm test in py3.10
     "pytz>=2024.1",
+    "transformers>=4.43.4",
 ]
 
 [tool.ruff]

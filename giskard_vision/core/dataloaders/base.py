@@ -4,6 +4,7 @@ from typing import List, Optional
 
 import numpy as np
 
+from giskard_vision.core.dataloaders.meta import MetaData
 from giskard_vision.core.detectors.base import IssueGroup
 
 from ..types import TypesBase
@@ -160,7 +161,7 @@ class DataIteratorBase(ABC):
         labels = self.get_labels(idx)
         return labels if labels is not None else self.labels_none()
 
-    def get_meta_with_default(self, idx: int) -> np.ndarray:
+    def get_meta_with_default(self, idx: int) -> MetaData:
         """
         Gets meta information for a specific index with a default value if None.
 
@@ -168,7 +169,7 @@ class DataIteratorBase(ABC):
             idx (int): Index of the image.
 
         Returns:
-            np.ndarray: Meta information for the given index.
+            Meta: Meta information for the given index.
         """
         meta = self.get_meta(idx)
         return meta if meta is not None else self.meta_none()
@@ -183,7 +184,12 @@ class DataIteratorBase(ABC):
         Returns:
             TypesBase.single_data: Tuple containing image, labels, and meta information.
         """
-        return self.get_image(idx), self.get_labels_with_default(idx), self.get_meta_with_default(idx)
+        metadata = self.get_meta_with_default(idx)
+        return (
+            self.get_image(idx),
+            self.get_labels_with_default(idx),
+            metadata if metadata is not None else MetaData({}),
+        )
 
     def __getitem__(self, idx: int) -> TypesBase.batched_data:
         """
@@ -254,7 +260,7 @@ class DataIteratorBase(ABC):
             TypesBase.batched_data: Batched data containing images, labels, and meta information.
         """
         batched_elements = list(zip(*elements, strict=True))
-        return batched_elements[0], np.array(batched_elements[1]), batched_elements[2]
+        return batched_elements[0], np.array(batched_elements[1]), np.array(batched_elements[2])
 
 
 class DataLoaderWrapper(DataIteratorBase):
