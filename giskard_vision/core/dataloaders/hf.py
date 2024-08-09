@@ -99,7 +99,7 @@ class HFDataLoader(DataIteratorBase):
             str: Image path
         """
 
-        image = self.ds[idx]["image"]
+        image = self.get_raw_hf_image(idx)
         image_path = os.path.join(self.temp_folder, f"image_{idx}.png")
         image.save(image_path)
 
