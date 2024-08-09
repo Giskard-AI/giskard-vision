@@ -45,7 +45,8 @@ def test_cached_dataloader():
 
     for _ in range(5):
         print(cached[0][0])
-    assert dl.counters[0] == 2  # Both get meta and get image accumulate
+    # Both get_meta (calling get_image) and get_image accumulate the counter in the original dataloader
+    assert dl.counters[0] == 2
 
 
 def test_cropped_dataloader():
