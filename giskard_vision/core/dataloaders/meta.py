@@ -219,7 +219,7 @@ def get_brightness(image: np.ndarray) -> float:
     Returns:
         float: The image brightness normalized to 1.
     """
-    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
     return np.mean(hsv[:, :, 2]) / 255
 
 

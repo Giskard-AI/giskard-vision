@@ -145,7 +145,11 @@ class DataIteratorBase(ABC):
             Optional[TypesBase.meta]: Meta information for the given index.
         """
         img = self.get_image(idx)
-        gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        if img.dtype != np.uint8:
+            # Normalize image to 0-255 range with uint8
+            img = (img * 255 % 255).astype(np.uint8)
+
+        gray_img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
         size = get_image_size(img)
         nb_channels = get_image_channel_number(img)
         avg_color = np.mean(img, axis=(0, 1))
