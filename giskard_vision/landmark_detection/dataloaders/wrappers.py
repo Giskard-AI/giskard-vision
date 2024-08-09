@@ -154,7 +154,13 @@ class HeadPoseDataLoader(DataLoaderWrapper):
             Types.meta: Head pose metadata including pitch, yaw, and roll.
         """
         pitch, yaw, roll = self.pose_detection_model.predict(self.get_image(idx))
-        return MetaData(data={"pitch": pitch[0], "yaw": -yaw[0], "roll": roll[0]})
+        return MetaData(
+            data={
+                "pitch": pitch[0],
+                "yaw": -yaw[0],
+                "roll": roll[0],
+            },
+        )
 
 
 class EthnicityDataLoader(DataLoaderWrapper):
