@@ -8,19 +8,10 @@ import numpy as np
 from giskard_vision.core.dataloaders.meta import MetaData
 from giskard_vision.core.dataloaders.tfds import DataLoaderTensorFlowDatasets
 from giskard_vision.core.dataloaders.utils import flatten_dict
-from giskard_vision.core.detectors.base import IssueGroup
+from giskard_vision.core.detectors.base import EthicalIssueMeta, PerformanceIssueMeta
 from giskard_vision.landmark_detection.types import Types
 
 from .base import DataLoaderBase
-
-EthicalIssueMeta = IssueGroup(
-    "Ethical",
-    description="The data are filtered by metadata like age, facial hair, or gender to detect ethical biases.",
-)
-PerformanceIssueMeta = IssueGroup(
-    "Performance",
-    description="The data are filtered by metadata like emotion, head pose, or exposure value to detect performance issues.",
-)
 
 
 class DataLoader300W(DataLoaderBase):

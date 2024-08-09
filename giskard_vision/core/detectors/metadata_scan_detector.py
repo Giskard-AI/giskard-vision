@@ -6,7 +6,7 @@ import pandas as pd
 
 from giskard_vision.core.detectors.base import (
     DetectorVisionBase,
-    IssueGroup,
+    PerformanceIssueMeta,
     ScanResult,
 )
 from giskard_vision.core.tests.base import MetricBase
@@ -46,9 +46,7 @@ class MetaDataScanDetector(DetectorVisionBase):
     metric: MetricBase = None
     metric_type: str = None
     metric_direction: str = "better_lower"
-    issue_group = IssueGroup(
-        name="Performance", description="The data are filtered by metadata to detect performance issues."
-    )
+    issue_group = PerformanceIssueMeta
 
     def __init__(self) -> None:
         super().__init__()
