@@ -223,7 +223,7 @@ class MetaDataScanDetector(DetectorVisionBase):
         # TODO: make this cleaner and more efficient with batch computations
         from tqdm import tqdm
 
-        for i in tqdm(range(min(200, len(dataset)))):
+        for i in tqdm(range(len(dataset))):
             try:
                 metadata = dataset.get_meta(i)
 
