@@ -5,10 +5,10 @@ from typing import Any, Dict, List, Optional, Union
 import cv2
 import numpy as np
 
+from giskard_vision.core.dataloaders.base import EthicalIssueMeta, PerformanceIssueMeta
 from giskard_vision.core.dataloaders.meta import MetaData
 from giskard_vision.core.dataloaders.tfds import DataLoaderTensorFlowDatasets
 from giskard_vision.core.dataloaders.utils import flatten_dict
-from giskard_vision.core.detectors.base import EthicalIssueMeta, PerformanceIssueMeta
 from giskard_vision.landmark_detection.types import Types
 
 from .base import DataLoaderBase

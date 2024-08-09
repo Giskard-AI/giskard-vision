@@ -4,11 +4,8 @@ from typing import Any, Callable, List, Optional, Sequence
 import numpy as np
 import pandas as pd
 
-from giskard_vision.core.detectors.base import (
-    DetectorVisionBase,
-    PerformanceIssueMeta,
-    ScanResult,
-)
+from giskard_vision.core.dataloaders.base import PerformanceIssueMeta
+from giskard_vision.core.detectors.base import DetectorVisionBase, ScanResult
 from giskard_vision.core.tests.base import MetricBase
 from giskard_vision.utils.errors import GiskardImportError
 
