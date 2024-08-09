@@ -16,7 +16,7 @@ class TestHFDataLoader(HFDataLoader):
 
     def get_image(self, idx: int) -> np.ndarray:
         # Fake image data
-        return np.ones((10, 10, 3)) * idx % 255
+        return (np.ones((10, 10, 3)) * idx % 255).astype(np.uint8)
 
 
 def test_hf_data_loader():
