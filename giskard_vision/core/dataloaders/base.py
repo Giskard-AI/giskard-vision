@@ -184,6 +184,7 @@ class DataIteratorBase(ABC):
                 "width": AttributesIssueMeta,
                 "height": AttributesIssueMeta,
                 "nb_channels": AttributesIssueMeta,
+                "brightness": AttributesIssueMeta,
                 "average_color_r": AttributesIssueMeta,
                 "average_color_g": AttributesIssueMeta,
                 "average_color_b": AttributesIssueMeta,
