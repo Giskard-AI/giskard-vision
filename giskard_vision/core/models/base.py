@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from logging import getLogger
 from time import time
 from typing import Any, List, Optional
@@ -17,18 +17,17 @@ class ModelBase(ABC):
     model_type: str
     prediction_result_cls = TypesBase.prediction_result
 
-    @abstractmethod
     def predict_rgb_image(self, image: np.ndarray) -> Any:
-        """abstract method that takes one RGB image as input and outputs the prediction
+        """method that takes one RGB image as input and outputs the prediction
 
         Args:
             image (np.ndarray): input image
         """
 
-        ...
+        raise NotImplementedError("predict_rgb_image method is not implemented")
 
     def predict_gray_image(self, image: np.ndarray) -> Any:
-        """abstract method that takes one gray image as input and outputs the prediction
+        """method that takes one gray image as input and outputs the prediction
 
         Args:
             image (np.ndarray): input image
