@@ -7,6 +7,7 @@ import cv2
 import numpy as np
 import pandas as pd
 from numpy import ndarray
+from PIL.Image import Image as PILImage
 
 from giskard_vision.core.dataloaders.base import DataIteratorBase, PerformanceIssueMeta
 from giskard_vision.core.dataloaders.hf import HFDataLoader
@@ -148,7 +149,17 @@ class RacoonDataLoader(DataIteratorBase):
         Returns:
             Optional[Dict[str, Any]]: Flattened metadata for the given index.
         """
-        return MetaData(data={"width": self.data.iloc[idx]["width"], "height": self.data.iloc[idx]["height"]})
+        meta = super().get_meta(idx)
+
+        return MetaData(
+            data={
+                **meta.data,
+                "width": self.data.iloc[idx]["width"],
+                "height": self.data.iloc[idx]["height"],
+            },
+            categories=meta.categories,
+            issue_groups=meta.issue_groups,
+        )
 
     @classmethod
     def load_image_from_file(cls, image_file: Path) -> np.ndarray:
@@ -312,9 +323,15 @@ class DataLoaderFFHQFaceDetection(DataLoaderFFHQFaceDetectionLandmark):
             "faceRectangle_height",
         ]
         return MetaData(
-            data={k: v for k, v in meta.data.items() if k not in excludes},
-            categories=[c for c in meta.categories if c not in excludes],
-            issue_groups={k: v for k, v in meta.issue_groups.items() if k not in excludes},
+            data={
+                **meta.data,
+                **{k: v for k, v in meta.data.items() if k not in excludes},
+            },
+            categories=meta.categories + [c for c in meta.categories if c not in excludes],
+            issue_groups={
+                **meta.issue_groups,
+                **{k: v for k, v in meta.issue_groups.items() if k not in excludes},
+            },
         )
 
 
@@ -341,6 +358,18 @@ class DataLoaderFurnitureHuggingFaceDataset(HFDataLoader):
         """
         super().__init__("Nfiniteai/living-room-passes", dataset_config, dataset_split, name)
 
+    def get_raw_hf_image(self, idx: int) -> PILImage:
+        """
+        Retrieves the image at the specified index in the HF dataset.
+
+        Args:
+            idx (int): Index of the image to retrieve.
+
+        Returns:
+            PIL.Image.Image: The image instance.
+        """
+        return self.ds[idx]["realtime_u"]
+
     def get_image(self, idx: int) -> Any:
         """
         Retrieves the image at the specified index in the dataset.
@@ -351,7 +380,7 @@ class DataLoaderFurnitureHuggingFaceDataset(HFDataLoader):
         Returns:
             np.ndarray: The image data.
         """
-        return np.array(self.ds[idx]["realtime_u"])
+        return np.array(self.get_raw_hf_image(idx))
 
     def get_boxes_shape_rescale(self, idx: int) -> ndarray:
         image_height, image_width, _ = 1.0, 1.0, 1.0  # self.get_image(idx).shape
@@ -391,6 +420,7 @@ class DataLoaderFurnitureHuggingFaceDataset(HFDataLoader):
         Returns:
             Optional[Types.meta]: Metadata associated with the image, currently None.
         """
+        meta = super().get_meta(idx)
         row = self.ds[idx]
 
         flat_meta = {
@@ -413,7 +443,11 @@ class DataLoaderFurnitureHuggingFaceDataset(HFDataLoader):
 
         issue_groups = {key: PerformanceIssueMeta for key in flat_meta}
 
-        return MetaData(data=flat_meta, categories=categories, issue_groups=issue_groups)
+        return MetaData(
+            data={**meta.data, **flat_meta},
+            categories=meta.categories + categories,
+            issue_groups={**meta.issue_groups, **issue_groups},
+        )
 
     def get_image_path(self, idx: int) -> str:
         """
