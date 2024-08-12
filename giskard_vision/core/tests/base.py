@@ -314,7 +314,7 @@ class TestDiffBase:
             prediction_time=prediction_time,
             prediction_fail_rate=prediction_fail_rate,
             metric_name=self.metric.name,
-            model_name=model.name,
+            model_name=model.name if hasattr(model, "name") else model.__class__.__name__,
             dataloader_name=dataloader.name,
             dataloader_ref_name=dataloader_ref.name,
             indexes_examples=indexes,
