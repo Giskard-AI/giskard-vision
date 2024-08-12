@@ -233,9 +233,7 @@ class NoisyDataLoader(DataLoaderWrapper):
 
     Args:
         dataloader (DataIteratorBase): The data loader to be wrapped.
-        kernel_size (Union[Tuple[int, int], int]): Size of the Gaussian kernel for blurring. Can be a tuple or a single value.
-        sigma (Union[Tuple[float, float], float]): Standard deviation of the Gaussian kernel for blurring.
-            Can be a tuple or a single value.
+        sigma (float): Standard deviation of the Gaussian noise.
 
     Returns:
         NoisyDataLoader: Noisy data loader instance.
