@@ -24,6 +24,10 @@ PerformanceIssueMeta = IssueGroup(
     "Performance",
     description="The data are filtered by metadata like emotion, head pose, or exposure value to detect performance issues.",
 )
+AttributesIssueMeta = IssueGroup(
+    "Attributes",
+    description="The data are filtered by the image attributes like width, height, or brightness value to detect issues.",
+)
 
 
 class DataIteratorBase(ABC):
@@ -177,14 +181,14 @@ class DataIteratorBase(ABC):
             },
             categories=["nb_channels"],
             issue_groups={
-                "width": PerformanceIssueMeta,
-                "height": PerformanceIssueMeta,
-                "nb_channels": PerformanceIssueMeta,
-                "average_color_r": PerformanceIssueMeta,
-                "average_color_g": PerformanceIssueMeta,
-                "average_color_b": PerformanceIssueMeta,
-                "contrast": PerformanceIssueMeta,
-                "entropy": PerformanceIssueMeta,
+                "width": AttributesIssueMeta,
+                "height": AttributesIssueMeta,
+                "nb_channels": AttributesIssueMeta,
+                "average_color_r": AttributesIssueMeta,
+                "average_color_g": AttributesIssueMeta,
+                "average_color_b": AttributesIssueMeta,
+                "contrast": AttributesIssueMeta,
+                "entropy": AttributesIssueMeta,
             },
         )
 
