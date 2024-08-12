@@ -7,22 +7,20 @@ from .base import Metric
 
 
 @dataclass
-class IoU(Metric):
+class IoUMean(Metric):
     """Intersection over Union distance between a prediction and a ground truth"""
 
-    name = "IoU"
+    name = "IoUMean"
     description = "Intersection over Union"
 
     @staticmethod
     def definition(prediction_result: Types.prediction_result, ground_truth: Types.label):
-
         # if prediction_result.prediction.item().get("labels") != ground_truth.item().get("labels"):
         #     return 0
 
         ious = []
 
         for i in range(len(prediction_result.prediction)):
-
             if isinstance(prediction_result.prediction[i], dict):
                 gt_box = prediction_result.prediction[i].get("boxes")
             else:

@@ -15,7 +15,7 @@ from giskard_vision.object_detection.detectors.surrogate_functions import (
     SurrogateRelativeTopLeftY,
     SurrogateStdIntensity,
 )
-from giskard_vision.object_detection.tests.performance import IoU
+from giskard_vision.object_detection.tests.performance import IoUMean
 
 from ...core.detectors.decorator import maybe_detector
 
@@ -38,7 +38,7 @@ class MetaDataScanDetectorObjectDetection(MetaDataScanDetector):
         SurrogateRelativeTopLeftY,
         SurrogateNormalizedPerimeter,
     ]
-    metric = IoU
+    metric = IoUMean
     type_task = "regression"
     metric_type = "absolute"
     metric_direction = "better_higher"
