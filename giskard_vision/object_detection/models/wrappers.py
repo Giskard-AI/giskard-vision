@@ -259,7 +259,7 @@ class DetrFinetunedFaceDetectionHuggingFaceModel(ObjectDetectionHFModel):
             device=device,
         )
 
-    def predict_image(self, image: np.ndarray) -> Any:
+    def predict_rgb_image(self, image: np.ndarray) -> Any:
         raw_predictions = super().predict_raw(image)
 
         # Filter out predictions with a highest score
