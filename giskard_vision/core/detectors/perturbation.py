@@ -11,24 +11,10 @@ from giskard_vision.core.detectors.base import (
     IssueGroup,
     ScanResult,
 )
-from giskard_vision.landmark_detection.tests.base import TestDiff
+from giskard_vision.core.tests.base import TestDiffBase
 from giskard_vision.utils.errors import GiskardImportError
 
 from .metrics import detector_metrics
-
-Cropping = IssueGroup(
-    "Cropping", description="Cropping involves evaluating the landmark detection model on specific face areas."
-)
-
-Ethical = IssueGroup(
-    "Ethical",
-    description="The data are filtered by ethnicity to detect ethical biases in the landmark detection model.",
-)
-
-Pose = IssueGroup(
-    "Head Pose",
-    description="The data are filtered by head pose to detect biases in the landmark detection model.",
-)
 
 Robustness = IssueGroup(
     "Robustness",
@@ -52,6 +38,8 @@ class PerturbationBaseDetector(DetectorVisionBase):
             Convert TestResult to ScanResult
     """
 
+    issue_group = Robustness
+
     @abstractmethod
     def get_dataloaders(self, dataset: Any) -> Sequence[Any]: ...
 
@@ -60,7 +48,7 @@ class PerturbationBaseDetector(DetectorVisionBase):
 
         results = []
         for dl in dataloaders:
-            test_result = TestDiff(metric=detector_metrics[model.model_type], threshold=1).run(
+            test_result = TestDiffBase(metric=detector_metrics[model.model_type], threshold=1).run(
                 model=model,
                 dataloader=dl,
                 dataloader_ref=dataset,
