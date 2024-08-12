@@ -228,6 +228,80 @@ class BlurredDataLoader(DataLoaderWrapper):
         return cv2.GaussianBlur(image, self._kernel_size, *self._sigma)
 
 
+class NoisyDataLoader(DataLoaderWrapper):
+    """Wrapper class for a DataIteratorBase, providing noisy images.
+
+    Args:
+        dataloader (DataIteratorBase): The data loader to be wrapped.
+        kernel_size (Union[Tuple[int, int], int]): Size of the Gaussian kernel for blurring. Can be a tuple or a single value.
+        sigma (Union[Tuple[float, float], float]): Standard deviation of the Gaussian kernel for blurring.
+            Can be a tuple or a single value.
+
+    Returns:
+        NoisyDataLoader: Noisy data loader instance.
+    """
+
+    def __init__(
+        self,
+        dataloader: DataIteratorBase,
+        sigma: float = 0.1,
+    ) -> None:
+        """
+        Initializes the BlurredDataLoader.
+
+        Args:
+            dataloader (DataIteratorBase): The data loader to be wrapped.
+            sigma (float): Standard deviation of the Gaussian noise.
+        """
+        super().__init__(dataloader)
+        self._sigma = sigma
+
+    @property
+    def name(self):
+        """
+        Gets the name of the blurred data loader.
+
+        Returns:
+            str: The name of the blurred data loader.
+        """
+        return "noisy"
+
+    def get_image(self, idx: int) -> np.ndarray:
+        """
+        Gets a blurred image using Gaussian blur.
+
+        Args:
+            idx (int): Index of the data.
+
+        Returns:
+            np.ndarray: Blurred image data.
+        """
+        image = super().get_image(idx)
+        return self.add_gaussian_noise(image, self._sigma * 255)
+
+    def add_gaussian_noise(self, image, std_dev):
+        """
+        Add Gaussian noise to the image
+
+        Args:
+            image (np.ndarray): Image
+            std_dev (float): Standard deviation of the Gaussian noise.
+
+        Returns:
+            np.ndarray: Noisy image
+        """
+        # Generate Gaussian noise
+        noise = np.random.normal(0, std_dev, image.shape).astype(np.float32)
+
+        # Add the noise to the image
+        noisy_image = cv2.add(image.astype(np.float32), noise)
+
+        # Clip the values to stay within valid range (0-255 for uint8)
+        noisy_image = np.clip(noisy_image, 0, 255).astype(np.uint8)
+
+        return noisy_image
+
+
 class ColoredDataLoader(DataLoaderWrapper):
     """Wrapper class for a DataIteratorBase, providing color-altered images using OpenCV color conversion.
 
