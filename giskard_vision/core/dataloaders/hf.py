@@ -7,7 +7,7 @@ from typing import Optional
 
 from PIL.Image import Image as PILImage
 
-from giskard_vision.core.dataloaders.base import DataIteratorBase, PerformanceIssueMeta
+from giskard_vision.core.dataloaders.base import DataIteratorBase, AttributesIssueMeta
 from giskard_vision.core.dataloaders.meta import MetaData, get_pil_image_depth
 from giskard_vision.utils.errors import GiskardError, GiskardImportError
 
@@ -134,6 +134,6 @@ class HFDataLoader(DataIteratorBase):
             categories=["depth"] + meta.categories,
             issue_groups={
                 **meta.issue_groups,
-                "depth": PerformanceIssueMeta,
+                "depth": AttributesIssueMeta,
             },
         )
