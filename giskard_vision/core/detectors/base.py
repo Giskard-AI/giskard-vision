@@ -36,16 +36,20 @@ class ScanResult:
     relative_delta: float
     issue_group: Optional[IssueGroup] = None
 
-    def get_meta_required(self) -> dict:
-        # Get the meta required by the original scan API
+    def get_meta_required(self, include_slice_size=True) -> dict:
         deviation = f"{self.relative_delta * 100:+.2f}% than global"
-        return {
+
+        meta_info = {
             "metric": self.metric_name,
             "metric_value": self.metric_value,
             "metric_reference_value": self.metric_reference_value,
             "deviation": deviation,
-            "slice_size": self.slice_size,
         }
+
+        if include_slice_size:
+            meta_info["slice_size"] = self.slice_size
+
+        return meta_info
 
 
 class DetectorVisionBase(DetectorSpecsBase):
@@ -115,16 +119,20 @@ class DetectorVisionBase(DetectorSpecsBase):
 
         for result in results:
             if result.issue_level in issue_levels:
+                extra_args = {
+                    "slicing_fn" if self.slicing else "transformation_fn": result.name,
+                    "meta": result.get_meta_required(self.slicing),
+                }
+
                 issues.append(
                     Issue(
                         model,
                         dataset,
                         level=result.issue_level,
-                        slicing_fn=result.name,
-                        group=result.issue_group if result.issue_group else self.issue_group,
-                        meta=result.get_meta_required(),
+                        group=result.issue_group or self.issue_group,
                         scan_examples=ImagesScanExamples(result.filename_examples, embed=embed),
                         display_footer_info=False,
+                        **extra_args,
                     )
                 )
 
