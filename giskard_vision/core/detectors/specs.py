@@ -11,3 +11,4 @@ class DetectorSpecsBase:
     deviation_threshold: float = 0.10
     issue_level_threshold: float = 0.05
     num_images: int = 0
+    slicing: bool = True
