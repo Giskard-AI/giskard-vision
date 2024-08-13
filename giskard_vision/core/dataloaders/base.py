@@ -12,6 +12,7 @@ from giskard_vision.core.dataloaders.meta import (
     get_image_channel_number,
     get_image_size,
 )
+from giskard_vision.core.issues import AttributesIssueMeta
 
 from ..types import TypesBase
 

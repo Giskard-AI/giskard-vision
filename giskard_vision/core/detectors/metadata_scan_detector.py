@@ -5,8 +5,7 @@ import numpy as np
 import pandas as pd
 
 from giskard_vision.core.detectors.base import DetectorVisionBase, ScanResult
-from giskard_vision.core.issues import IssueGroup, PerformanceIssueMeta
-
+from giskard_vision.core.issues import PerformanceIssueMeta
 from giskard_vision.core.tests.base import MetricBase
 from giskard_vision.utils.errors import GiskardImportError
 
