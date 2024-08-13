@@ -97,7 +97,7 @@ class MobileNetBase(ModelBase):
     def positive_constraint(self, boxes):
         return np.clip(boxes, 0, None)
 
-    def predict_image(self, image: np.ndarray):
+    def predict_rgb_image(self, image: np.ndarray):
         try:
             from keras.applications.mobilenet import preprocess_input
         except ImportError:
@@ -259,8 +259,8 @@ class DetrFinetunedFaceDetectionHuggingFaceModel(ObjectDetectionHFModel):
             device=device,
         )
 
-    def predict_image(self, image: np.ndarray, mode=None) -> Any:
-        raw_predictions = super().predict_raw(image, mode)
+    def predict_rgb_image(self, image: np.ndarray) -> Any:
+        raw_predictions = super().predict_raw(image)
 
         # Filter out predictions with a highest score
         best_prediction = max(raw_predictions, key=lambda x: x["score"])

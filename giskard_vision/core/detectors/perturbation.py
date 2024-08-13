@@ -1,5 +1,6 @@
 import os
 from abc import abstractmethod
+from importlib import import_module
 from pathlib import Path
 from typing import Any, Sequence
 
@@ -7,12 +8,11 @@ import cv2
 
 from giskard_vision.core.dataloaders.wrappers import FilteredDataLoader
 from giskard_vision.core.detectors.base import DetectorVisionBase, ScanResult
-from giskard_vision.landmark_detection.tests.base import TestDiff
-from giskard_vision.landmark_detection.tests.performance import NMEMean
-from giskard_vision.utils.errors import GiskardImportError
+from giskard_vision.core.issues import Robustness
+from giskard_vision.core.tests.base import TestDiffBase
 
 
-class LandmarkDetectionBaseDetector(DetectorVisionBase):
+class PerturbationBaseDetector(DetectorVisionBase):
     """
     Abstract class for Landmark Detection Detectors
 
@@ -28,15 +28,30 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
             Convert TestResult to ScanResult
     """
 
+    issue_group = Robustness
+
+    def set_specs_from_model_type(self, model_type):
+        module = import_module(f"giskard_vision.{model_type}.detectors.specs")
+        DetectorSpecs = getattr(module, "DetectorSpecs")
+
+        if DetectorSpecs:
+            # Only set attributes that are not part of Python's special attributes (those starting with __)
+            for attr_name, attr_value in vars(DetectorSpecs).items():
+                if not attr_name.startswith("__") and hasattr(self, attr_name):
+                    setattr(self, attr_name, attr_value)
+        else:
+            raise ValueError(f"No detector specifications found for model type: {model_type}")
+
     @abstractmethod
     def get_dataloaders(self, dataset: Any) -> Sequence[Any]: ...
 
     def get_results(self, model: Any, dataset: Any) -> Sequence[ScanResult]:
+        self.set_specs_from_model_type(model.model_type)
         dataloaders = self.get_dataloaders(dataset)
 
         results = []
         for dl in dataloaders:
-            test_result = TestDiff(metric=NMEMean, threshold=1).run(
+            test_result = TestDiffBase(metric=self.metric, threshold=1).run(
                 model=model,
                 dataloader=dl,
                 dataloader_ref=dataset,
@@ -51,40 +66,22 @@ class LandmarkDetectionBaseDetector(DetectorVisionBase):
 
             if isinstance(dl, FilteredDataLoader):
                 filename_example_dataloader_ref = str(Path() / "examples_images" / f"{dataset.name}_{index_worst}.png")
-                cv2.imwrite(
-                    filename_example_dataloader_ref, cv2.resize(dataset[index_worst][0][0], (0, 0), fx=0.3, fy=0.3)
-                )
+                cv2.imwrite(filename_example_dataloader_ref, dataset[index_worst][0][0])
                 filename_examples.append(filename_example_dataloader_ref)
 
             filename_example_dataloader = str(Path() / "examples_images" / f"{dl.name}_{index_worst}.png")
-            cv2.imwrite(filename_example_dataloader, cv2.resize(dl[index_worst][0][0], (0, 0), fx=0.3, fy=0.3))
+            cv2.imwrite(filename_example_dataloader, dl[index_worst][0][0])
             filename_examples.append(filename_example_dataloader)
-            results.append(self.get_scan_result(test_result, filename_examples, dl.name, len(dl)))
+            results.append(
+                self.get_scan_result(
+                    test_result.metric_value_test,
+                    test_result.metric_value_ref,
+                    test_result.metric_name,
+                    filename_examples,
+                    dl.name,
+                    len(dl),
+                    issue_group=self.issue_group,
+                )
+            )
 
         return results
-
-    def get_scan_result(self, test_result, filename_examples, name, size_data) -> ScanResult:
-        try:
-            from giskard.scanner.issues import IssueLevel
-        except (ImportError, ModuleNotFoundError) as e:
-            raise GiskardImportError(["giskard"]) from e
-
-        relative_delta = (test_result.metric_value_test - test_result.metric_value_ref) / test_result.metric_value_ref
-
-        if relative_delta > self.issue_level_threshold + self.deviation_threshold:
-            issue_level = IssueLevel.MAJOR
-        elif relative_delta > self.issue_level_threshold:
-            issue_level = IssueLevel.MEDIUM
-        else:
-            issue_level = IssueLevel.MINOR
-
-        return ScanResult(
-            name=name,
-            metric_name=test_result.metric_name,
-            metric_value=test_result.metric_value_test,
-            metric_reference_value=test_result.metric_value_ref,
-            issue_level=issue_level,
-            slice_size=size_data,
-            filename_examples=filename_examples,
-            relative_delta=relative_delta,
-        )

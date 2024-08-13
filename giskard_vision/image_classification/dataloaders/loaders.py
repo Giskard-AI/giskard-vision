@@ -3,11 +3,11 @@ from typing import Optional
 import numpy as np
 from PIL.Image import Image as PILImage
 
-from giskard_vision.core.dataloaders.base import EthicalIssueMeta, PerformanceIssueMeta
 from giskard_vision.core.dataloaders.hf import HFDataLoader
 from giskard_vision.core.dataloaders.meta import MetaData
 from giskard_vision.core.dataloaders.tfds import DataLoaderTensorFlowDatasets
 from giskard_vision.core.dataloaders.utils import flatten_dict
+from giskard_vision.core.issues import EthicalIssueMeta, PerformanceIssueMeta
 from giskard_vision.image_classification.types import Types
 
 
@@ -46,7 +46,7 @@ class DataLoaderGeirhosConflictStimuli(DataLoaderTensorFlowDatasets):
         Returns:
             np.ndarray: The image data.
         """
-        return self.get_row(idx)["image"]
+        return np.array(self.get_row(idx)["image"])
 
     def get_labels(self, idx: int) -> Optional[np.ndarray]:
         """

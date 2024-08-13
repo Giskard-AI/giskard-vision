@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from logging import getLogger
 from time import time
 from typing import Any, List, Optional
@@ -17,15 +17,36 @@ class ModelBase(ABC):
     model_type: str
     prediction_result_cls = TypesBase.prediction_result
 
-    @abstractmethod
+    def predict_rgb_image(self, image: np.ndarray) -> Any:
+        """method that takes one RGB image as input and outputs the prediction
+
+        Args:
+            image (np.ndarray): input image
+        """
+
+        raise NotImplementedError("predict_rgb_image method is not implemented")
+
+    def predict_gray_image(self, image: np.ndarray) -> Any:
+        """method that takes one gray image as input and outputs the prediction
+
+        Args:
+            image (np.ndarray): input image
+        """
+
+        raise NotImplementedError("predict_gray_image method is not implemented")
+
     def predict_image(self, image: np.ndarray) -> Any:
         """abstract method that takes one image as input and outputs the prediction
 
         Args:
             image (np.ndarray): input image
         """
-
-        ...
+        if image.shape[-1] == 3:
+            return self.predict_rgb_image(image)
+        elif image.shape[-1] == 1 or len(image.shape) == 2:
+            return self.predict_gray_image(image)
+        else:
+            raise ValueError("predict_image: image shape not supported.")
 
     def predict_batch(self, idx: int, images: List[np.ndarray]) -> np.ndarray:
         """method that should be implemented if the passed dataloader has batch_size != 1
@@ -40,7 +61,7 @@ class ModelBase(ABC):
             except Exception:
                 res.append(None)
                 logger.warning(
-                    f"{self.__class__.__name__}: Face not detected in processed image of batch {idx} and index {i}."
+                    f"{self.__class__.__name__}: Prediction failed in processed image of batch {idx} and index {i}."
                 )
                 # logger.warning(e) # OpenCV's exception is very misleading
 
