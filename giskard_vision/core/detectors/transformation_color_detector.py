@@ -4,7 +4,9 @@ from ...core.detectors.decorator import maybe_detector
 from .perturbation import PerturbationBaseDetector
 
 
-@maybe_detector("coloring", tags=["vision", "robustness", "image_classification", "landmark", "object_detection"])
+@maybe_detector(
+    "coloring", tags=["vision", "robustness", "image_classification", "landmark", "object_detection", "coloring"]
+)
 class TransformationColorDetector(PerturbationBaseDetector):
     """
     Detector that evaluates models performance depending on images in grayscale

@@ -6,7 +6,6 @@ from typing import Any, Sequence
 
 import cv2
 
-from giskard_vision.core.dataloaders.wrappers import FilteredDataLoader
 from giskard_vision.core.detectors.base import DetectorVisionBase, ScanResult
 from giskard_vision.core.issues import Robustness
 from giskard_vision.core.tests.base import TestDiffBase
@@ -29,6 +28,7 @@ class PerturbationBaseDetector(DetectorVisionBase):
     """
 
     issue_group = Robustness
+    slicing = False
 
     def set_specs_from_model_type(self, model_type):
         module = import_module(f"giskard_vision.{model_type}.detectors.specs")
@@ -64,10 +64,9 @@ class PerturbationBaseDetector(DetectorVisionBase):
 
             index_worst = 0 if test_result.indexes_examples is None else test_result.indexes_examples[0]
 
-            if isinstance(dl, FilteredDataLoader):
-                filename_example_dataloader_ref = str(Path() / "examples_images" / f"{dataset.name}_{index_worst}.png")
-                cv2.imwrite(filename_example_dataloader_ref, dataset[index_worst][0][0])
-                filename_examples.append(filename_example_dataloader_ref)
+            filename_example_dataloader_ref = str(Path() / "examples_images" / f"{dataset.name}_{index_worst}.png")
+            cv2.imwrite(filename_example_dataloader_ref, dataset[index_worst][0][0])
+            filename_examples.append(filename_example_dataloader_ref)
 
             filename_example_dataloader = str(Path() / "examples_images" / f"{dl.name}_{index_worst}.png")
             cv2.imwrite(filename_example_dataloader, dl[index_worst][0][0])
