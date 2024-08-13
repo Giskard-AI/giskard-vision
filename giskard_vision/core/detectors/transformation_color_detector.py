@@ -5,7 +5,7 @@ from .perturbation import PerturbationBaseDetector
 
 
 @maybe_detector("coloring", tags=["vision", "robustness", "image_classification", "landmark", "object_detection"])
-class TransformationColorDetectorLandmark(PerturbationBaseDetector):
+class TransformationColorDetector(PerturbationBaseDetector):
     """
     Detector that evaluates models performance depending on images in grayscale
     """

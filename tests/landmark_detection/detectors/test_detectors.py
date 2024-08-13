@@ -2,13 +2,13 @@ from giskard.scanner.issues import Issue, IssueLevel
 from pytest import mark
 
 from giskard_vision.core.detectors.transformation_blurring_detector import (
-    TransformationBlurringDetectorLandmark,
+    TransformationBlurringDetector,
 )
 from giskard_vision.core.detectors.transformation_color_detector import (
-    TransformationColorDetectorLandmark,
+    TransformationColorDetector,
 )
 from giskard_vision.core.detectors.transformation_noise_detector import (
-    TransformationNoiseDetectorLandmark,
+    TransformationNoiseDetector,
 )
 from giskard_vision.landmark_detection.detectors import (
     CroppingDetectorLandmark,
@@ -22,9 +22,9 @@ from giskard_vision.landmark_detection.detectors.base import ScanResult
     "detector",
     [
         CroppingDetectorLandmark,
-        TransformationBlurringDetectorLandmark,
-        TransformationColorDetectorLandmark,
-        TransformationNoiseDetectorLandmark,
+        TransformationBlurringDetector,
+        TransformationColorDetector,
+        TransformationNoiseDetector,
         TransformationResizeDetectorLandmark,
     ],
 )

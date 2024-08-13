@@ -5,7 +5,7 @@ from .perturbation import PerturbationBaseDetector
 
 
 @maybe_detector("noise", tags=["vision", "robustness", "image_classification", "landmark", "object_detection", "noise"])
-class TransformationNoiseDetectorLandmark(PerturbationBaseDetector):
+class TransformationNoiseDetector(PerturbationBaseDetector):
     """
     Detector that evaluates models performance on noisy images
     """
