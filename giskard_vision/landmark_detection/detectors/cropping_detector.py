@@ -1,4 +1,4 @@
-from giskard_vision.core.scanner.issues import Robustness
+from giskard_vision.core.issues import Robustness
 
 from ...core.detectors.decorator import maybe_detector
 from ..dataloaders.wrappers import CroppedDataLoader
