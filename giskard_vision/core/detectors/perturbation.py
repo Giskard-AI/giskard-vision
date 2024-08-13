@@ -75,7 +75,7 @@ class PerturbationBaseDetector(DetectorVisionBase):
             results.append(
                 self.get_scan_result(
                     test_result.metric_value_test,
-                    test_result.metric_value_test,
+                    test_result.metric_value_ref,
                     test_result.metric_name,
                     filename_examples,
                     dl.name,
