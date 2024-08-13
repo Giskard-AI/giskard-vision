@@ -9,7 +9,7 @@ class DataloaderForTest(DataIteratorBase):
         super().__init__(name, batch_size=batch_size)
         generator = np.random.default_rng(42)
 
-        self.dataset = generator.integers(0, 255, size=(length, 32, 32, 3)).astype(float)
+        self.dataset = generator.integers(0, 255, size=(length, 32, 32, 3)).astype(np.uint8)
         self.labels = generator.integers(0, 32, size=(length, 68, 2)).astype(float)
 
         self._idx_sampler = list(range(length))
@@ -30,7 +30,7 @@ class DataloaderMissingAnnotation(DataIteratorBase):
         super().__init__(name, batch_size=batch_size)
         generator = np.random.default_rng(42)
 
-        self.dataset = generator.integers(0, 255, size=(length, 32, 32, 3))
+        self.dataset = generator.integers(0, 255, size=(length, 32, 32, 3)).astype(np.uint8)
         self.labels = generator.integers(0, 32, size=(length, 68, 2)).astype(float)
 
         self._idx_sampler = list(range(length))

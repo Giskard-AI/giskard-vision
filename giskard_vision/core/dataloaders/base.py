@@ -2,9 +2,16 @@ import math
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
+import cv2
 import numpy as np
 
-from giskard_vision.core.dataloaders.meta import MetaData
+from giskard_vision.core.dataloaders.meta import (
+    MetaData,
+    get_brightness,
+    get_entropy,
+    get_image_channel_number,
+    get_image_size,
+)
 from giskard_vision.core.detectors.base import IssueGroup
 
 from ..types import TypesBase
@@ -16,6 +23,10 @@ EthicalIssueMeta = IssueGroup(
 PerformanceIssueMeta = IssueGroup(
     "Performance",
     description="The data are filtered by metadata like emotion, head pose, or exposure value to detect performance issues.",
+)
+AttributesIssueMeta = IssueGroup(
+    "Attributes",
+    description="The data are filtered by the image attributes like width, height, or brightness value to detect issues.",
 )
 
 
@@ -120,7 +131,7 @@ class DataIteratorBase(ABC):
         Returns default for meta data if it is None.
 
         Returns:
-            Optional[np.ndarray]: Default for meta data.
+            Optional[TypesBase.meta]: Default for meta data.
         """
         return None
 
@@ -146,7 +157,41 @@ class DataIteratorBase(ABC):
         Returns:
             Optional[TypesBase.meta]: Meta information for the given index.
         """
-        return None
+        img = self.get_image(idx)
+        if img.dtype != np.uint8:
+            # Normalize image to 0-255 range with uint8
+            img = (img * 255 % 255).astype(np.uint8)
+
+        gray_img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+        size = get_image_size(img)
+        nb_channels = get_image_channel_number(img)
+        avg_color = np.mean(img, axis=(0, 1))
+
+        return MetaData(
+            data={
+                "height": size[0],
+                "width": size[1],
+                "nb_channels": nb_channels,
+                "brightness": get_brightness(img),
+                "average_color_r": avg_color[0],
+                "average_color_g": avg_color[1] if avg_color.shape[0] > 0 else avg_color[0],
+                "average_color_b": avg_color[2] if avg_color.shape[0] > 0 else avg_color[0],
+                "contrast": np.max(gray_img) - np.min(gray_img),
+                "entropy": get_entropy(img),
+            },
+            categories=["nb_channels"],
+            issue_groups={
+                "width": AttributesIssueMeta,
+                "height": AttributesIssueMeta,
+                "nb_channels": AttributesIssueMeta,
+                "brightness": AttributesIssueMeta,
+                "average_color_r": AttributesIssueMeta,
+                "average_color_g": AttributesIssueMeta,
+                "average_color_b": AttributesIssueMeta,
+                "contrast": AttributesIssueMeta,
+                "entropy": AttributesIssueMeta,
+            },
+        )
 
     def get_labels_with_default(self, idx: int) -> np.ndarray:
         """
