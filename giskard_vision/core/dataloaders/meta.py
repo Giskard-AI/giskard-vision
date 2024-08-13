@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional
 
-from giskard_vision.core.detectors.base import IssueGroup
+from giskard_vision.core.issues import IssueGroup
 
 
 class MetaData:

@@ -5,18 +5,8 @@ from typing import List, Optional
 import numpy as np
 
 from giskard_vision.core.dataloaders.meta import MetaData
-from giskard_vision.core.detectors.base import IssueGroup
 
 from ..types import TypesBase
-
-EthicalIssueMeta = IssueGroup(
-    "Ethical",
-    description="The data are filtered by metadata like age, facial hair, or gender to detect ethical biases.",
-)
-PerformanceIssueMeta = IssueGroup(
-    "Performance",
-    description="The data are filtered by metadata like emotion, head pose, or exposure value to detect performance issues.",
-)
 
 
 class DataIteratorBase(ABC):

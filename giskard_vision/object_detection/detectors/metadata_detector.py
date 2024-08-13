@@ -15,13 +15,13 @@ from giskard_vision.object_detection.detectors.surrogate_functions import (
     SurrogateRelativeTopLeftY,
     SurrogateStdIntensity,
 )
-from giskard_vision.object_detection.tests.performance import IoUMean
 
 from ...core.detectors.decorator import maybe_detector
+from .specs import DetectorSpecs
 
 
 @maybe_detector("metadata_object_detection", tags=["vision", "object_detection", "metadata"])
-class MetaDataScanDetectorObjectDetection(MetaDataScanDetector):
+class MetaDataScanDetectorObjectDetection(DetectorSpecs, MetaDataScanDetector):
     surrogates = [
         SurrogateCenterMassX,
         SurrogateCenterMassY,
@@ -38,9 +38,3 @@ class MetaDataScanDetectorObjectDetection(MetaDataScanDetector):
         SurrogateRelativeTopLeftY,
         SurrogateNormalizedPerimeter,
     ]
-    metric = IoUMean
-    type_task = "regression"
-    metric_type = "absolute"
-    metric_direction = "better_higher"
-    deviation_threshold = 0.10
-    issue_level_threshold = 0.05

@@ -6,33 +6,10 @@ from typing import Any, Sequence
 import cv2
 
 from giskard_vision.core.dataloaders.wrappers import FilteredDataLoader
-from giskard_vision.core.detectors.base import (
-    DetectorVisionBase,
-    IssueGroup,
-    ScanResult,
-)
+from giskard_vision.core.detectors.base import DetectorVisionBase, ScanResult
 from giskard_vision.landmark_detection.tests.base import TestDiff
 from giskard_vision.landmark_detection.tests.performance import NMEMean
 from giskard_vision.utils.errors import GiskardImportError
-
-Cropping = IssueGroup(
-    "Cropping", description="Cropping involves evaluating the landmark detection model on specific face areas."
-)
-
-Ethical = IssueGroup(
-    "Ethical",
-    description="The data are filtered by ethnicity to detect ethical biases in the landmark detection model.",
-)
-
-Pose = IssueGroup(
-    "Head Pose",
-    description="The data are filtered by head pose to detect biases in the landmark detection model.",
-)
-
-Robustness = IssueGroup(
-    "Robustness",
-    description="Images from the dataset are blurred, recolored and resized to test the robustness of the model to transformations.",
-)
 
 
 class LandmarkDetectionBaseDetector(DetectorVisionBase):

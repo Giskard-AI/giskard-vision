@@ -2,13 +2,10 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Any, List, Optional, Sequence, Tuple
 
+from giskard_vision.core.issues import IssueGroup
 from giskard_vision.utils.errors import GiskardImportError
 
-
-@dataclass(frozen=True)
-class IssueGroup:
-    name: str
-    description: str
+from .specs import DetectorSpecsBase
 
 
 @dataclass
@@ -51,7 +48,7 @@ class ScanResult:
         }
 
 
-class DetectorVisionBase:
+class DetectorVisionBase(DetectorSpecsBase):
     """
     Abstract class for Vision Detectors
 
@@ -66,12 +63,6 @@ class DetectorVisionBase:
             Abstract method that returns a list of ScanResult objects containing
             evaluation results for the scan.
     """
-
-    issue_group: IssueGroup
-    warning_messages: dict
-    issue_level_threshold: float = 0.2
-    deviation_threshold: float = 0.05
-    num_images: int = 0
 
     def run(
         self,
@@ -138,6 +129,42 @@ class DetectorVisionBase:
                 )
 
         return issues
+
+    def get_scan_result(
+        self, metric_value, metric_reference_value, metric_name, filename_examples, name, size_data, issue_group
+    ) -> ScanResult:
+        try:
+            from giskard.scanner.issues import IssueLevel
+        except (ImportError, ModuleNotFoundError) as e:
+            raise GiskardImportError(["giskard"]) from e
+
+        relative_delta = metric_value - metric_reference_value
+        if self.metric_type == "relative":
+            relative_delta /= metric_reference_value
+
+        issue_level = IssueLevel.MINOR
+        if self.metric_direction == "better_lower":
+            if relative_delta > self.issue_level_threshold + self.deviation_threshold:
+                issue_level = IssueLevel.MAJOR
+            elif relative_delta > self.issue_level_threshold:
+                issue_level = IssueLevel.MEDIUM
+        elif self.metric_direction == "better_higher":
+            if relative_delta < -(self.issue_level_threshold + self.deviation_threshold):
+                issue_level = IssueLevel.MAJOR
+            elif relative_delta < -self.issue_level_threshold:
+                issue_level = IssueLevel.MEDIUM
+
+        return ScanResult(
+            name=name,
+            metric_name=metric_name,
+            metric_value=metric_value,
+            metric_reference_value=metric_reference_value,
+            issue_level=issue_level,
+            slice_size=size_data,
+            filename_examples=filename_examples,
+            relative_delta=relative_delta,
+            issue_group=issue_group,
+        )
 
     @abstractmethod
     def get_results(self, model: Any, dataset: Any) -> List[ScanResult]:
