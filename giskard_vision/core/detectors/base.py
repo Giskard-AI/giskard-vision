@@ -36,21 +36,20 @@ class ScanResult:
     relative_delta: float
     issue_group: Optional[IssueGroup] = None
 
+    def get_meta_required(self, include_slice_size=True) -> dict:
+        deviation = f"{self.relative_delta * 100:+.2f}% than global"
 
-def get_meta_required(self, include_slice_size=True) -> dict:
-    deviation = f"{self.relative_delta * 100:+.2f}% than global"
+        meta_info = {
+            "metric": self.metric_name,
+            "metric_value": self.metric_value,
+            "metric_reference_value": self.metric_reference_value,
+            "deviation": deviation,
+        }
 
-    meta_info = {
-        "metric": self.metric_name,
-        "metric_value": self.metric_value,
-        "metric_reference_value": self.metric_reference_value,
-        "deviation": deviation,
-    }
+        if include_slice_size:
+            meta_info["slice_size"] = self.slice_size
 
-    if include_slice_size:
-        meta_info["slice_size"] = self.slice_size
-
-    return meta_info
+        return meta_info
 
 
 class DetectorVisionBase(DetectorSpecsBase):
