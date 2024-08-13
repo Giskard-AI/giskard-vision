@@ -12,22 +12,9 @@ from giskard_vision.core.dataloaders.meta import (
     get_image_channel_number,
     get_image_size,
 )
-from giskard_vision.core.detectors.base import IssueGroup
+from giskard_vision.core.issues import AttributesIssueMeta
 
 from ..types import TypesBase
-
-EthicalIssueMeta = IssueGroup(
-    "Ethical",
-    description="The data are filtered by metadata like age, facial hair, or gender to detect ethical biases.",
-)
-PerformanceIssueMeta = IssueGroup(
-    "Performance",
-    description="The data are filtered by metadata like emotion, head pose, or exposure value to detect performance issues.",
-)
-AttributesIssueMeta = IssueGroup(
-    "Attributes",
-    description="The data are filtered by the image attributes like width, height, or brightness value to detect issues.",
-)
 
 
 class DataIteratorBase(ABC):

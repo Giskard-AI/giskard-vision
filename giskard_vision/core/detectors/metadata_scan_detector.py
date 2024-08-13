@@ -4,8 +4,8 @@ from typing import Any, Callable, List, Optional, Sequence
 import numpy as np
 import pandas as pd
 
-from giskard_vision.core.dataloaders.base import PerformanceIssueMeta
 from giskard_vision.core.detectors.base import DetectorVisionBase, ScanResult
+from giskard_vision.core.issues import PerformanceIssueMeta
 from giskard_vision.core.tests.base import MetricBase
 from giskard_vision.utils.errors import GiskardImportError
 
@@ -258,39 +258,3 @@ class MetaDataScanDetector(DetectorVisionBase):
                 pass
 
         return pd.DataFrame(df)
-
-    def get_scan_result(
-        self, metric_value, metric_reference_value, metric_name, filename_examples, name, size_data, issue_group
-    ) -> ScanResult:
-        try:
-            from giskard.scanner.issues import IssueLevel
-        except (ImportError, ModuleNotFoundError) as e:
-            raise GiskardImportError(["giskard"]) from e
-
-        relative_delta = metric_value - metric_reference_value
-        if self.metric_type == "relative":
-            relative_delta /= metric_reference_value
-
-        issue_level = IssueLevel.MINOR
-        if self.metric_direction == "better_lower":
-            if relative_delta > self.issue_level_threshold + self.deviation_threshold:
-                issue_level = IssueLevel.MAJOR
-            elif relative_delta > self.issue_level_threshold:
-                issue_level = IssueLevel.MEDIUM
-        elif self.metric_direction == "better_higher":
-            if relative_delta < -(self.issue_level_threshold + self.deviation_threshold):
-                issue_level = IssueLevel.MAJOR
-            elif relative_delta < -self.issue_level_threshold:
-                issue_level = IssueLevel.MEDIUM
-
-        return ScanResult(
-            name=name,
-            metric_name=metric_name,
-            metric_value=metric_value,
-            metric_reference_value=metric_reference_value,
-            issue_level=issue_level,
-            slice_size=size_data,
-            filename_examples=filename_examples,
-            relative_delta=relative_delta,
-            issue_group=issue_group,
-        )

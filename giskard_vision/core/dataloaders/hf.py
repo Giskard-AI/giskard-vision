@@ -7,8 +7,9 @@ from typing import Optional
 
 from PIL.Image import Image as PILImage
 
-from giskard_vision.core.dataloaders.base import AttributesIssueMeta, DataIteratorBase
+from giskard_vision.core.dataloaders.base import DataIteratorBase
 from giskard_vision.core.dataloaders.meta import MetaData, get_pil_image_depth
+from giskard_vision.core.issues import AttributesIssueMeta
 from giskard_vision.utils.errors import GiskardError, GiskardImportError
 
 

@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 from PIL.Image import Image as PILImage
 
-from giskard_vision.core.detectors.base import IssueGroup
+from giskard_vision.core.issues import IssueGroup
 
 
 class MetaData:
