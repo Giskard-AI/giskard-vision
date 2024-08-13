@@ -2,7 +2,7 @@ import os
 from abc import abstractmethod
 from importlib import import_module
 from pathlib import Path
-from typing import Any, Sequence, Tuple
+from typing import Any, Sequence
 
 import cv2
 
@@ -30,16 +30,8 @@ class PerturbationBaseDetector(DetectorVisionBase):
 
     issue_group = Robustness
 
-    def run(
-        self,
-        model: Any,
-        dataset: Any,
-        features: Any | None = None,
-        issue_levels: Tuple[Any] = None,
-        embed: bool = True,
-        num_images: int = 0,
-    ) -> Sequence[Any]:
-        module = import_module(f"giskard_vision.{model.model_type}.detectors.specs")
+    def set_specs_from_model_type(self, model_type):
+        module = import_module(f"giskard_vision.{model_type}.detectors.specs")
         DetectorSpecs = getattr(module, "DetectorSpecs")
 
         if DetectorSpecs:
@@ -48,14 +40,13 @@ class PerturbationBaseDetector(DetectorVisionBase):
                 if not attr_name.startswith("__") and hasattr(self, attr_name):
                     setattr(self, attr_name, attr_value)
         else:
-            raise ValueError(f"No detector specifications found for model type: {model.model_type}")
-
-        return super().run(model, dataset, features, issue_levels, embed, num_images)
+            raise ValueError(f"No detector specifications found for model type: {model_type}")
 
     @abstractmethod
     def get_dataloaders(self, dataset: Any) -> Sequence[Any]: ...
 
     def get_results(self, model: Any, dataset: Any) -> Sequence[ScanResult]:
+        self.set_specs_from_model_type(model.model_type)
         dataloaders = self.get_dataloaders(dataset)
 
         results = []
