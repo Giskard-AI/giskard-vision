@@ -9,6 +9,7 @@ from giskard_vision.core.dataloaders.meta import MetaData
 from giskard_vision.core.dataloaders.tfds import DataLoaderTensorFlowDatasets
 from giskard_vision.core.dataloaders.utils import flatten_dict
 from giskard_vision.core.issues import EthicalIssueMeta, PerformanceIssueMeta
+
 from giskard_vision.landmark_detection.types import Types
 
 from .base import DataLoaderBase
@@ -213,6 +214,8 @@ class DataLoaderFFHQ(DataLoaderBase):
         Returns:
             Optional[Dict[str, Any]]: Flattened metadata for the given index.
         """
+        parent_meta = super().get_meta(idx)
+
         try:
             with Path(self.images_dir_path / f"{idx:05d}.json").open(encoding="utf-8") as fp:
                 meta = json.load(fp)
@@ -221,8 +224,12 @@ class DataLoaderFFHQ(DataLoaderBase):
             flat_meta_without_prefix = {key.replace("faceAttributes_", ""): value for key, value in flat_meta.items()}
             flat_meta_without_prefix.pop("confidence")
             return MetaData(
-                data=flat_meta_without_prefix,
-                categories=[
+                data={
+                    **parent_meta.data,
+                    **flat_meta_without_prefix,
+                },
+                categories=parent_meta.categories
+                + [
                     "gender",
                     "glasses",
                     "exposure_exposureLevel",
@@ -237,6 +244,7 @@ class DataLoaderFFHQ(DataLoaderBase):
                     "emotion",
                 ],
                 issue_groups={
+                    **parent_meta.data,
                     "faceRectangle_top": PerformanceIssueMeta,
                     "faceRectangle_left": PerformanceIssueMeta,
                     "faceRectangle_width": PerformanceIssueMeta,
@@ -269,7 +277,7 @@ class DataLoaderFFHQ(DataLoaderBase):
                 },
             )
         except FileNotFoundError:
-            return None
+            return parent_meta
 
     @classmethod
     def load_image_from_file(cls, image_file: Path) -> np.ndarray:
@@ -375,6 +383,8 @@ class DataLoader300WLP(DataLoaderTensorFlowDatasets):
         Returns:
             Optional[Types.meta]: Metadata associated with the image, currently None.
         """
+        meta = super().get_meta(idx)
+
         row = self.get_row(idx)
 
         meta_exclude_keys = [
@@ -390,7 +400,10 @@ class DataLoader300WLP(DataLoaderTensorFlowDatasets):
         flat_meta = flatten_dict(row, excludes=meta_exclude_keys, flat_np_array=True)
 
         return MetaData(
-            data=flat_meta,
-            categories=list(flat_meta.keys()),
-            # TODO: Add issue group
+            data={
+                **meta.data,
+                **flat_meta,
+            },
+            categories=meta.categories,
+            issue_groups=meta.issue_groups,
         )

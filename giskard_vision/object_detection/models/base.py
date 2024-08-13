@@ -18,7 +18,7 @@ class ObjectDetectionHFModel(HFPipelineModelBase):
     model_type = "object_detection"
     prediction_result_cls = Types.prediction_result
 
-    def __init__(self, model_id: str, name: Optional[str] = None, device: str = "cpu"):
+    def __init__(self, model_id: str, name: Optional[str] = None, device: str = "cpu", mode: str = "RGB"):
         """init method that accepts a model id, name and device
         Args:
             model_id (str): Hugging Face model ID
@@ -32,10 +32,12 @@ class ObjectDetectionHFModel(HFPipelineModelBase):
             name=name,
             device=device,
         )
+        self._mode = mode
 
-    def predict_raw(self, image: np.ndarray) -> Any:
+    def predict_raw(self, image: np.ndarray, mode=None) -> Any:
         """method that takes one image as input and outputs the raw predictions
         Args:
             image (np.ndarray): input image
         """
-        return self.pipeline(Image.fromarray(image, "RGB"))
+        m = mode or self._mode
+        return self.pipeline(Image.fromarray(image, mode=m))

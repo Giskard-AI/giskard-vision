@@ -1,6 +1,7 @@
-from typing import Any, Optional
+from typing import Optional
 
 import numpy as np
+from PIL.Image import Image as PILImage
 
 from giskard_vision.core.dataloaders.hf import HFDataLoader
 from giskard_vision.core.dataloaders.meta import MetaData
@@ -71,6 +72,8 @@ class DataLoaderGeirhosConflictStimuli(DataLoaderTensorFlowDatasets):
         Returns:
             Optional[Types.meta]: Metadata associated with the image, currently None.
         """
+        meta = super().get_meta(idx)
+
         row = self.get_row(idx)
 
         meta_exclude_keys = [
@@ -85,9 +88,15 @@ class DataLoaderGeirhosConflictStimuli(DataLoaderTensorFlowDatasets):
         flat_meta = flatten_dict(row, excludes=meta_exclude_keys, flat_np_array=True)
 
         return MetaData(
-            data=flat_meta,
-            categories=list(flat_meta.keys()),
-            # TODO: Add issue group
+            data={
+                **meta.data,
+                **flat_meta,
+            },
+            categories=meta.categories + ["texture_label"],
+            issue_groups={
+                **meta.issue_groups,
+                "texture_label": PerformanceIssueMeta,
+            },
         )
 
 
@@ -114,7 +123,19 @@ class DataLoaderSkinCancerHuggingFaceDataset(HFDataLoader):
         """
         super().__init__("marmal88/skin_cancer", dataset_config, dataset_split, name)
 
-    def get_image(self, idx: int) -> Any:
+    def get_raw_hf_image(self, idx: int) -> PILImage:
+        """
+        Retrieves the image at the specified index in the HF dataset.
+
+        Args:
+            idx (int): Index of the image to retrieve.
+
+        Returns:
+            PIL.Image.Image: The image instance.
+        """
+        return self.ds[idx]["image"]
+
+    def get_image(self, idx: int) -> np.ndarray:
         """
         Retrieves the image at the specified index in the dataset.
 
@@ -124,7 +145,9 @@ class DataLoaderSkinCancerHuggingFaceDataset(HFDataLoader):
         Returns:
             np.ndarray: The image data.
         """
-        return np.array(self.ds[idx]["image"])
+        raw_img = self.get_raw_hf_image(idx)
+
+        return np.array(raw_img)
 
     def get_labels(self, idx: int) -> Optional[np.ndarray]:
         """
@@ -148,6 +171,8 @@ class DataLoaderSkinCancerHuggingFaceDataset(HFDataLoader):
         Returns:
             Optional[Types.meta]: Metadata associated with the image, currently None.
         """
+        meta = super().get_meta(idx)
+
         row = self.ds[idx]
 
         meta_exclude_keys = [
@@ -165,7 +190,17 @@ class DataLoaderSkinCancerHuggingFaceDataset(HFDataLoader):
         issue_groups["age"] = EthicalIssueMeta
         issue_groups["sex"] = EthicalIssueMeta
 
-        return MetaData(data=flat_meta, categories=["sex", "localization"], issue_groups=issue_groups)
+        return MetaData(
+            data={
+                **meta.data,
+                **flat_meta,
+            },
+            categories=meta.categories + ["sex", "localization"],
+            issue_groups={
+                **meta.issue_groups,
+                **issue_groups,
+            },
+        )
 
 
 class DataLoaderCifar100HuggingFaceDataset(HFDataLoader):
@@ -191,7 +226,19 @@ class DataLoaderCifar100HuggingFaceDataset(HFDataLoader):
         """
         super().__init__("uoft-cs/cifar100", dataset_config, dataset_split, name)
 
-    def get_image(self, idx: int) -> Any:
+    def get_raw_hf_image(self, idx: int) -> PILImage:
+        """
+        Retrieves the image at the specified index in the HF dataset.
+
+        Args:
+            idx (int): Index of the image to retrieve.
+
+        Returns:
+            PIL.Image.Image: The image instance.
+        """
+        return self.ds[idx]["img"]
+
+    def get_image(self, idx: int) -> np.ndarray:
         """
         Retrieves the image at the specified index in the dataset.
 
@@ -201,7 +248,9 @@ class DataLoaderCifar100HuggingFaceDataset(HFDataLoader):
         Returns:
             np.ndarray: The image data.
         """
-        return np.array(self.ds[idx]["img"])
+        raw_img = self.get_raw_hf_image(idx)
+
+        return np.array(raw_img)
 
     def get_labels(self, idx: int) -> Optional[np.ndarray]:
         """
@@ -227,6 +276,8 @@ class DataLoaderCifar100HuggingFaceDataset(HFDataLoader):
         Returns:
             Optional[Types.meta]: Metadata associated with the image, currently None.
         """
+        meta = super().get_meta(idx)
+
         row = self.ds[idx]
 
         meta_exclude_keys = [
@@ -240,4 +291,14 @@ class DataLoaderCifar100HuggingFaceDataset(HFDataLoader):
 
         issue_groups = {key: PerformanceIssueMeta for key in flat_meta}
 
-        return MetaData(data=flat_meta, categories=["coarse_label"], issue_groups=issue_groups)
+        return MetaData(
+            data={
+                **meta.data,
+                **flat_meta,
+            },
+            categories=meta.categories + ["coarse_label"],
+            issue_groups={
+                **meta.issue_groups,
+                **issue_groups,
+            },
+        )

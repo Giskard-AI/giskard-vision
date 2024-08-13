@@ -2,9 +2,13 @@ import atexit
 import os
 import shutil
 import tempfile
+from abc import abstractmethod
 from typing import Optional
 
-from giskard_vision.core.dataloaders.base import DataIteratorBase
+from PIL.Image import Image as PILImage
+
+from giskard_vision.core.dataloaders.base import AttributesIssueMeta, DataIteratorBase
+from giskard_vision.core.dataloaders.meta import MetaData, get_pil_image_depth
 from giskard_vision.utils.errors import GiskardError, GiskardImportError
 
 
@@ -94,7 +98,7 @@ class HFDataLoader(DataIteratorBase):
             str: Image path
         """
 
-        image = self.ds[idx]["image"]
+        image = self.get_raw_hf_image(idx)
         image_path = os.path.join(self.temp_folder, f"image_{idx}.png")
         image.save(image_path)
 
@@ -105,3 +109,31 @@ class HFDataLoader(DataIteratorBase):
         Clean the temporary folder
         """
         shutil.rmtree(self.temp_folder)
+
+    @abstractmethod
+    def get_raw_hf_image(self, idx: int) -> PILImage:
+        """
+        Retrieves the raw image at the specified index in the HF dataset.
+        Args:
+            idx (int): Index of the image
+
+        Returns:
+            PIL.Image.Image: The image instance.
+        """
+        ...
+
+    def get_meta(self, idx: int) -> MetaData:
+        meta = super().get_meta(idx)
+        img = self.get_raw_hf_image(idx)
+
+        return MetaData(
+            data={
+                **meta.data,
+                "depth": get_pil_image_depth(img),
+            },
+            categories=["depth"] + meta.categories,
+            issue_groups={
+                **meta.issue_groups,
+                "depth": AttributesIssueMeta,
+            },
+        )
