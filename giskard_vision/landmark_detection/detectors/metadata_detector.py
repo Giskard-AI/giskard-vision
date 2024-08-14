@@ -8,6 +8,6 @@ from ...core.detectors.decorator import maybe_detector
 from .specs import DetectorSpecs
 
 
-@maybe_detector("metadata_landmark", tags=["vision", "face", "landmark", "metadata"])
+@maybe_detector("metadata_landmark", tags=["vision", "face", "landmark_detection", "metadata"])
 class MetaDataScanDetectorLandmark(DetectorSpecs, MetaDataScanDetector):
     surrogates = [SurrogateVolumeConvexHull, SurrogateNME]
