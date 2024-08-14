@@ -13,7 +13,7 @@ logger = getLogger(__name__)
 class FaceLandmarksModelBase(ModelBase):
     """Abstract class that serves as a template for all landmark model predictions"""
 
-    model_type = "landmark_detection"
+    model_type = "landmark"
     prediction_result_cls = Types.prediction_result
 
     def __init__(self, n_landmarks: int, n_dimensions: int, name: Optional[str] = None) -> None:
