@@ -14,7 +14,21 @@ In particular this module allows you to evaluate your model against the followin
 - [Skin cancer](https://huggingface.co/datasets/marmal88/skin_cancer) through Hugging Face
 
 
-## Supported Classification
+## Scan and Supported Classification
+
+Once the model and dataloader (`dl`) are wrapped, you can scan the model with the scan API in Giskard vision core:
+
+```python
+from giskard_vision.core.scanner import scan
+
+results = scan(model, dl)
+```
+
+It adapts the [scan API in Giskard Python library](https://github.com/Giskard-AI/giskard#2--scan-your-model-for-issues) to magically scan the vision model with the dataloader.
+
+Currently, due to the constraint of the scan API, we support a subset of image classification tasks:
 
 - [x] Multiclass and single label
 - [ ] Multiclass and multi-label
+
+We will be working to remove such limit for the scan.
