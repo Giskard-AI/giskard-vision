@@ -22,7 +22,17 @@ You can also check our publicly hosted versions of these datasets on S3:
   - https://poc-face-aligment.s3.eu-north-1.amazonaws.com/300W/300w.zip.004
 - FFHQ (only meta data): https://poc-face-aligment.s3.eu-north-1.amazonaws.com/ffhq/json.zip
 
-## Metrics
+## Scan and Metrics
+
+Once the model and dataloader (`dl`) are wrapped, you can scan the model with the scan API in Giskard vision core:
+
+```python
+from giskard_vision.core.scanner import scan
+
+results = scan(model, dl)
+```
+
+It adapts the [scan API in Giskard Python library](https://github.com/Giskard-AI/giskard#2--scan-your-model-for-issues) to magically scan the vision model with the dataloader. The considered metrics are:
 
 - [x] ME: Mean Euclidean distances
 - [x] NME: Normalised Mean Euclidean distances
