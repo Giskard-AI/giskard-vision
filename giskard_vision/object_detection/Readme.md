@@ -14,6 +14,18 @@ In particular this module allows you to evaluate your model against the followin
 - [ffhq](https://github.com/DCGM/ffhq-features-dataset), using the boundary box around all face landmarks
 - [Living room passes](https://huggingface.co/datasets/Nfiniteai/living-room-passes) through Hugging Face
 
-## Metric
+## Scan and Metrics
+
+Once the model and dataloader (`dl`) are wrapped, you can scan the model with the scan API in Giskard vision core:
+
+```python
+from giskard_vision.core.scanner import scan
+
+results = scan(model, dl)
+```
+
+It adapts the [scan API in Giskard Python library](https://github.com/Giskard-AI/giskard#2--scan-your-model-for-issues) to magically scan the vision model with the dataloader. The considered metric is:
 
 - [x] Intersection over Union (IoU)
+
+Currently, we only support one object both in the model prediction and ground truth, due to the constraint of the scan API. We will be working to remove such limit.
