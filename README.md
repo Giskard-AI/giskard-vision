@@ -74,8 +74,8 @@ Explore the examples provided to see how to implement scans in different context
 
 The `examples` directory contains Jupyter notebook tutorials that demonstrate how to use Giskard Vision for various tasks. To explore these tutorials:
 
-	1.	Install the repository in development mode.
-	2.	Navigate to the examples directory and open the notebook of interest.
+1. Install the repository in development mode.
+2. Navigate to the examples directory and open the notebook of interest.
 
 ## FAQ
 
