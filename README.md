@@ -85,11 +85,17 @@ The `examples` directory contains Jupyter notebook tutorials that demonstrate ho
 
 ## FAQ
 
-#### I am getting `attributeerror: module 'cv2.face' has no attribute 'createlbphfacerecognizer'` when running some examples in dev mode
+#### → I am getting `attributeerror: module 'cv2.face' has no attribute 'createlbphfacerecognizer'` when running some examples in dev mode
 
 This issue usually occurs due to the installation order of the `opencv-contrib-python` module. To resolve it, follow these steps:
 
 ```bash
 pip uninstall opencv-contrib-python
 pip install opencv-contrib-python
+```
+
+#### → For Linux users with CUDA support
+It is recommended that you install the following CUDA-compatible versions of Torch by running the command below:
+```bash
+pdm run pip install -U torch==2.1.0+cu121 torchvision==0.16.0+cu121 --index-url https://download.pytorch.org/whl/cu121
 ```
