@@ -9,7 +9,7 @@ from giskard_vision.utils.errors import GiskardError
 
 class TestHFDataLoader(HFDataLoader):
     def __init__(self, split):
-        super().__init__(hf_id="giskard-bot/evaluator-leaderboard", hf_split=split)
+        super().__init__(hf_id="ylecun/mnist", hf_split=split)
 
     def get_raw_hf_image(self, idx: int) -> PILImage:
         return PIL.Image.fromarray(self.get_image(idx), "RGB")
@@ -21,11 +21,11 @@ class TestHFDataLoader(HFDataLoader):
 
 def test_hf_data_loader():
     # Test loading
-    dataloader = TestHFDataLoader(split="train")
+    dataloader = TestHFDataLoader(split="test")
     assert len(dataloader) > 0
 
 
 def test_hf_data_loader_no_splits():
     # Test missing splits
     with pytest.raises(GiskardError):
-        TestHFDataLoader(split="test")
+        TestHFDataLoader(split="unknown")
