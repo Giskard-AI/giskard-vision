@@ -33,7 +33,7 @@ Giskard Vision is a comprehensive Python package designed to simplify and stream
 - **Facial Landmark Detection** ([Readme](https://github.com/Giskard-AI/giskard-vision/blob/main/giskard_vision/landmark_detection/Readme.md))
 - **Image Classification** ([Readme](https://github.com/Giskard-AI/giskard-vision/blob/main/giskard_vision/image_classification/Readme.md))
 - **Object Detection** ([Readme](https://github.com/Giskard-AI/giskard-vision/blob/main/giskard_vision/object_detection/Readme.md))
-- 
+
 ## Installation
 
 To install Giskard Vision, simply use pip:
