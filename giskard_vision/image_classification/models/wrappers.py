@@ -1,9 +1,9 @@
 from giskard_vision.image_classification.models.base import (
-    SingleLabelImageClassificationHFModelWrapper,
+    SingleLabelImageClassificationHFModel,
 )
 
 
-class SkinCancerHuggingFaceModel(SingleLabelImageClassificationHFModelWrapper):
+class SkinCancerHFModel(SingleLabelImageClassificationHFModel):
     """Wrapper class for Skin Cancer model on Hugging Face.
 
     Args:
@@ -19,7 +19,7 @@ class SkinCancerHuggingFaceModel(SingleLabelImageClassificationHFModelWrapper):
         )
 
 
-class MicrosoftResNetImageNet50HuggingFaceModel(SingleLabelImageClassificationHFModelWrapper):
+class MicrosoftResNetImageNet50HFModel(SingleLabelImageClassificationHFModel):
     """Wrapper class for Microsoft's ResNet model on Hugging Face.
 
     Args:
@@ -35,7 +35,7 @@ class MicrosoftResNetImageNet50HuggingFaceModel(SingleLabelImageClassificationHF
         )
 
 
-class Jsli96ResNetImageNetHuggingFaceModel(SingleLabelImageClassificationHFModelWrapper):
+class Jsli96ResNetImageNetHFModel(SingleLabelImageClassificationHFModel):
     """Wrapper class for Jsli96's ResNet model for tiny imagenet dataset on Hugging Face.
 
     Args:
@@ -51,7 +51,7 @@ class Jsli96ResNetImageNetHuggingFaceModel(SingleLabelImageClassificationHFModel
         )
 
 
-class VitCifar100HuggingFaceModel(SingleLabelImageClassificationHFModelWrapper):
+class VitCifar100HFModel(SingleLabelImageClassificationHFModel):
     """Wrapper class for Vit model for CIFAR100 dataset on Hugging Face.
 
     Args:
@@ -67,7 +67,7 @@ class VitCifar100HuggingFaceModel(SingleLabelImageClassificationHFModelWrapper):
         )
 
 
-class SwinTinyFinetunedCifar100HuggingFaceModel(SingleLabelImageClassificationHFModelWrapper):
+class SwinTinyFinetunedCifar100HFModel(SingleLabelImageClassificationHFModel):
     """Wrapper class for Mazen Amria's SwinTinyFinetunedCifar100 model for CIFAR100 dataset on Hugging Face.
 
     Args:

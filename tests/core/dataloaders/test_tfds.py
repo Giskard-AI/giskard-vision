@@ -1,11 +1,11 @@
 import numpy as np
 import pytest
 
-from giskard_vision.core.dataloaders.tfds import DataLoaderTensorFlowDatasets
+from giskard_vision.core.dataloaders.tf import TFDataLoader
 from giskard_vision.utils.errors import GiskardError
 
 
-class TestDataLoaderTensorflowDatasets(DataLoaderTensorFlowDatasets):
+class TestDataLoaderTensorflowDatasets(TFDataLoader):
     def __init__(self, split):
         super().__init__(tfds_id="mnist", tfds_split=split)
 

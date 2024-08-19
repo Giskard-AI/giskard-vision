@@ -49,7 +49,7 @@ class ImageClassificationHFModel(HFPipelineModelBase):
         return self._classification_labels
 
 
-class SingleLabelImageClassificationHFModelWrapper(ImageClassificationHFModel):
+class SingleLabelImageClassificationHFModel(ImageClassificationHFModel):
     """Hugging Face pipeline wrapper class that serves as a template for single label image classification predictions
 
     Args:

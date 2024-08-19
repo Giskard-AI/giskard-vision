@@ -109,7 +109,7 @@ class MobileNetBase(ModelBase):
         return {"boxes": self.positive_constraint(self.shape_rescale(image, boxes)), "labels": ""}
 
 
-class FurnitureDetection(MobileNetBase):
+class FurnitureDetectionModel(MobileNetBase):
     model_weights: str = "furniture_detection.h5"
     model_type: str = "object_detection"
     image_size: int = 128
@@ -182,7 +182,7 @@ class FurnitureDetection(MobileNetBase):
         self.model.fit(batch_images, ground_truth_df, epochs=500, callbacks=[stop, reduce_lr], verbose=2)
 
 
-class RacoonDetection(MobileNetBase):
+class RacoonDetectionModel(MobileNetBase):
     model_weights: str = "racoon_detection.h5"
     model_type: str = "object_detection"
     image_size: int = 128
@@ -245,7 +245,7 @@ class RacoonDetection(MobileNetBase):
         self.model.fit(batch_images, gt, epochs=100, callbacks=[stop, reduce_lr], verbose=2)
 
 
-class DetrFinetunedFaceDetectionHuggingFaceModel(ObjectDetectionHFModel):
+class DetrFinetunedHFModel(ObjectDetectionHFModel):
     """Wrapper class for goshiv's detr finetuned face detection model on Hugging Face.
     Args:
         name (str): The name of the model.

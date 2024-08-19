@@ -1,19 +1,13 @@
 from giskard.scanner.issues import Issue, IssueLevel
 from pytest import mark
 
-from giskard_vision.core.detectors.transformation_blurring_detector import (
-    TransformationBlurringDetector,
-)
-from giskard_vision.core.detectors.transformation_color_detector import (
-    TransformationColorDetector,
-)
-from giskard_vision.core.detectors.transformation_noise_detector import (
-    TransformationNoiseDetector,
-)
+from giskard_vision.core.detectors.blur_detector import BlurDetector
+from giskard_vision.core.detectors.color_detector import ColorDetector
+from giskard_vision.core.detectors.noise_detector import NoiseDetector
 from giskard_vision.landmark_detection.detectors import (
-    CroppingDetectorLandmark,
-    MetaDataScanDetectorLandmark,
-    TransformationResizeDetectorLandmark,
+    CropDetectorLandmarkDetection,
+    MetaDataDetectorLandmarkDetection,
+    TransformationResizeDetectorLandmarkDetection,
 )
 from giskard_vision.landmark_detection.detectors.base import ScanResult
 
@@ -21,11 +15,11 @@ from giskard_vision.landmark_detection.detectors.base import ScanResult
 @mark.parametrize(
     "detector",
     [
-        CroppingDetectorLandmark,
-        TransformationBlurringDetector,
-        TransformationColorDetector,
-        TransformationNoiseDetector,
-        TransformationResizeDetectorLandmark,
+        CropDetectorLandmarkDetection,
+        BlurDetector,
+        ColorDetector,
+        NoiseDetector,
+        TransformationResizeDetectorLandmarkDetection,
     ],
 )
 def test_base_detector(opencv_model, dataset_300w, detector):
@@ -43,10 +37,10 @@ def test_base_detector(opencv_model, dataset_300w, detector):
 
 
 def test_meta_detector(opencv_model, dataset_ffhq):
-    results = MetaDataScanDetectorLandmark().get_results(opencv_model, dataset_ffhq)
+    results = MetaDataDetectorLandmarkDetection().get_results(opencv_model, dataset_ffhq)
     assert isinstance(results, list)
 
-    issues = MetaDataScanDetectorLandmark().get_issues(
+    issues = MetaDataDetectorLandmarkDetection().get_issues(
         opencv_model, dataset_ffhq, results, (IssueLevel.MINOR, IssueLevel.MEDIUM, IssueLevel.MAJOR)
     )
     assert isinstance(issues, list)

@@ -1,6 +1,6 @@
 import numpy as np
 
-from giskard_vision.core.detectors.metadata_scan_detector import Surrogate
+from giskard_vision.core.detectors.metadata_detector import Surrogate
 
 
 @staticmethod
