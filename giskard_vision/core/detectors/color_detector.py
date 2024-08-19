@@ -1,21 +1,21 @@
 from giskard_vision.core.dataloaders.wrappers import ColoredDataLoader
 
-from ...core.detectors.decorator import maybe_detector
+from .decorator import maybe_detector
 from .perturbation import PerturbationBaseDetector
 
 
 @maybe_detector(
-    "coloring",
+    "color",
     tags=[
         "vision",
         "robustness",
         "image_classification",
         "landmark_detection",
         "object_detection",
-        "coloring",
+        "color",
     ],
 )
-class TransformationColorDetector(PerturbationBaseDetector):
+class ColorDetector(PerturbationBaseDetector):
     """
     Detector that evaluates models performance depending on images in grayscale
     """

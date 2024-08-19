@@ -1,9 +1,9 @@
-from .cropping_detector import CroppingDetectorLandmark
-from .metadata_detector import MetaDataScanDetectorLandmark
-from .transformation_resize_detector import TransformationResizeDetectorLandmark
+from .crop_detector import CropDetectorLandmarkDetection
+from .metadata_detector import MetaDataDetectorLandmarkDetection
+from .resize_detector import TransformationResizeDetectorLandmarkDetection
 
 __all__ = [
-    "CroppingDetectorLandmark",
-    "TransformationResizeDetectorLandmark",
-    "MetaDataScanDetectorLandmark",
+    "CropDetectorLandmarkDetection",
+    "TransformationResizeDetectorLandmarkDetection",
+    "MetaDataDetectorLandmarkDetection",
 ]

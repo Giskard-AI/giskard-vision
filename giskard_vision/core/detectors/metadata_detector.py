@@ -16,7 +16,7 @@ class Surrogate:
     surrogate: Optional[Callable] = None
 
 
-class MetaDataScanDetector(DetectorVisionBase):
+class MetaDataDetector(DetectorVisionBase):
     """
     Detector based on Giskard scan that looks for issues based on metadata
 

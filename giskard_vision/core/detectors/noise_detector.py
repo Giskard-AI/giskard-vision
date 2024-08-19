@@ -1,6 +1,6 @@
 from giskard_vision.core.dataloaders.wrappers import NoisyDataLoader
 
-from ...core.detectors.decorator import maybe_detector
+from .decorator import maybe_detector
 from .perturbation import PerturbationBaseDetector
 
 
@@ -15,7 +15,7 @@ from .perturbation import PerturbationBaseDetector
         "noise",
     ],
 )
-class TransformationNoiseDetector(PerturbationBaseDetector):
+class NoiseDetector(PerturbationBaseDetector):
     """
     Detector that evaluates models performance on noisy images
     """

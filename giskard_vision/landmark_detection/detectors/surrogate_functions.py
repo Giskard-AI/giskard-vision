@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.spatial import ConvexHull
 
-from giskard_vision.core.detectors.metadata_scan_detector import Surrogate
+from giskard_vision.core.detectors.metadata_detector import Surrogate
 from giskard_vision.landmark_detection.tests.performance import NMEMean
 from giskard_vision.landmark_detection.types import PredictionResult
 

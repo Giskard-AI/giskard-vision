@@ -1,12 +1,13 @@
 from giskard_vision.core.dataloaders.wrappers import BlurredDataLoader
 
-from ...core.detectors.decorator import maybe_detector
+from .decorator import maybe_detector
 from .perturbation import PerturbationBaseDetector
 
 
 @maybe_detector(
-    "blurring",
+    "blur",
     tags=[
+        "blur",
         "vision",
         "robustness",
         "image_classification",
@@ -14,7 +15,7 @@ from .perturbation import PerturbationBaseDetector
         "object_detection",
     ],
 )
-class TransformationBlurringDetector(PerturbationBaseDetector):
+class BlurDetector(PerturbationBaseDetector):
     """
     Detector that evaluates models performance on blurred images
     """

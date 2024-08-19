@@ -1,4 +1,4 @@
-from giskard_vision.core.detectors.metadata_scan_detector import MetaDataScanDetector
+from giskard_vision.core.detectors.metadata_detector import MetaDataDetector
 from giskard_vision.object_detection.detectors.surrogate_functions import (
     SurrogateArea,
     SurrogateAspectRatio,
@@ -21,7 +21,7 @@ from .specs import DetectorSpecs
 
 
 @maybe_detector("metadata_object_detection", tags=["vision", "object_detection", "metadata"])
-class MetaDataScanDetectorObjectDetection(DetectorSpecs, MetaDataScanDetector):
+class MetaDataDetectorObjectDetection(DetectorSpecs, MetaDataDetector):
     surrogates = [
         SurrogateCenterMassX,
         SurrogateCenterMassY,

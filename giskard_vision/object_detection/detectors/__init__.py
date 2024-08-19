@@ -1,5 +1,5 @@
-from .metadata_detector import MetaDataScanDetectorObjectDetection
+from .metadata_detector import MetaDataDetectorObjectDetection
 
 __all__ = [
-    "MetaDataScanDetectorObjectDetection",
+    "MetaDataDetectorObjectDetection",
 ]
