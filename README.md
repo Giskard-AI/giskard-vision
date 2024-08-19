@@ -27,7 +27,8 @@
 ## Supported computer vision tasks
 
 - **Facial Landmark Detection** ([Readme](https://github.com/Giskard-AI/giskard-vision/blob/main/giskard_vision/landmark_detection/Readme.md))
-- **Image Classification** 🔜 Coming soon! 
+- **Image Classification** ([Readme](https://github.com/Giskard-AI/giskard-vision/blob/main/giskard_vision/image_classification/Readme.md))
+- **Object Detection** ([Readme](https://github.com/Giskard-AI/giskard-vision/blob/main/giskard_vision/object_detection/Readme.md))
 
 ## Install
 
