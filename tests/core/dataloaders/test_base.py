@@ -21,7 +21,7 @@ class DataloaderForTest(DataIteratorBase):
     def get_image(self, idx: int) -> np.ndarray:
         return self.dataset[idx]
 
-    def get_labels(self, idx: int) -> np.ndarray:
+    def get_label(self, idx: int) -> np.ndarray:
         return self.labels[idx]
 
 
@@ -50,7 +50,7 @@ class DataloaderMissingAnnotation(DataIteratorBase):
     def meta_none(cls):
         return {"key1": -1, "key2": -1}
 
-    def get_labels(self, idx: int) -> np.ndarray | None:
+    def get_label(self, idx: int) -> np.ndarray | None:
         return self.labels[idx] if idx % 2 == 0 else None
 
     def get_meta(self, idx: int) -> dict | None:

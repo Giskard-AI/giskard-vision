@@ -79,7 +79,7 @@ class CroppedDataLoader(DataLoaderWrapper):
         image = super().get_image(idx)
         h, w, _ = image.shape
         margins = np.array([w, h]) * self._margins
-        marks = crop_mark(self.get_labels_with_default(idx), self._part)
+        marks = crop_mark(self.get_label_with_default(idx), self._part)
         return crop_image_from_mark(image, marks, margins)
 
 

@@ -122,7 +122,7 @@ class DataIteratorBase(ABC):
         """
         return None
 
-    def get_labels(self, idx: int) -> Optional[np.ndarray]:
+    def get_label(self, idx: int) -> Optional[np.ndarray]:
         """
         Gets labels (for a single image) for a specific index.
 
@@ -180,7 +180,7 @@ class DataIteratorBase(ABC):
             },
         )
 
-    def get_labels_with_default(self, idx: int) -> np.ndarray:
+    def get_label_with_default(self, idx: int) -> np.ndarray:
         """
         Gets labels for a specific index with a default value if None.
 
@@ -190,7 +190,7 @@ class DataIteratorBase(ABC):
         Returns:
             np.ndarray: Labels for the given index.
         """
-        labels = self.get_labels(idx)
+        labels = self.get_label(idx)
         return labels if labels is not None else self.labels_none()
 
     def get_meta_with_default(self, idx: int) -> MetaData:
@@ -219,7 +219,7 @@ class DataIteratorBase(ABC):
         metadata = self.get_meta_with_default(idx)
         return (
             self.get_image(idx),
-            self.get_labels_with_default(idx),
+            self.get_label_with_default(idx),
             metadata if metadata is not None else MetaData({}),
         )
 
@@ -256,7 +256,7 @@ class DataIteratorBase(ABC):
         Returns:
             np.ndarray: Array containing labels.
         """
-        return np.array([self.get_labels_with_default(idx) for idx in self.idx_sampler])
+        return np.array([self.get_label_with_default(idx) for idx in self.idx_sampler])
 
     @property
     def all_meta(self) -> List:
@@ -347,7 +347,7 @@ class DataLoaderWrapper(DataIteratorBase):
         """
         return self._wrapped_dataloader.get_image(idx)
 
-    def get_labels(self, idx: int) -> Optional[np.ndarray]:
+    def get_label(self, idx: int) -> Optional[np.ndarray]:
         """
         Gets labels from the wrapped data loader.
 
@@ -357,7 +357,7 @@ class DataLoaderWrapper(DataIteratorBase):
         Returns:
             Optional[np.ndarray]: Labels from the wrapped data loader.
         """
-        return self._wrapped_dataloader.get_labels(idx)
+        return self._wrapped_dataloader.get_label(idx)
 
     def get_meta(self, idx: int) -> Optional[TypesBase.meta]:
         """

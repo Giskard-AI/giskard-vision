@@ -48,7 +48,7 @@ class DataLoaderGeirhosConflictStimuli(TFDataLoader):
         """
         return np.array(self.get_row(idx)["image"])
 
-    def get_labels(self, idx: int) -> Optional[np.ndarray]:
+    def get_label(self, idx: int) -> Optional[np.ndarray]:
         """
         Retrieves shape label of the image at the specified index.
 
@@ -149,7 +149,7 @@ class DataLoaderSkinCancer(HFDataLoader):
 
         return np.array(raw_img)
 
-    def get_labels(self, idx: int) -> Optional[np.ndarray]:
+    def get_label(self, idx: int) -> Optional[np.ndarray]:
         """
         Retrieves label of the image at the specified index.
 
@@ -252,7 +252,7 @@ class DataLoaderCifar100(HFDataLoader):
 
         return np.array(raw_img)
 
-    def get_labels(self, idx: int) -> Optional[np.ndarray]:
+    def get_label(self, idx: int) -> Optional[np.ndarray]:
         """
         Retrieves label of the image at the specified index.
 

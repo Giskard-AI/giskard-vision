@@ -135,7 +135,7 @@ class DataLoaderFFHQ(DataLoaderBase):
         self.images_dir_path = self._get_absolute_local_path(dir_path)
         self.image_paths = self._get_all_paths_based_on_suffix(self.images_dir_path, self.image_suffix)
 
-    def get_labels(self, idx: int) -> Optional[np.ndarray]:
+    def get_label(self, idx: int) -> Optional[np.ndarray]:
         """
         Gets landmark coordinates for a specific index.
 
@@ -354,7 +354,7 @@ class DataLoader300WLP(TFDataLoader):
         """
         return self.get_row(idx)[self.image_key]
 
-    def get_labels(self, idx: int) -> Optional[np.ndarray]:
+    def get_label(self, idx: int) -> Optional[np.ndarray]:
         """
         Retrieves normalized 2D landmarks corresponding to the image at the specified index.
 

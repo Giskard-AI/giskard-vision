@@ -146,7 +146,7 @@ class DataLoaderBase(DataIteratorBase):
         """
         return self._load_and_validate_image(self.image_paths[idx])
 
-    def get_labels(self, idx: int) -> Optional[np.ndarray]:
+    def get_label(self, idx: int) -> Optional[np.ndarray]:
         """
         Gets marks for a specific index after validation.
 

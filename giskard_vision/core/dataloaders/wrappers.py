@@ -46,7 +46,7 @@ class CachedDataLoader(DataLoaderWrapper):
             lru_cache(maxsize=cache_size)(func) if should_cache else func
             for should_cache, func in [
                 (cache_img, self._wrapped_dataloader.get_image),
-                (cache_labels, self._wrapped_dataloader.get_labels),
+                (cache_labels, self._wrapped_dataloader.get_label),
                 (cache_meta, self._wrapped_dataloader.get_meta),
             ]
         ]
@@ -63,7 +63,7 @@ class CachedDataLoader(DataLoaderWrapper):
         """
         return self._cached_functions[0](idx)
 
-    def get_labels(self, idx: int) -> Optional[np.ndarray]:
+    def get_label(self, idx: int) -> Optional[np.ndarray]:
         """
         Gets labels from the cache or the wrapped data loader.
 
@@ -154,7 +154,7 @@ class ResizedDataLoaderBase(DataLoaderWrapper):
     def resize_labels(self, labels: Any, scales: Union[Tuple[float, float], float]) -> Any:
         raise NotImplementedError("Method not implemented")
 
-    def get_labels(self, idx: int) -> np.ndarray:
+    def get_label(self, idx: int) -> np.ndarray:
         """
         Gets resized labels data based on the specified scales.
 
@@ -164,7 +164,7 @@ class ResizedDataLoaderBase(DataLoaderWrapper):
         Returns:
             np.ndarray: Resized labels.
         """
-        labels = super().get_labels(idx)
+        labels = super().get_label(idx)
         return self.resize_labels(labels, self._scales)
 
 

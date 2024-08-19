@@ -104,7 +104,7 @@ class DataLoaderRacoon(DataIteratorBase):
 
         return np.array([xmin, ymin, xmax, ymax])
 
-    def get_labels(self, idx: int) -> Optional[np.ndarray]:
+    def get_label(self, idx: int) -> Optional[np.ndarray]:
         """
         Gets landmark coordinates for a specific index.
 
@@ -207,7 +207,7 @@ class DataLoaderRacoon(DataIteratorBase):
 class DataLoader300WFaceDetection(DataLoader300W):
     """Data loader for the 300W dataset for face detection. Ref: https://ibug.doc.ic.ac.uk/resources/300-W/"""
 
-    def get_labels(self, idx: int) -> Optional[np.ndarray]:
+    def get_label(self, idx: int) -> Optional[np.ndarray]:
         """
         Gets marks for a specific index after validation.
         Args:
@@ -215,7 +215,7 @@ class DataLoader300WFaceDetection(DataLoader300W):
         Returns:
             Optional[np.ndarray]: Marks for the given index.
         """
-        landmarks = super().get_labels(idx)
+        landmarks = super().get_label(idx)
 
         if landmarks is None:
             return None
@@ -232,7 +232,7 @@ class DataLoader300WFaceDetection(DataLoader300W):
 class DataLoaderFFHQFaceDetectionLandmark(DataLoaderFFHQ):
     """Data loader for the FFHQ (Flickr-Faces-HQ) dataset for face detection, using the boundary boxes around landmarks."""
 
-    def get_labels(self, idx: int) -> Optional[np.ndarray]:
+    def get_label(self, idx: int) -> Optional[np.ndarray]:
         """
         Gets marks for a specific index after validation.
         Args:
@@ -240,7 +240,7 @@ class DataLoaderFFHQFaceDetectionLandmark(DataLoaderFFHQ):
         Returns:
             Optional[np.ndarray]: Marks for the given index.
         """
-        landmarks = super().get_labels(idx)
+        landmarks = super().get_label(idx)
 
         if landmarks is None:
             return None
@@ -276,7 +276,7 @@ class DataLoaderFFHQFaceDetection(DataLoaderFFHQFaceDetectionLandmark):
                 for k, v in json.load(fp).items()
             }
 
-    def get_labels(self, idx: int) -> Optional[np.ndarray]:
+    def get_label(self, idx: int) -> Optional[np.ndarray]:
         """
         Gets marks for a specific index after validation.
         Args:
@@ -398,7 +398,7 @@ class DataLoaderFurniture(HFDataLoader):
 
         return np.array([xmin, ymin, xmax, ymax])
 
-    def get_labels(self, idx: int) -> Optional[np.ndarray]:
+    def get_label(self, idx: int) -> Optional[np.ndarray]:
         """
         Gets landmark coordinates for a specific index.
 
