@@ -5,15 +5,15 @@ from PIL.Image import Image as PILImage
 
 from giskard_vision.core.dataloaders.hf import HFDataLoader
 from giskard_vision.core.dataloaders.meta import MetaData
-from giskard_vision.core.dataloaders.tfds import DataLoaderTensorFlowDatasets
+from giskard_vision.core.dataloaders.tf import TFDataLoader
 from giskard_vision.core.dataloaders.utils import flatten_dict
 from giskard_vision.core.issues import EthicalIssueMeta, PerformanceIssueMeta
 from giskard_vision.image_classification.types import Types
 
 
-class DataLoaderGeirhosConflictStimuli(DataLoaderTensorFlowDatasets):
+class DataLoaderGeirhosConflictStimuli(TFDataLoader):
     """
-    A data loader for the `geirhos_conflict_stimuli` dataset, extending the DataLoaderTensorFlowDatasets class.
+    A data loader for the `geirhos_conflict_stimuli` dataset, extending the TFDataLoader class.
 
     Args:
         name (Optional[str]): Name of the data loader instance.
@@ -100,7 +100,7 @@ class DataLoaderGeirhosConflictStimuli(DataLoaderTensorFlowDatasets):
         )
 
 
-class DataLoaderSkinCancerHuggingFaceDataset(HFDataLoader):
+class DataLoaderSkinCancer(HFDataLoader):
     """
     A data loader for the `marmal88/skin_cancer` dataset on HF, extending the HFDataLoader class.
 
@@ -203,7 +203,7 @@ class DataLoaderSkinCancerHuggingFaceDataset(HFDataLoader):
         )
 
 
-class DataLoaderCifar100HuggingFaceDataset(HFDataLoader):
+class DataLoaderCifar100(HFDataLoader):
     """
     A data loader for the `uoft-cs/cifar100` dataset on HF, extending the HFDataLoader class.
 

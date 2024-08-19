@@ -21,7 +21,7 @@ from giskard_vision.landmark_detection.dataloaders.loaders import (
 from ..types import Types
 
 
-class RacoonDataLoader(DataIteratorBase):
+class DataLoaderRacoon(DataIteratorBase):
     """Data loader for the Racoon dataset: https://www.kaggle.com/datasets/debasisdotcom/racoon-detection/data
 
     Args:
@@ -336,7 +336,7 @@ class DataLoaderFFHQFaceDetection(DataLoaderFFHQFaceDetectionLandmark):
         )
 
 
-class DataLoaderFurnitureHuggingFaceDataset(HFDataLoader):
+class DataLoaderFurniture(HFDataLoader):
     """
     A data loader for the `Nfiniteai/living-room-passes` dataset on HF, extending the HFDataLoader class.
 

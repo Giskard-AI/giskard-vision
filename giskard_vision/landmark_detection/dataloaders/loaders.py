@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 
 from giskard_vision.core.dataloaders.meta import MetaData
-from giskard_vision.core.dataloaders.tfds import DataLoaderTensorFlowDatasets
+from giskard_vision.core.dataloaders.tf import TFDataLoader
 from giskard_vision.core.dataloaders.utils import flatten_dict
 from giskard_vision.core.issues import EthicalIssueMeta, PerformanceIssueMeta
 from giskard_vision.landmark_detection.types import Types
@@ -308,7 +308,7 @@ class DataLoaderFFHQ(DataLoaderBase):
         raise NotImplementedError("Should not be called for FFHQ")
 
 
-class DataLoader300WLP(DataLoaderTensorFlowDatasets):
+class DataLoader300WLP(TFDataLoader):
     """
     A data loader for the 300W-LP dataset, extending the DataLoaderTensorFlowDatasets class.
 
