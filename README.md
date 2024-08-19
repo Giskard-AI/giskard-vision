@@ -28,6 +28,12 @@
 
 Giskard Vision is a comprehensive Python package designed to simplify and streamline a variety of computer vision tasks. Whether you're working on facial landmark detection, image classification, or object detection, Giskard Vision provides the tools you need to evaluate your models with ease.
 
+## Getting Started
+
+To get the most out of Giskard Vision, we recommend starting with these essential guides in our documentation:
+- [Quickstart Guide](https://docs.giskard.ai/en/stable/getting_started/quickstart/quickstart_vision.html)
+- [Scan Overview](https://docs.giskard.ai/en/stable/open_source/scan/scan_vision/index.html)
+
 ## Supported Computer Vision Tasks
 
 - **Facial Landmark Detection** ([Readme](https://github.com/Giskard-AI/giskard-vision/blob/main/giskard_vision/landmark_detection/Readme.md))
