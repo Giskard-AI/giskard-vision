@@ -3,7 +3,7 @@
 This module contains model wrappers, dataloaders, tests and all the ingredients needed to evaluate your object detection models.
 In particular this module allows you to evaluate your model against the following criteria:
 
-- Performance on images with different basic image attributes.
+- Performance on images with basic image attributes.
 - Performance on images with various metadata from the datasets.
 - Robustness against image perturbations like blurring, resizing, recoloring (performed by `opencv`: https://github.com/opencv/opencv)
 
@@ -28,4 +28,4 @@ It adapts the [scan API in Giskard Python library](https://github.com/Giskard-AI
 
 - [x] Intersection over Union (IoU)
 
-Currently, we only support one object both in the model prediction and ground truth, due to the constraint of the scan API. We will be working to remove such limit.
+Currently, we only support **one** object detection both in the model prediction and ground truth. 
