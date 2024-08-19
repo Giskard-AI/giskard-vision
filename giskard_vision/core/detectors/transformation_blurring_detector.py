@@ -4,7 +4,16 @@ from ...core.detectors.decorator import maybe_detector
 from .perturbation import PerturbationBaseDetector
 
 
-@maybe_detector("blurring", tags=["vision", "robustness", "image_classification", "landmark", "object_detection"])
+@maybe_detector(
+    "blurring",
+    tags=[
+        "vision",
+        "robustness",
+        "image_classification",
+        "landmark_detection",
+        "object_detection",
+    ],
+)
 class TransformationBlurringDetector(PerturbationBaseDetector):
     """
     Detector that evaluates models performance on blurred images

@@ -5,7 +5,15 @@ from .perturbation import PerturbationBaseDetector
 
 
 @maybe_detector(
-    "coloring", tags=["vision", "robustness", "image_classification", "landmark", "object_detection", "coloring"]
+    "coloring",
+    tags=[
+        "vision",
+        "robustness",
+        "image_classification",
+        "landmark_detection",
+        "object_detection",
+        "coloring",
+    ],
 )
 class TransformationColorDetector(PerturbationBaseDetector):
     """
