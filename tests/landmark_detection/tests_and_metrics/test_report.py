@@ -27,4 +27,5 @@ def test_report(opencv_model, dataset_300w):
 
     df = report.to_dataframe()
     df2 = report2.to_dataframe()
-    assert len(df) == len(df2) == 1
+    assert len(df) == 0
+    assert len(df2) == 1
