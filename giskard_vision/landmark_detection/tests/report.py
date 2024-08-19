@@ -69,6 +69,7 @@ class Report:
             raise GiskardImportError(["pandas"]) from e
 
         df = pd.DataFrame(self.results)
+        df.dropna(inplace=True)  # in case the model failed to predict for instance
 
         for col in ["metric_value", "prediction_time", "prediction_fail_rate"]:
             col_name = f"Best({col})"
