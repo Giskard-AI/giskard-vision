@@ -2,7 +2,7 @@
   <img alt="giskardlogo" src="https://raw.githubusercontent.com/giskard-ai/giskard/main/readme/giskard_logo.png#gh-light-mode-only">
   <img alt="giskardlogo" src="https://raw.githubusercontent.com/giskard-ai/giskard/main/readme/giskard_logo_green.png#gh-dark-mode-only">
 </p>
-<h1 align="center" weight='300' >The testing framework dedicated to ML models.</h1>
+<h1 align="center" weight='300' >The testing framework dedicated to Computer Vision models.</h1>
 <h3 align="center" weight='300' >Detect risks of biases, performance issues and errors in your computer vision models. </h3>
 <div align="center">
 
